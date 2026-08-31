@@ -1,0 +1,29 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Order {
+  id             String   @id @default(cuid())
+  buyOrder       String   @unique
+  token          String?  @unique
+  amount         Int
+  status         String   @default("PENDING")
+  // Estado del envío, solo relevante cuando status = "PAID".
+  // Valores: CONFIRMADO -> PREPARANDO -> EN_CAMINO -> ENTREGADO
+  shippingStatus String   @default("CONFIRMADO")
+  customer       String
+  items          String
+  createdAt      DateTime @default(now())
+}
+
+model Product {
+  id    String @id
+  sku   String @unique
+  stock Int    @default(0)
+}
