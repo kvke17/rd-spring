@@ -61,7 +61,7 @@ export default function HomePage() {
       </section>
 
       <section className="py-20 border-b border-white/10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
           <p className="text-xs uppercase tracking-[0.25em] text-[#E88A5C] font-mono mb-2">COMPONENT ATELIER</p>
           <h2 className="text-3xl font-bold uppercase tracking-tight mb-12">Sistemas por especialidad</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-white/10 border border-white/10 overflow-hidden">
@@ -92,19 +92,47 @@ export default function HomePage() {
             </div>
             <Link href="/catalogo" className="border border-white/20 text-xs font-mono uppercase tracking-widest px-4 py-2 hover:bg-white/10 text-white">VER TODOS</Link>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-3xl">
+          
+          {/* Se ajustó la grilla a lg:grid-cols-3 para mostrar 3 arriba y 1 abajo */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {featuredProducts.slice(0, 4).map((p) => (
               <div key={p.id} className="border border-white/10 bg-[#121212] flex flex-col group">
-                <div className="aspect-square relative p-6 bg-[#0a0a0a] flex items-center justify-center">
+                
+                {/* CONTENEDOR DE IMAGEN MODIFICADO PARA OCUPAR EL 100% Y EFECTO HOVER */}
+                <div className="aspect-square relative bg-[#0a0a0a] overflow-hidden group">
                   <span className={`absolute top-3 right-3 text-[9px] font-mono tracking-wider px-2 py-1 uppercase font-bold z-10 ${p.type === 'venta_online' ? 'bg-[#E88A5C] text-black' : 'border border-white/30 text-white bg-black/60 backdrop-blur-sm'}`}>
                     {p.type === 'venta_online' ? 'VENTA ONLINE' : 'COTIZACIÓN'}
                   </span>
-                  <Image src={p.image} alt={p.name} width={200} height={200} className="object-contain max-h-full group-hover:scale-105 transition-transform duration-300" />
+                  
+                  {/* Imagen Principal */}
+                  <Image 
+                    src={p.image} 
+                    alt={p.name} 
+                    fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 33vw"
+                    className={`object-cover transition-all duration-500 ease-in-out ${
+                      p.imageHover ? 'group-hover:opacity-0' : 'group-hover:scale-105'
+                    }`} 
+                  />
+
+                  {/* Imagen Secundaria (Hover) */}
+                  {p.imageHover && (
+                    <Image 
+                      src={p.imageHover} 
+                      alt={`${p.name} reverso`} 
+                      fill
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 33vw"
+                      className="absolute inset-0 object-cover opacity-0 transition-opacity duration-500 ease-in-out group-hover:opacity-100" 
+                    />
+                  )}
                 </div>
+
                 <div className="p-5 flex-1 flex flex-col justify-between">
                   <div>
                     <p className="text-[10px] uppercase font-mono tracking-widest text-[#E88A5C] mb-1">{p.brand} · {p.category}</p>
-                    <Link href={`/producto/${p.slug}`}><h3 className="text-sm font-bold text-white line-clamp-2 hover:text-[#E88A5C] transition">{p.name}</h3></Link>
+                    <Link href={`/producto/${p.slug}`}>
+                      <h3 className="text-sm font-bold text-white line-clamp-2 hover:text-[#E88A5C] transition">{p.name}</h3>
+                    </Link>
                   </div>
                   <div className="mt-4 pt-4 border-t border-white/10 flex items-center justify-between font-mono">
                     <span className="text-sm font-bold text-white">{STORE_CONFIG.CURRENCY_FORMAT.format(p.price)}</span>

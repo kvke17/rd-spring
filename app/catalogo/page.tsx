@@ -39,19 +39,46 @@ export default async function CatalogoPage({ searchParams }: { searchParams: Pro
         {products.length === 0 ? (
           <p className="text-gray-400 font-mono text-sm">No se encontraron productos para esta categoría.</p>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {products.map((p) => (
               <div key={p.id} className="border border-white/10 bg-[#121212] flex flex-col group">
-                <div className="aspect-square relative p-6 bg-[#0a0a0a] flex items-center justify-center">
+                
+                {/* CONTENEDOR DE IMAGEN MODIFICADO PARA OCUPAR EL 100% */}
+                <div className="aspect-square relative bg-[#0a0a0a] overflow-hidden group">
                   <span className={`absolute top-3 right-3 text-[9px] font-mono tracking-wider px-2 py-1 uppercase font-bold z-10 ${p.type === 'venta_online' ? 'bg-[#E88A5C] text-black' : 'border border-white/30 text-white bg-black/60 backdrop-blur-sm'}`}>
                     {p.type === 'venta_online' ? 'VENTA ONLINE' : 'COTIZACIÓN'}
                   </span>
-                  <Image src={p.image} alt={p.name} width={220} height={220} className="object-contain max-h-full group-hover:scale-105 transition-transform duration-300" />
+                  
+                  {/* Imagen Principal (Ocupa todo el recuadro con object-cover) */}
+                  <Image 
+                    src={p.image} 
+                    alt={p.name} 
+                    fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 25vw"
+                    className={`object-cover transition-all duration-500 ease-in-out ${
+                      // Si tiene imagen hover, se oculta; si no, hace el scale original
+                      p.imageHover ? 'group-hover:opacity-0' : 'group-hover:scale-105'
+                    }`} 
+                  />
+
+                  {/* Imagen Secundaria (Hover) */}
+                  {p.imageHover && (
+                    <Image 
+                      src={p.imageHover} 
+                      alt={`${p.name} reverso`} 
+                      fill
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 25vw"
+                      className="absolute inset-0 object-cover opacity-0 transition-opacity duration-500 ease-in-out group-hover:opacity-100" 
+                    />
+                  )}
                 </div>
+                
                 <div className="p-5 flex-1 flex flex-col justify-between">
                   <div>
                     <p className="text-[10px] uppercase font-mono tracking-widest text-[#E88A5C] mb-1">{p.brand} · {p.category}</p>
-                    <Link href={`/producto/${p.slug}`}><h3 className="text-sm font-bold text-white line-clamp-2 hover:text-[#E88A5C] transition">{p.name}</h3></Link>
+                    <Link href={`/producto/${p.slug}`}>
+                      <h3 className="text-sm font-bold text-white line-clamp-2 hover:text-[#E88A5C] transition">{p.name}</h3>
+                    </Link>
                   </div>
                   <div className="mt-4 pt-4 border-t border-white/10 flex items-center justify-between font-mono">
                     <span className="text-sm font-bold text-white">{STORE_CONFIG.CURRENCY_FORMAT.format(p.price)}</span>

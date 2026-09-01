@@ -1,34 +1,90 @@
 [
   {
-    "id": "1",
-    "slug": "aceite-motor-motul-300v-5w-30-1l",
-    "name": "Aceite motor Motul 300V 5W-30 1L",
-    "sku": "MT-300V-530-1L",
-    "price": 42000,
+    "id": "rowe-1",
+    "sku": "RW-POR-5W40",
+    "name": "ROWE HIGHTEC SYNT RS HC-D SAE 5W-40 (Porsche)",
+    "slug": "rowe-hightec-synt-rs-hc-d-5w40-porsche",
+    "brand": "ROWE",
+    "category": "Aceite de Motor",
     "type": "venta_online",
-    "stock": 40,
-    "image": "https://placehold.co/600x800/121212/E88A5C.png?text=Motul+300V",
-    "brand": "MOTUL",
-    "vehicleBrands": ["Porsche", "BMW", "Audi", "Land Rover"],
-    "category": "ACEITES Y LUBRICANTES",
-    "description": "Aceite 100% sintético de competición con ésteres, máxima protección de película a alta temperatura y régimen de carga.",
-    "compatibility": ["Universal"],
-    "specs": { "Garantía": "12 meses", "Viscosidad": "5W-30", "Material": "100% sintético (ésteres)" }
+    "price": 45000,
+    "prices": {
+      "1 Litro": 14500,
+      "5 Litros": 45000
+    },
+    "image": "/images/rowe/porsche-front.png",
+    "imageHover": "/images/rowe/porsche-back.png",
+    "vehicleBrands": ["Porsche", "Audi", "Volkswagen"],
+    "specs": {
+      "Viscosidad": "5W-40",
+      "Origen": "Alemania"
+    },
+    "compatibility": ["Motores Gasolina", "Motores Diésel", "Porsche A40"]
   },
   {
-    "id": "2",
-    "slug": "aceite-motor-castrol-edge-5w-30-5l",
-    "name": "Aceite motor Castrol Edge 5W-30 5L",
-    "sku": "CS-EDGE-530-5L",
-    "price": 84000,
+    "id": "rowe-2",
+    "sku": "RW-BMW-5W30",
+    "name": "ROWE HIGHTEC MULTI SYNT DPF SAE 5W-30 (BMW)",
+    "slug": "rowe-hightec-multi-synt-dpf-5w30-bmw",
+    "brand": "ROWE",
+    "category": "Aceite de Motor",
     "type": "venta_online",
-    "stock": 15,
-    "image": "https://placehold.co/600x800/121212/E88A5C.png?text=Castrol+Edge",
-    "brand": "CASTROL",
-    "vehicleBrands": ["Porsche", "BMW", "Audi", "Land Rover"],
-    "category": "ACEITES Y LUBRICANTES",
-    "description": "Lubricante de motor avanzado con tecnología Fluid TITANIUM, se transforma físicamente para ser más fuerte bajo presión.",
-    "compatibility": ["Universal"],
-    "specs": { "Garantía": "12 meses", "Viscosidad": "5W-30", "Norma": "API SP / ACEA C3" }
+    "price": 52000,
+    "prices": {
+      "1 Litro": 15900,
+      "5 Litros": 52000
+    },
+    "image": "/images/rowe/bmw-front.png",
+    "imageHover": "/images/rowe/bmw-back.png",
+    "vehicleBrands": ["BMW", "Mercedes-Benz"],
+    "specs": {
+      "Viscosidad": "5W-30",
+      "Origen": "Alemania"
+    },
+    "compatibility": ["Motores Gasolina", "Motores Diésel", "BMW Longlife-04"]
+  },
+  {
+    "id": "rowe-3",
+    "sku": "RW-AUDI-5W30",
+    "name": "ROWE HIGHTEC SYNT RS DLS SAE 5W-30 (Audi)",
+    "slug": "rowe-hightec-synt-rs-dls-5w30-audi",
+    "brand": "ROWE",
+    "category": "Aceite de Motor",
+    "type": "venta_online",
+    "price": 48000,
+    "prices": {
+      "1 Litro": 14900,
+      "5 Litros": 48000
+    },
+    "image": "/images/rowe/audi-front.png",
+    "imageHover": "/images/rowe/audi-back.png",
+    "vehicleBrands": ["Audi", "Volkswagen", "Seat", "Skoda"],
+    "specs": {
+      "Viscosidad": "5W-30",
+      "Origen": "Alemania"
+    },
+    "compatibility": ["Motores Gasolina", "Motores Diésel", "VW 504 00/507 00"]
+  },
+  {
+    "id": "rowe-4",
+    "sku": "RW-LR-5W30",
+    "name": "ROWE HIGHTEC SYNT ASIA SAE 5W-30 (Land Rover)",
+    "slug": "ROWE HIGHTEC SYNT ASIA SAE 5W-30 (Land Rover)",
+    "brand": "ROWE",
+    "category": "Aceite de Motor",
+    "type": "venta_online",
+    "price": 55000,
+    "prices": {
+      "1 Litro": 16900,
+      "5 Litros": 55000
+    },
+    "image": "/images/rowe/landrover-front.png",
+    "imageHover": "/images/rowe/landrover-back.png",
+    "vehicleBrands": ["Land Rover", "Jaguar", "Toyota"],
+    "specs": {
+      "Viscosidad": "5W-30",
+      "Origen": "Alemania"
+    },
+    "compatibility": ["Motores Gasolina", "Motores Diésel", "STJLR.03.5005"]
   }
 ]
