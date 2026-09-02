@@ -16,14 +16,19 @@ const tx = new WebpayPlus.Transaction(
 
 export async function POST(request: Request) {
   try {
-    const { amount, sessionId, buyOrder, returnUrl, customer, items } = await request.json();
+    // 1. Agregamos "documentType" a los datos que extraemos del frontend
+    const { amount, sessionId, buyOrder, returnUrl, customer, items, documentType } = await request.json();
 
+    // 2. Guardamos la orden incluyendo los nuevos campos tributarios
     await prisma.order.create({
       data: {
         buyOrder,
         amount,
         customer: JSON.stringify(customer),
         items: JSON.stringify(items),
+        documentType: documentType || 'BOLETA',
+        razonSocial: customer.razonSocial || null,
+        giro: customer.giro || null,
       },
     });
 

@@ -50,19 +50,19 @@ export async function GET(request: Request) {
       // 4. Disparamos el correo de Resend
       await resend.emails.send({
         from: 'RD Spring <onboarding@resend.dev>', 
-        // 👇 CAMBIA ESTO POR TU CORREO DE RESEND
+        // 👇 Tu correo institucional
         to: ['jorg.arayab@duocuc.cl'], 
         subject: `Confirmación de pedido #${order.buyOrder} - RD Spring`,
         react: ReceiptEmail({
-          customerName: customer.fullName || 'Cliente', // Ajustado a tu formData
+          customerName: customer.fullName || 'Cliente', 
           buyOrder: order.buyOrder,
           amount: order.amount,
           itemsSummary: 'Revisa tu perfil para ver el detalle de los productos', 
         }),
       });
 
-      // 5. Redirigimos al cliente a la pantalla de éxito
-      return NextResponse.redirect(new URL(`/exito?orden=${order.buyOrder}`, request.url));
+      // 5. Redirigimos a TU verdadera pantalla de éxito
+      return NextResponse.redirect(new URL(`/checkout/success?buyOrder=${order.buyOrder}&amount=${order.amount}`, request.url));
       
     } else {
       // Tarjeta rechazada

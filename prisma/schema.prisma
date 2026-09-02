@@ -13,11 +13,10 @@ model User {
   id        String   @id @default(cuid())
   name      String
   email     String   @unique
-  password  String   // Aquí guardaremos la contraseña encriptada (nunca en texto plano)
-  role      String   @default("CUSTOMER") // Valores: "CUSTOMER" o "ADMIN"
+  password  String   
+  role      String   @default("CUSTOMER") 
   createdAt DateTime @default(now())
   
-  // Relación: Un usuario registrado puede tener un historial de muchas órdenes
   orders    Order[]  
 }
 
@@ -30,18 +29,22 @@ model Order {
   status         String   @default("PENDING")
   shippingStatus String   @default("CONFIRMADO")
   
-  // Mantenemos este campo para las compras rápidas sin registro (invitados)
   customer       String   
   
-  // Agregamos la conexión con la tabla User (el "?" significa que es opcional)
   userId         String?
   user           User?    @relation(fields: [userId], references: [id])
   
   items          String
+  
+  // --- NUEVOS CAMPOS PARA BOLETA/FACTURA ---
+  documentType   String   @default("BOLETA")
+  razonSocial    String?
+  giro           String?
+  
   createdAt      DateTime @default(now())
 }
 
-// --- 3. MODELO DE PRODUCTOS (Sin cambios) ---
+// --- 3. MODELO DE PRODUCTOS ---
 model Product {
   id    String @id
   sku   String @unique

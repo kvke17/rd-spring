@@ -9,13 +9,16 @@ export default function CheckoutPage() {
   const [mounted, setMounted] = useState(false);
   const { items, selectedShippingId, setShippingOption, getCartSubtotal, getShippingCost, getCartTotal } = useCartStore();
 
-  const [formData, setFormData] = useState({ fullName: '', email: '', phone: '', rut: '', vehicle: '', address: '', comuna: '', region: '' });
+  // Agregamos razonSocial y giro al estado inicial
+  const [formData, setFormData] = useState({ fullName: '', email: '', phone: '', rut: '', vehicle: '', address: '', comuna: '', region: '', razonSocial: '', giro: '' });
   const [rutError, setRutError] = useState('');
   const [loading, setLoading] = useState(false);
+  
+  // Nuevo estado para el tipo de documento
+  const [docType, setDocType] = useState('BOLETA');
 
   useEffect(() => setMounted(true), []);
 
-  // Evita el mismatch de hidratación entre servidor (sin localStorage) y cliente
   if (!mounted) return null;
 
   if (items.length === 0) {
@@ -46,9 +49,10 @@ export default function CheckoutPage() {
           amount: getCartTotal(),
           buyOrder,
           sessionId: `SESS-${Math.floor(Math.random() * 100000)}`,
-          returnUrl: `${window.location.origin}/api/confirm`,
+          returnUrl: `${window.location.origin}/api/checkout/confirm`,
           customer: formData,
           items,
+          documentType: docType // Enviamos el tipo de documento a la base de datos
         }),
       });
 
@@ -79,9 +83,38 @@ export default function CheckoutPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <h1 className="text-4xl font-bold uppercase tracking-tight mb-12">Finalizar compra</h1>
         <form onSubmit={handlePayment} className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+          
           <div className="lg:col-span-7 space-y-10">
+            
+            {/* SECCIÓN DOCUMENTO TRIBUTARIO */}
             <div className="border border-white/10 bg-[#121212] p-6 sm:p-8">
-              <h2 className="text-xs uppercase tracking-widest text-[#E88A5C] mb-6 font-bold">01 · DATOS DEL CLIENTE</h2>
+              <h2 className="text-xs uppercase tracking-widest text-[#E88A5C] mb-6 font-bold">01 · TIPO DE DOCUMENTO</h2>
+              <div className="flex gap-4 mb-6">
+                <button type="button" onClick={() => setDocType('BOLETA')} className={`flex-1 py-3 text-xs font-bold font-mono tracking-widest border transition-all ${docType === 'BOLETA' ? 'bg-[#E88A5C] text-black border-[#E88A5C]' : 'bg-transparent text-gray-400 border-white/20 hover:border-white/50'}`}>
+                  BOLETA
+                </button>
+                <button type="button" onClick={() => setDocType('FACTURA')} className={`flex-1 py-3 text-xs font-bold font-mono tracking-widest border transition-all ${docType === 'FACTURA' ? 'bg-[#E88A5C] text-black border-[#E88A5C]' : 'bg-transparent text-gray-400 border-white/20 hover:border-white/50'}`}>
+                  FACTURA
+                </button>
+              </div>
+
+              {/* CAMPOS DE FACTURA CON RENDERIZADO CONDICIONAL */}
+              {docType === 'FACTURA' && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-2">
+                  <div>
+                    <label className="block text-[11px] uppercase tracking-widest text-[#E88A5C] mb-2 font-mono">Razón Social</label>
+                    <input type="text" required={docType === 'FACTURA'} value={formData.razonSocial} onChange={(e) => setFormData({ ...formData, razonSocial: e.target.value })} className="w-full bg-[#0a0a0a] border border-white/10 p-3 text-sm focus:border-[#E88A5C] focus:outline-none text-white font-mono" />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] uppercase tracking-widest text-[#E88A5C] mb-2 font-mono">Giro Comercial</label>
+                    <input type="text" required={docType === 'FACTURA'} value={formData.giro} onChange={(e) => setFormData({ ...formData, giro: e.target.value })} className="w-full bg-[#0a0a0a] border border-white/10 p-3 text-sm focus:border-[#E88A5C] focus:outline-none text-white font-mono" />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="border border-white/10 bg-[#121212] p-6 sm:p-8">
+              <h2 className="text-xs uppercase tracking-widest text-[#E88A5C] mb-6 font-bold">02 · DATOS DEL CLIENTE</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-[11px] uppercase tracking-widest text-gray-400 mb-2 font-mono">NOMBRE COMPLETO</label>
@@ -120,7 +153,7 @@ export default function CheckoutPage() {
             </div>
 
             <div className="border border-white/10 bg-[#121212] p-6 sm:p-8">
-              <h2 className="text-xs uppercase tracking-widest text-[#E88A5C] mb-6 font-bold">02 · ENTREGA</h2>
+              <h2 className="text-xs uppercase tracking-widest text-[#E88A5C] mb-6 font-bold">03 · ENTREGA</h2>
               <div className="space-y-3">
                 {SHIPPING_OPTIONS.map((option) => (
                   <label key={option.id} onClick={() => setShippingOption(option.id)} className={`flex items-center justify-between p-4 cursor-pointer border transition-all ${selectedShippingId === option.id ? 'border-[#E88A5C] bg-[#E88A5C]/5 text-white' : 'border-white/10 bg-[#0a0a0a] text-gray-300 hover:border-white/20'}`}>
