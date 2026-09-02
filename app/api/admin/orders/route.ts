@@ -1,43 +1,43 @@
 import { NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route'; // Importamos las opciones
 
 const prisma = new PrismaClient();
 
-export async function GET(request: Request) {
-  const adminKey = request.headers.get('x-admin-key');
-
-  if (!process.env.ADMIN_SECRET) {
-    return NextResponse.json({ error: 'ADMIN_SECRET no configurado en el servidor.' }, { status: 500 });
-  }
-
-  if (adminKey !== process.env.ADMIN_SECRET) {
-    return NextResponse.json({ error: 'Clave de administrador incorrecta.' }, { status: 401 });
+export async function GET() {
+  // Le pasamos authOptions para que sepa cómo leer la sesión
+  const session = await getServerSession(authOptions);
+  
+  if (!session || (session.user as any).role !== "ADMIN") {
+    return NextResponse.json({ error: "ACCESO DENEGADO" }, { status: 401 });
   }
 
   try {
-    const orders = await prisma.order.findMany({
-      where: { status: 'PAID' },
-      orderBy: { createdAt: 'desc' },
-      take: 100,
-    });
+    const dbOrders = await prisma.order.findMany({ orderBy: { createdAt: 'desc' } });
 
-    const parsed = orders.map((o) => {
-      const customer = JSON.parse(o.customer);
-      const items = JSON.parse(o.items) as { product: { name: string }; quantity: number }[];
+    const orders = dbOrders.map(order => {
+      let customerName = "Cliente";
+      let customerEmail = "Sin email";
+      try {
+        const customerData = JSON.parse(order.customer);
+        customerName = customerData.name || "Cliente";
+        customerEmail = customerData.email || "Sin email";
+      } catch (e) {}
+
       return {
-        buyOrder: o.buyOrder,
-        amount: o.amount,
-        shippingStatus: o.shippingStatus,
-        createdAt: o.createdAt,
-        customerName: customer.fullName || '—',
-        customerEmail: customer.email || '—',
-        itemsSummary: items.map((i) => `${i.product.name} ×${i.quantity}`).join(', '),
+        buyOrder: order.buyOrder,
+        amount: order.amount,
+        shippingStatus: order.shippingStatus,
+        createdAt: order.createdAt,
+        customerName,
+        customerEmail,
+        itemsSummary: "Ver detalle", 
       };
     });
 
-    return NextResponse.json({ orders: parsed });
+    return NextResponse.json({ orders });
   } catch (error) {
-    console.error('Error listando pedidos:', error);
-    return NextResponse.json({ error: 'Error interno.' }, { status: 500 });
+    return NextResponse.json({ error: "Error interno del servidor" }, { status: 500 });
   }
 }

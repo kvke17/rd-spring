@@ -8,20 +8,40 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// --- 1. NUEVO MODELO DE USUARIOS ---
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String   // Aquí guardaremos la contraseña encriptada (nunca en texto plano)
+  role      String   @default("CUSTOMER") // Valores: "CUSTOMER" o "ADMIN"
+  createdAt DateTime @default(now())
+  
+  // Relación: Un usuario registrado puede tener un historial de muchas órdenes
+  orders    Order[]  
+}
+
+// --- 2. MODELO DE ÓRDENES ACTUALIZADO ---
 model Order {
   id             String   @id @default(cuid())
   buyOrder       String   @unique
   token          String?  @unique
   amount         Int
   status         String   @default("PENDING")
-  // Estado del envío, solo relevante cuando status = "PAID".
-  // Valores: CONFIRMADO -> PREPARANDO -> EN_CAMINO -> ENTREGADO
   shippingStatus String   @default("CONFIRMADO")
-  customer       String
+  
+  // Mantenemos este campo para las compras rápidas sin registro (invitados)
+  customer       String   
+  
+  // Agregamos la conexión con la tabla User (el "?" significa que es opcional)
+  userId         String?
+  user           User?    @relation(fields: [userId], references: [id])
+  
   items          String
   createdAt      DateTime @default(now())
 }
 
+// --- 3. MODELO DE PRODUCTOS (Sin cambios) ---
 model Product {
   id    String @id
   sku   String @unique

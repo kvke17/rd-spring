@@ -1,17 +1,11 @@
 [
   {
     "id": "rowe-1",
-    "sku": "RW-POR-5W40",
     "name": "ROWE HIGHTEC SYNT RS HC-D SAE 5W-40 (Porsche)",
     "slug": "rowe-hightec-synt-rs-hc-d-5w40-porsche",
     "brand": "ROWE",
     "category": "Aceite de Motor",
     "type": "venta_online",
-    "price": 45000,
-    "prices": {
-      "1 Litro": 14500,
-      "5 Litros": 45000
-    },
     "image": "/images/rowe/porsche-front.png",
     "imageHover": "/images/rowe/porsche-back.png",
     "vehicleBrands": ["Porsche", "Audi", "Volkswagen"],
@@ -19,21 +13,29 @@
       "Viscosidad": "5W-40",
       "Origen": "Alemania"
     },
-    "compatibility": ["Motores Gasolina", "Motores Diésel", "Porsche A40"]
+    "compatibility": ["Motores Gasolina", "Motores Diésel", "Porsche A40"],
+    "formats": [
+      {
+        "size": "1 Litro",
+        "sku": "RW-POR-5W40-1L",
+        "price": 14500,
+        "stock": 10
+      },
+      {
+        "size": "5 Litros",
+        "sku": "RW-POR-5W40-5L",
+        "price": 45000,
+        "stock": 17
+      }
+    ]
   },
   {
     "id": "rowe-2",
-    "sku": "RW-BMW-5W30",
     "name": "ROWE HIGHTEC MULTI SYNT DPF SAE 5W-30 (BMW)",
     "slug": "rowe-hightec-multi-synt-dpf-5w30-bmw",
     "brand": "ROWE",
     "category": "Aceite de Motor",
     "type": "venta_online",
-    "price": 52000,
-    "prices": {
-      "1 Litro": 15900,
-      "5 Litros": 52000
-    },
     "image": "/images/rowe/bmw-front.png",
     "imageHover": "/images/rowe/bmw-back.png",
     "vehicleBrands": ["BMW", "Mercedes-Benz"],
@@ -41,21 +43,29 @@
       "Viscosidad": "5W-30",
       "Origen": "Alemania"
     },
-    "compatibility": ["Motores Gasolina", "Motores Diésel", "BMW Longlife-04"]
+    "compatibility": ["Motores Gasolina", "Motores Diésel", "BMW Longlife-04"],
+    "formats": [
+      {
+        "size": "1 Litro",
+        "sku": "RW-BMW-5W30-1L",
+        "price": 15900,
+        "stock": 10
+      },
+      {
+        "size": "5 Litros",
+        "sku": "RW-BMW-5W30-5L",
+        "price": 52000,
+        "stock": 17
+      }
+    ]
   },
   {
     "id": "rowe-3",
-    "sku": "RW-AUDI-5W30",
     "name": "ROWE HIGHTEC SYNT RS DLS SAE 5W-30 (Audi)",
     "slug": "rowe-hightec-synt-rs-dls-5w30-audi",
     "brand": "ROWE",
     "category": "Aceite de Motor",
     "type": "venta_online",
-    "price": 48000,
-    "prices": {
-      "1 Litro": 14900,
-      "5 Litros": 48000
-    },
     "image": "/images/rowe/audi-front.png",
     "imageHover": "/images/rowe/audi-back.png",
     "vehicleBrands": ["Audi", "Volkswagen", "Seat", "Skoda"],
@@ -63,21 +73,29 @@
       "Viscosidad": "5W-30",
       "Origen": "Alemania"
     },
-    "compatibility": ["Motores Gasolina", "Motores Diésel", "VW 504 00/507 00"]
+    "compatibility": ["Motores Gasolina", "Motores Diésel", "VW 504 00/507 00"],
+    "formats": [
+      {
+        "size": "1 Litro",
+        "sku": "RW-AUDI-5W30-1L",
+        "price": 14900,
+        "stock": 10
+      },
+      {
+        "size": "5 Litros",
+        "sku": "RW-AUDI-5W30-5L",
+        "price": 48000,
+        "stock": 17
+      }
+    ]
   },
   {
     "id": "rowe-4",
-    "sku": "RW-LR-5W30",
     "name": "ROWE HIGHTEC SYNT ASIA SAE 5W-30 (Land Rover)",
     "slug": "ROWE HIGHTEC SYNT ASIA SAE 5W-30 (Land Rover)",
     "brand": "ROWE",
     "category": "Aceite de Motor",
     "type": "venta_online",
-    "price": 55000,
-    "prices": {
-      "1 Litro": 16900,
-      "5 Litros": 55000
-    },
     "image": "/images/rowe/landrover-front.png",
     "imageHover": "/images/rowe/landrover-back.png",
     "vehicleBrands": ["Land Rover", "Jaguar", "Toyota"],
@@ -85,6 +103,20 @@
       "Viscosidad": "5W-30",
       "Origen": "Alemania"
     },
-    "compatibility": ["Motores Gasolina", "Motores Diésel", "STJLR.03.5005"]
+    "compatibility": ["Motores Gasolina", "Motores Diésel", "STJLR.03.5005"],
+    "formats": [
+      {
+        "size": "1 Litro",
+        "sku": "RW-LR-5W30-1L",
+        "price": 16900,
+        "stock": 10
+      },
+      {
+        "size": "5 Litros",
+        "sku": "RW-LR-5W30-5L",
+        "price": 55000,
+        "stock": 17
+      }
+    ]
   }
 ]

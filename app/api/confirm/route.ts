@@ -4,7 +4,7 @@ import { PrismaClient } from '@prisma/client';
 import { Resend } from 'resend';
 
 const prisma = new PrismaClient();
-const resend = new Resend(process.env.RESEND_API_KEY);
+//const resend = new Resend(process.env.RESEND_API_KEY);
 
 const tx = new WebpayPlus.Transaction(
   new Options(
@@ -39,20 +39,20 @@ export async function GET(request: Request) {
         });
       }
 
-      if (process.env.RESEND_API_KEY) {
-        await resend.emails
-          .send({
-            from: 'RD Spring <contacto@rdspring.cl>',
-            to: [customer.email],
-            subject: `Confirmación de Pedido ${order.buyOrder} - RD SPRING`,
-            html: `<h2>¡Gracias por tu compra, ${customer.fullName}!</h2>
-                   <p>Tu orden <strong>${order.buyOrder}</strong> ha sido confirmada por ${new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 }).format(order.amount)}.</p>
-                   <p>Prepararemos tu envío a la brevedad.</p>`,
-          })
-          .catch((e) => console.error('Error enviando correo de confirmación:', e));
-      } else {
-        console.warn('RESEND_API_KEY no configurada: no se envió el correo de confirmación de la orden', order.buyOrder);
-      }
+        //  if (process.env.RESEND_API_KEY) {
+        //    await resend.emails
+          //    .send({
+         //       from: 'RD Spring <contacto@rdspring.cl>',
+         //       to: [customer.email],
+        //        subject: `Confirmación de Pedido ${order.buyOrder} - RD SPRING`,
+        //        html: `<h2>¡Gracias por tu compra, ${customer.fullName}!</h2>
+        //              <p>Tu orden <strong>${order.buyOrder}</strong> ha sido confirmada por ${new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 }).format(order.amount)}.</p>
+       //               <p>Prepararemos tu envío a la brevedad.</p>`,
+       //       })
+        //      .catch((e) => console.error('Error enviando correo de confirmación:', e));
+      //   } else {
+       //     console.warn('RESEND_API_KEY no configurada: no se envió el correo de confirmación de la orden', order.buyOrder);
+     //    }
 
       const redirectUrl = new URL('/checkout/success', request.url);
       redirectUrl.searchParams.set('buyOrder', response.buy_order);

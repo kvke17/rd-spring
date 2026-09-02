@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 const SHIPPING_STAGES = [
   { value: 'CONFIRMADO', label: 'Pedido confirmado' },
@@ -20,26 +20,29 @@ interface AdminOrder {
 }
 
 export default function AdminOrdersPage() {
-  const [adminKey, setAdminKey] = useState('');
-  const [unlocked, setUnlocked] = useState(false);
   const [orders, setOrders] = useState<AdminOrder[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [savingOrder, setSavingOrder] = useState<string | null>(null);
 
-  const loadOrders = async (key: string) => {
+  // Cargamos los pedidos automáticamente apenas el Administrador entra a la página
+  useEffect(() => {
+    loadOrders();
+  }, []);
+
+  const loadOrders = async () => {
     setLoading(true);
     setError('');
     try {
-      const res = await fetch('/api/admin/orders', { headers: { 'x-admin-key': key } });
+      // Ya no enviamos el header secreto 'x-admin-key'. 
+      // NextAuth envía las cookies de sesión automáticamente por debajo.
+      const res = await fetch('/api/admin/orders');
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error || 'No se pudo autenticar.');
-        setUnlocked(false);
+        setError(data.error || 'Error al obtener los pedidos.');
         return;
       }
       setOrders(data.orders);
-      setUnlocked(true);
     } catch {
       setError('Error de conexión.');
     } finally {
@@ -47,17 +50,12 @@ export default function AdminOrdersPage() {
     }
   };
 
-  const handleUnlock = (e: React.FormEvent) => {
-    e.preventDefault();
-    loadOrders(adminKey);
-  };
-
   const handleStatusChange = async (buyOrder: string, newStatus: string) => {
     setSavingOrder(buyOrder);
     try {
       const res = await fetch(`/api/admin/orders/${buyOrder}`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json', 'x-admin-key': adminKey },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ shippingStatus: newStatus }),
       });
       if (!res.ok) throw new Error('fail');
@@ -69,25 +67,20 @@ export default function AdminOrdersPage() {
     }
   };
 
-  if (!unlocked) {
+  if (loading) {
     return (
       <div className="min-h-screen bg-[#0a0a0a] text-white flex items-center justify-center pt-20">
-        <form onSubmit={handleUnlock} className="border border-white/10 bg-[#121212] p-8 w-full max-w-sm">
-          <p className="text-xs uppercase tracking-[0.25em] text-[#E88A5C] font-mono mb-2">ADMIN</p>
-          <h1 className="text-xl font-bold uppercase tracking-tight mb-6">Panel de pedidos</h1>
-          <label className="block text-[11px] uppercase tracking-widest text-gray-400 mb-2 font-mono">Clave de administrador</label>
-          <input
-            type="password"
-            required
-            value={adminKey}
-            onChange={(e) => setAdminKey(e.target.value)}
-            className="w-full bg-[#0a0a0a] border border-white/10 p-3 text-sm focus:border-[#E88A5C] focus:outline-none text-white font-mono mb-4"
-          />
-          {error && <p className="text-xs text-red-500 font-mono mb-4">{error}</p>}
-          <button type="submit" disabled={loading} className="w-full bg-[#E88A5C] text-black font-bold py-3 uppercase tracking-wider text-xs disabled:opacity-50">
-            {loading ? 'VERIFICANDO...' : 'ENTRAR'}
-          </button>
-        </form>
+        <p className="text-xs uppercase tracking-widest font-mono text-[#E88A5C] animate-pulse">
+          Cargando pedidos...
+        </p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-[#0a0a0a] text-white flex items-center justify-center pt-20">
+        <p className="text-xs uppercase tracking-widest font-mono text-red-500">{error}</p>
       </div>
     );
   }

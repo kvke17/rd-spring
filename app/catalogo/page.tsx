@@ -1,21 +1,23 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import productsData from '@/data/products.json';
-import { Product } from '@/types';
+// Importamos tu configuración de moneda
 import { STORE_CONFIG } from '@/config/constants';
 
 export default async function CatalogoPage({ searchParams }: { searchParams: Promise<{ categoria?: string }> }) {
   const params = await searchParams;
   const categoriaQuery = params.categoria?.toLowerCase();
   const normalize = (s: string) => s.toLowerCase().replace(/[-\s]/g, '');
-  let products = (productsData as Product[]).filter((p) => p.type === 'venta_online');
+  
+  // Usamos temporalmente 'any[]' por si tu type Product aún no tiene la propiedad 'formats'
+  let products = (productsData as any[]).filter((p) => p.type === 'venta_online');
 
   if (categoriaQuery) {
     products = products.filter(
       (p) =>
         normalize(p.category).includes(normalize(categoriaQuery)) ||
         normalize(p.brand).includes(normalize(categoriaQuery)) ||
-        p.vehicleBrands.some((vb) => normalize(vb).includes(normalize(categoriaQuery)))
+        (p.vehicleBrands && p.vehicleBrands.some((vb: string) => normalize(vb).includes(normalize(categoriaQuery))))
     );
   }
 
@@ -49,14 +51,13 @@ export default async function CatalogoPage({ searchParams }: { searchParams: Pro
                     {p.type === 'venta_online' ? 'VENTA ONLINE' : 'COTIZACIÓN'}
                   </span>
                   
-                  {/* Imagen Principal (Ocupa todo el recuadro con object-cover) */}
+                  {/* Imagen Principal */}
                   <Image 
                     src={p.image} 
                     alt={p.name} 
                     fill
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 25vw"
                     className={`object-cover transition-all duration-500 ease-in-out ${
-                      // Si tiene imagen hover, se oculta; si no, hace el scale original
                       p.imageHover ? 'group-hover:opacity-0' : 'group-hover:scale-105'
                     }`} 
                   />
@@ -80,10 +81,22 @@ export default async function CatalogoPage({ searchParams }: { searchParams: Pro
                       <h3 className="text-sm font-bold text-white line-clamp-2 hover:text-[#E88A5C] transition">{p.name}</h3>
                     </Link>
                   </div>
+                  
+                  {/* LÓGICA DE PRECIO Y SKU DINÁMICOS */}
                   <div className="mt-4 pt-4 border-t border-white/10 flex items-center justify-between font-mono">
-                    <span className="text-sm font-bold text-white">{STORE_CONFIG.CURRENCY_FORMAT.format(p.price)}</span>
-                    <span className="text-[10px] text-gray-500">{p.sku}</span>
+                    <p className="text-sm font-bold text-white">
+                      {p.formats && p.formats.length > 0 && (
+                        <span className="text-[10px] text-gray-500 font-mono mr-2 font-normal">DESDE</span>
+                      )}
+                      {STORE_CONFIG.CURRENCY_FORMAT.format(
+                        p.price || (p.formats && p.formats.length > 0 ? p.formats[0].price : 0)
+                      )}
+                    </p>
+                    <span className="text-[10px] text-gray-500">
+                      {p.sku || (p.formats && p.formats.length > 0 ? p.formats[0].sku : '')}
+                    </span>
                   </div>
+                  
                 </div>
               </div>
             ))}

@@ -4,7 +4,8 @@ import productsData from '@/data/products.json';
 import { Product } from '@/types';
 import { STORE_CONFIG } from '@/config/constants';
 
-const featuredProducts = productsData as Product[];
+// Cambiamos temporalmente a any[] para evitar errores de TypeScript con los nuevos formatos
+const featuredProducts = productsData as any[];
 const categories = [
   { id: 'amortiguadores', name: 'Amortiguadores', desc: 'Damping electrónico y coilovers regulables.', link: '/cotizacion' },
   { id: 'resortes', name: 'Resortes', desc: 'Acero al cromo-silicio templado en frío.', link: '/cotizacion' },
@@ -93,18 +94,15 @@ export default function HomePage() {
             <Link href="/catalogo" className="border border-white/20 text-xs font-mono uppercase tracking-widest px-4 py-2 hover:bg-white/10 text-white">VER TODOS</Link>
           </div>
           
-          {/* Se ajustó la grilla a lg:grid-cols-3 para mostrar 3 arriba y 1 abajo */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {featuredProducts.slice(0, 4).map((p) => (
               <div key={p.id} className="border border-white/10 bg-[#121212] flex flex-col group">
                 
-                {/* CONTENEDOR DE IMAGEN MODIFICADO PARA OCUPAR EL 100% Y EFECTO HOVER */}
                 <div className="aspect-square relative bg-[#0a0a0a] overflow-hidden group">
                   <span className={`absolute top-3 right-3 text-[9px] font-mono tracking-wider px-2 py-1 uppercase font-bold z-10 ${p.type === 'venta_online' ? 'bg-[#E88A5C] text-black' : 'border border-white/30 text-white bg-black/60 backdrop-blur-sm'}`}>
                     {p.type === 'venta_online' ? 'VENTA ONLINE' : 'COTIZACIÓN'}
                   </span>
                   
-                  {/* Imagen Principal */}
                   <Image 
                     src={p.image} 
                     alt={p.name} 
@@ -115,7 +113,6 @@ export default function HomePage() {
                     }`} 
                   />
 
-                  {/* Imagen Secundaria (Hover) */}
                   {p.imageHover && (
                     <Image 
                       src={p.imageHover} 
@@ -134,10 +131,22 @@ export default function HomePage() {
                       <h3 className="text-sm font-bold text-white line-clamp-2 hover:text-[#E88A5C] transition">{p.name}</h3>
                     </Link>
                   </div>
+                  
+                  {/* LÓGICA DE PRECIO Y SKU DINÁMICOS PARA LA PÁGINA PRINCIPAL */}
                   <div className="mt-4 pt-4 border-t border-white/10 flex items-center justify-between font-mono">
-                    <span className="text-sm font-bold text-white">{STORE_CONFIG.CURRENCY_FORMAT.format(p.price)}</span>
-                    <span className="text-[10px] text-gray-500">{p.sku}</span>
+                    <p className="text-sm font-bold text-white">
+                      {p.formats && p.formats.length > 0 && (
+                        <span className="text-[10px] text-gray-500 font-mono mr-2 font-normal">DESDE</span>
+                      )}
+                      {STORE_CONFIG.CURRENCY_FORMAT.format(
+                        p.price || (p.formats && p.formats.length > 0 ? p.formats[0].price : 0)
+                      )}
+                    </p>
+                    <span className="text-[10px] text-gray-500">
+                      {p.sku || (p.formats && p.formats.length > 0 ? p.formats[0].sku : '')}
+                    </span>
                   </div>
+                  
                 </div>
               </div>
             ))}
