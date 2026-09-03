@@ -65,7 +65,7 @@ export default function Navbar() {
             <Link href="/cotizacion?marca=BMW" className="hover:text-white transition">BMW</Link>
             <Link href="/cotizacion?marca=Audi" className="hover:text-white transition">Audi</Link>
             <Link href="/cotizacion?marca=Land Rover" className="hover:text-white transition">Land Rover</Link>
-            <Link href="/cotizacion" className="hover:text-[#E88A5C] text-[#E88A5C] transition ml-4 pl-4 border-l border-white/10">Cotizar Repuesto</Link>
+            <Link href="/cotizacion" className="hover:text-[#FF0000] text-[#FF0000] transition ml-4 pl-4 border-l border-white/10">Cotizar Repuesto</Link>
             <Link href="/catalogo" className="hover:text-white transition">Aceites</Link>
             <Link href="/soporte" className="hover:text-white transition">Soporte</Link>
           </div>
@@ -77,7 +77,7 @@ export default function Navbar() {
           
           <Link href="/carro" className="flex items-center gap-2 border border-white/20 px-4 py-2 text-xs font-mono uppercase tracking-widest hover:bg-white/10 transition">
             <span>Carro</span>
-            {mounted && cartCount > 0 && <span className="text-[#E88A5C]">[{cartCount}]</span>}
+            {mounted && cartCount > 0 && <span className="text-[#FF0000]">[{cartCount}]</span>}
           </Link>
         </div>
       </div>

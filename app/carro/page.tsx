@@ -19,7 +19,7 @@ export default function CartPage() {
         {items.length === 0 ? (
           <div className="border border-white/10 bg-[#121212] p-12 text-center">
             <p className="text-gray-400 font-mono text-sm mb-6">No tienes componentes en tu carro.</p>
-            <Link href="/catalogo" className="bg-[#E88A5C] text-black font-bold px-8 py-3 uppercase tracking-wider hover:bg-opacity-90 inline-block text-xs">IR AL CATÁLOGO</Link>
+            <Link href="/catalogo" className="bg-[#FF0000] text-black font-bold px-8 py-3 uppercase tracking-wider hover:bg-opacity-90 inline-block text-xs">IR AL CATÁLOGO</Link>
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
@@ -53,11 +53,11 @@ export default function CartPage() {
             </div>
             <div className="lg:col-span-4">
               <div className="border border-white/10 bg-[#121212] p-8 sticky top-28">
-                <h2 className="text-xs uppercase tracking-widest text-[#E88A5C] mb-6 font-bold">RESUMEN</h2>
+                <h2 className="text-xs uppercase tracking-widest text-[#FF0000] mb-6 font-bold">RESUMEN</h2>
                 <div className="flex justify-between font-mono text-sm text-gray-400 mb-6 border-b border-white/10 pb-6">
                   <span>Subtotal</span><span className="text-white">{STORE_CONFIG.CURRENCY_FORMAT.format(getCartSubtotal())}</span>
                 </div>
-                <Link href="/checkout" className="w-full bg-[#E88A5C] text-black font-bold py-4 uppercase tracking-wider hover:bg-opacity-90 block text-center text-sm">PROCEDER AL PAGO</Link>
+                <Link href="/checkout" className="w-full bg-[#FF0000] text-black font-bold py-4 uppercase tracking-wider hover:bg-opacity-90 block text-center text-sm">PROCEDER AL PAGO</Link>
                 <p className="text-[10px] text-gray-500 font-mono text-center mt-4 uppercase tracking-widest">Impuestos incluidos. Despacho calculado en el checkout.</p>
               </div>
             </div>

@@ -26,7 +26,7 @@ export default function AuthButton() {
         {/* Aquí está el cambio: Transformamos el nombre en un enlace */}
         <Link 
           href="/perfil" 
-          className="text-[#E88A5C] hover:text-white transition-colors hidden sm:inline"
+          className="text-[#FF0000] hover:text-white transition-colors hidden sm:inline"
         >
           {session.user?.name?.split(' ')[0]}
         </Link>

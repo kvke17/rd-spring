@@ -74,7 +74,7 @@ function NumberedCard({
   return (
     <div id={id} className="border border-white/10 bg-[#121212] p-6 sm:p-8 scroll-mt-28">
       <div className="flex items-start gap-5">
-        <div className="w-10 h-10 border border-[#E88A5C] text-[#E88A5C] font-mono font-bold text-sm flex items-center justify-center flex-shrink-0">
+        <div className="w-10 h-10 border border-[#FF0000] text-[#FF0000] font-mono font-bold text-sm flex items-center justify-center flex-shrink-0">
           {number}
         </div>
         <div className="flex-1">
@@ -84,7 +84,7 @@ function NumberedCard({
             <ul className="mt-4 space-y-2">
               {bullets.map((b, i) => (
                 <li key={i} className="flex gap-3 text-sm text-gray-400 font-mono leading-relaxed">
-                  <span className="text-[#E88A5C] flex-shrink-0">—</span>
+                  <span className="text-[#FF0000] flex-shrink-0">—</span>
                   <span>{b}</span>
                 </li>
               ))}
@@ -102,7 +102,7 @@ export default function WarrantyPage() {
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white pt-28 pb-20">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <p className="text-xs uppercase tracking-[0.25em] text-[#E88A5C] font-mono mb-2">RESPALDO TÉCNICO</p>
+        <p className="text-xs uppercase tracking-[0.25em] text-[#FF0000] font-mono mb-2">RESPALDO TÉCNICO</p>
         <h1 className="text-4xl font-bold uppercase tracking-tight mb-6">Garantía, Cambios y Devoluciones</h1>
         <p className="text-sm text-gray-400 font-mono leading-relaxed mb-10 max-w-2xl">
           En RD Spring nuestro objetivo es que tu vehículo recupere su rendimiento óptimo. Aquí encuentras el detalle completo de nuestra garantía y de las condiciones para cambios o devoluciones.
@@ -114,7 +114,7 @@ export default function WarrantyPage() {
             <a
               key={s.id}
               href={`#${s.id}`}
-              className="text-[10px] font-mono uppercase tracking-widest text-gray-400 hover:text-[#E88A5C] transition"
+              className="text-[10px] font-mono uppercase tracking-widest text-gray-400 hover:text-[#FF0000] transition"
             >
               {String(idx + 1).padStart(2, '0')} · {s.title}
             </a>
@@ -122,7 +122,7 @@ export default function WarrantyPage() {
         </div>
 
         {/* BLOQUE 1: GARANTÍA */}
-        <p className="text-xs uppercase tracking-[0.25em] text-[#E88A5C] font-mono mb-4">01 · POLÍTICA DE GARANTÍA (1 AÑO)</p>
+        <p className="text-xs uppercase tracking-[0.25em] text-[#FF0000] font-mono mb-4">01 · POLÍTICA DE GARANTÍA (1 AÑO)</p>
         <div className="space-y-6 mb-16">
           {GARANTIA_SECTIONS.map((s, idx) => (
             <NumberedCard
@@ -137,7 +137,7 @@ export default function WarrantyPage() {
         </div>
 
         {/* BLOQUE 2: CAMBIOS Y DEVOLUCIONES */}
-        <p className="text-xs uppercase tracking-[0.25em] text-[#E88A5C] font-mono mb-2">02 · CAMBIOS Y DEVOLUCIONES</p>
+        <p className="text-xs uppercase tracking-[0.25em] text-[#FF0000] font-mono mb-2">02 · CAMBIOS Y DEVOLUCIONES</p>
         <p className="text-sm text-gray-400 font-mono leading-relaxed mb-6 max-w-2xl">
           Si cometiste un error en la selección de tu repuesto, te ofrecemos una ventana de 15 días corridos desde la recepción del producto para solicitar un cambio o la devolución de tu dinero, bajo las siguientes condiciones:
         </p>
@@ -158,7 +158,7 @@ export default function WarrantyPage() {
           <p className="text-xs text-gray-500 font-mono">Última actualización: agosto de 2026.</p>
           <a
             href="/soporte"
-            className="inline-block bg-[#E88A5C] text-black font-bold px-6 py-3 uppercase tracking-widest text-xs hover:bg-opacity-90 transition text-center"
+            className="inline-block bg-[#FF0000] text-black font-bold px-6 py-3 uppercase tracking-widest text-xs hover:bg-opacity-90 transition text-center"
           >
             Solicitar garantía o devolución
           </a>

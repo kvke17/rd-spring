@@ -29,12 +29,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   key={tab.name}
                   href={tab.href}
                   className={`pb-4 text-xs font-mono uppercase tracking-widest transition-colors relative ${
-                    isActive ? 'text-[#E88A5C]' : 'text-gray-500 hover:text-gray-300'
+                    isActive ? 'text-[#FF0000]' : 'text-gray-500 hover:text-gray-300'
                   }`}
                 >
                   {tab.name}
                   {isActive && (
-                    <span className="absolute bottom-0 left-0 w-full h-[2px] bg-[#E88A5C] shadow-[0_0_10px_rgba(232,138,92,0.5)]" />
+                    <span className="absolute bottom-0 left-0 w-full h-[2px] bg-[#FF0000] shadow-[0_0_10px_rgba(232,138,92,0.5)]" />
                   )}
                 </Link>
               );

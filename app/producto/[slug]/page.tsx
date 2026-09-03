@@ -67,7 +67,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white pt-28 pb-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <Link href="/catalogo" className="text-xs font-mono uppercase tracking-widest text-gray-400 hover:text-[#E88A5C] mb-8 inline-block">← CATÁLOGO</Link>
+        <Link href="/catalogo" className="text-xs font-mono uppercase tracking-widest text-gray-400 hover:text-[#FF0000] mb-8 inline-block">← CATÁLOGO</Link>
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 border-b border-white/10 pb-16">
           
           <div className="lg:col-span-7 bg-[#121212] rounded-lg aspect-square relative flex items-center justify-center overflow-hidden">
@@ -76,7 +76,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
 
           <div className="lg:col-span-5 flex flex-col justify-between space-y-6">
             <div className="space-y-4">
-              <p className="text-xs uppercase font-mono tracking-[0.2em] text-[#E88A5C]">{product.brand} · {product.category}</p>
+              <p className="text-xs uppercase font-mono tracking-[0.2em] text-[#FF0000]">{product.brand} · {product.category}</p>
               <h1 className="text-3xl font-bold tracking-tight text-white leading-tight">{product.name}</h1>
               {/* Actualizamos el SKU para que sea dinámico */}
               <p className="text-xs font-mono text-gray-500 uppercase tracking-widest">SKU {currentSku}</p>
@@ -97,7 +97,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
               <div className="pt-4">
                 {product.type === 'cotizacion' ? (
                   <div className="space-y-3">
-                    <button onClick={handleWhatsApp} className="w-full bg-[#E88A5C] text-black font-bold py-4 rounded text-xs uppercase tracking-widest hover:bg-opacity-90 flex items-center justify-center gap-2">COTIZAR POR WHATSAPP</button>
+                    <button onClick={handleWhatsApp} className="w-full bg-[#FF0000] text-black font-bold py-4 rounded text-xs uppercase tracking-widest hover:bg-opacity-90 flex items-center justify-center gap-2">COTIZAR POR WHATSAPP</button>
                     <button onClick={() => setIsQuoteModalOpen(true)} className="w-full border border-white/20 text-white font-bold py-4 rounded text-xs uppercase tracking-widest hover:bg-white/10 flex items-center justify-center gap-2">COTIZAR POR EMAIL</button>
                   </div>
                 ) : (
@@ -115,7 +115,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                               onClick={() => handleFormatChange(f.size)}
                               className={`flex-1 py-3 border rounded font-mono text-xs uppercase tracking-widest transition-all duration-300 ${
                                 formato === f.size
-                                  ? 'bg-[#E88A5C] text-black border-[#E88A5C] font-bold shadow-[0_0_15px_rgba(232,138,92,0.15)]'
+                                  ? 'bg-[#FF0000] text-black border-[#FF0000] font-bold shadow-[0_0_15px_rgba(232,138,92,0.15)]'
                                   : 'bg-[#121212] text-gray-400 border-white/20 hover:border-white/50'
                               }`}
                             >
@@ -150,7 +150,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                         className={`flex-1 font-bold py-4 rounded text-xs uppercase tracking-widest transition-all ${
                           sinStock 
                             ? 'bg-gray-800 text-gray-500 cursor-not-allowed border border-gray-700' 
-                            : 'bg-[#E88A5C] text-black hover:bg-opacity-90'
+                            : 'bg-[#FF0000] text-black hover:bg-opacity-90'
                         }`}
                       >
                         {sinStock ? 'SIN STOCK' : 'AGREGAR AL CARRO'}
@@ -167,7 +167,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
           </div>
         </div>
         <div className="py-12 border-b border-white/10 grid grid-cols-1 md:grid-cols-12 gap-8">
-          <div className="md:col-span-4"><p className="text-xs uppercase font-mono tracking-[0.2em] text-[#E88A5C] mb-1">BLUEPRINT · ESPECIFICACIONES</p></div>
+          <div className="md:col-span-4"><p className="text-xs uppercase font-mono tracking-[0.2em] text-[#FF0000] mb-1">BLUEPRINT · ESPECIFICACIONES</p></div>
           <div className="md:col-span-8 space-y-4 font-mono text-xs">
             {product.specs && Object.entries(product.specs).map(([key, val]) => (
               <div key={key} className="flex justify-between border-b border-white/10 pb-2"><span className="uppercase text-gray-400">{key}</span><span className="font-bold text-white">{val as string}</span></div>
@@ -175,7 +175,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
           </div>
         </div>
         <div className="py-12 grid grid-cols-1 md:grid-cols-12 gap-8">
-          <div className="md:col-span-4"><p className="text-xs uppercase font-mono tracking-[0.2em] text-[#E88A5C] mb-1">COMPATIBILIDAD VERIFICADA</p></div>
+          <div className="md:col-span-4"><p className="text-xs uppercase font-mono tracking-[0.2em] text-[#FF0000] mb-1">COMPATIBILIDAD VERIFICADA</p></div>
           <div className="md:col-span-8 space-y-6 font-mono">
             <div className="flex flex-wrap gap-3">
               {product.compatibility?.map((gen: string) => (

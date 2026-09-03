@@ -70,7 +70,7 @@ export default function AdminOrdersPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-[#0a0a0a] text-white flex items-center justify-center pt-20">
-        <p className="text-xs uppercase tracking-widest font-mono text-[#E88A5C] animate-pulse">
+        <p className="text-xs uppercase tracking-widest font-mono text-[#FF0000] animate-pulse">
           Cargando pedidos...
         </p>
       </div>
@@ -108,7 +108,7 @@ export default function AdminOrdersPage() {
                   <p className="text-xs text-gray-400 font-mono line-clamp-2">{o.itemsSummary}</p>
                 </div>
                 <div>
-                  <p className="text-sm font-bold text-[#E88A5C] font-mono">
+                  <p className="text-sm font-bold text-[#FF0000] font-mono">
                     {new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 }).format(o.amount)}
                   </p>
                 </div>
@@ -117,7 +117,7 @@ export default function AdminOrdersPage() {
                     value={o.shippingStatus}
                     disabled={savingOrder === o.buyOrder}
                     onChange={(e) => handleStatusChange(o.buyOrder, e.target.value)}
-                    className="w-full bg-[#0a0a0a] border border-white/10 p-2 text-xs focus:border-[#E88A5C] focus:outline-none text-white font-mono disabled:opacity-50"
+                    className="w-full bg-[#0a0a0a] border border-white/10 p-2 text-xs focus:border-[#FF0000] focus:outline-none text-white font-mono disabled:opacity-50"
                   >
                     {SHIPPING_STAGES.map((s) => (
                       <option key={s.value} value={s.value}>{s.label}</option>

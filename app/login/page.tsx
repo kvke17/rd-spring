@@ -57,21 +57,21 @@ export default function AuthPage() {
           {!isLogin && (
             <div>
               <label className="block text-[10px] font-mono uppercase tracking-widest text-gray-400 mb-2">Nombre Completo</label>
-              <input type="text" value={name} onChange={(e) => setName(e.target.value)} className="w-full bg-[#0a0a0a] border border-white/20 rounded p-3 text-white focus:outline-none focus:border-[#E88A5C]" required={!isLogin} />
+              <input type="text" value={name} onChange={(e) => setName(e.target.value)} className="w-full bg-[#0a0a0a] border border-white/20 rounded p-3 text-white focus:outline-none focus:border-[#FF0000]" required={!isLogin} />
             </div>
           )}
           <div>
             <label className="block text-[10px] font-mono uppercase tracking-widest text-gray-400 mb-2">Correo Electrónico</label>
-            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full bg-[#0a0a0a] border border-white/20 rounded p-3 text-white focus:outline-none focus:border-[#E88A5C]" required />
+            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full bg-[#0a0a0a] border border-white/20 rounded p-3 text-white focus:outline-none focus:border-[#FF0000]" required />
           </div>
           <div>
             <label className="block text-[10px] font-mono uppercase tracking-widest text-gray-400 mb-2">Contraseña</label>
-            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full bg-[#0a0a0a] border border-white/20 rounded p-3 text-white focus:outline-none focus:border-[#E88A5C]" required />
+            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full bg-[#0a0a0a] border border-white/20 rounded p-3 text-white focus:outline-none focus:border-[#FF0000]" required />
           </div>
 
           {error && <p className="text-red-500 text-xs font-mono text-center border border-red-500/20 bg-red-500/10 p-2 rounded">{error}</p>}
 
-          <button type="submit" className="w-full bg-[#E88A5C] text-black font-bold py-4 rounded text-xs uppercase tracking-widest hover:bg-opacity-90 transition-all mt-4">
+          <button type="submit" className="w-full bg-[#FF0000] text-black font-bold py-4 rounded text-xs uppercase tracking-widest hover:bg-opacity-90 transition-all mt-4">
             {isLogin ? 'Iniciar Sesión' : 'Registrarme'}
           </button>
         </form>

@@ -47,7 +47,7 @@ export const useCartStore = create<CartStore>()(
           if (existingIndex > -1) {
             const updatedItems = [...state.items];
             const currentQty = updatedItems[existingIndex].quantity;
-            const newQty = Math.min(currentQty + quantity, product.stock ?? 99);
+            const newQty = Math.min(currentQty + quantity, (product as any).stock ?? 99);
             updatedItems[existingIndex] = { ...updatedItems[existingIndex], quantity: newQty };
             return { items: updatedItems };
           }

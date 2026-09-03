@@ -28,7 +28,7 @@ export default function SupportPage() {
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white pt-28 pb-20">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-        <p className="text-xs uppercase tracking-[0.25em] text-[#E88A5C] font-mono mb-2">ASISTENCIA</p>
+        <p className="text-xs uppercase tracking-[0.25em] text-[#FF0000] font-mono mb-2">ASISTENCIA</p>
         <h1 className="text-4xl font-bold uppercase tracking-tight mb-8">Soporte</h1>
 
         {/* Tabs */}
@@ -36,7 +36,7 @@ export default function SupportPage() {
           <button
             onClick={() => setTab('consultas')}
             className={`px-6 py-3 text-xs font-mono uppercase tracking-widest border-b-2 transition ${
-              tab === 'consultas' ? 'border-[#E88A5C] text-white' : 'border-transparent text-gray-500 hover:text-gray-300'
+              tab === 'consultas' ? 'border-[#FF0000] text-white' : 'border-transparent text-gray-500 hover:text-gray-300'
             }`}
           >
             Consultas
@@ -44,7 +44,7 @@ export default function SupportPage() {
           <button
             onClick={() => setTab('seguimiento')}
             className={`px-6 py-3 text-xs font-mono uppercase tracking-widest border-b-2 transition ${
-              tab === 'seguimiento' ? 'border-[#E88A5C] text-white' : 'border-transparent text-gray-500 hover:text-gray-300'
+              tab === 'seguimiento' ? 'border-[#FF0000] text-white' : 'border-transparent text-gray-500 hover:text-gray-300'
             }`}
           >
             Seguimiento de pedido
@@ -90,10 +90,10 @@ function ConsultaForm() {
 
       {status === 'success' ? (
         <div className="text-center py-8">
-          <div className="w-12 h-12 bg-[#E88A5C]/20 text-[#E88A5C] rounded-full flex items-center justify-center mx-auto mb-4 text-2xl font-bold">✓</div>
+          <div className="w-12 h-12 bg-[#FF0000]/20 text-[#FF0000] rounded-full flex items-center justify-center mx-auto mb-4 text-2xl font-bold">✓</div>
           <h3 className="text-lg font-bold mb-2">¡Consulta enviada!</h3>
           <p className="text-sm text-gray-400 mb-6">Te responderemos a la brevedad a tu correo.</p>
-          <button onClick={() => setStatus('idle')} className="bg-[#E88A5C] text-black font-bold px-6 py-2 uppercase tracking-wide hover:bg-opacity-90 text-sm">
+          <button onClick={() => setStatus('idle')} className="bg-[#FF0000] text-black font-bold px-6 py-2 uppercase tracking-wide hover:bg-opacity-90 text-sm">
             Enviar otra consulta
           </button>
         </div>
@@ -107,7 +107,7 @@ function ConsultaForm() {
                 required
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="w-full bg-[#0a0a0a] border border-white/10 p-3 text-sm focus:border-[#E88A5C] focus:outline-none text-white font-mono"
+                className="w-full bg-[#0a0a0a] border border-white/10 p-3 text-sm focus:border-[#FF0000] focus:outline-none text-white font-mono"
               />
             </div>
             <div>
@@ -117,7 +117,7 @@ function ConsultaForm() {
                 required
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className="w-full bg-[#0a0a0a] border border-white/10 p-3 text-sm focus:border-[#E88A5C] focus:outline-none text-white font-mono"
+                className="w-full bg-[#0a0a0a] border border-white/10 p-3 text-sm focus:border-[#FF0000] focus:outline-none text-white font-mono"
               />
             </div>
           </div>
@@ -127,7 +127,7 @@ function ConsultaForm() {
             <select
               value={formData.motivo}
               onChange={(e) => setFormData({ ...formData, motivo: e.target.value })}
-              className="w-full bg-[#0a0a0a] border border-white/10 p-3 text-sm focus:border-[#E88A5C] focus:outline-none text-white font-mono"
+              className="w-full bg-[#0a0a0a] border border-white/10 p-3 text-sm focus:border-[#FF0000] focus:outline-none text-white font-mono"
             >
               {MOTIVOS.map((m) => (
                 <option key={m.value} value={m.value}>{m.label}</option>
@@ -145,7 +145,7 @@ function ConsultaForm() {
                 placeholder="Ej: WP0ZZZ99ZKS123456"
                 value={formData.vehicle}
                 onChange={(e) => setFormData({ ...formData, vehicle: e.target.value })}
-                className="w-full bg-[#0a0a0a] border border-white/10 p-3 text-sm focus:border-[#E88A5C] focus:outline-none text-white font-mono"
+                className="w-full bg-[#0a0a0a] border border-white/10 p-3 text-sm focus:border-[#FF0000] focus:outline-none text-white font-mono"
               />
             </div>
           )}
@@ -157,7 +157,7 @@ function ConsultaForm() {
               required
               value={formData.message}
               onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-              className="w-full bg-[#0a0a0a] border border-white/10 p-3 text-sm focus:border-[#E88A5C] focus:outline-none text-white font-mono"
+              className="w-full bg-[#0a0a0a] border border-white/10 p-3 text-sm focus:border-[#FF0000] focus:outline-none text-white font-mono"
             />
           </div>
 
@@ -168,7 +168,7 @@ function ConsultaForm() {
           <button
             type="submit"
             disabled={loading}
-            className="bg-[#E88A5C] text-black font-bold px-8 py-3 uppercase tracking-wider hover:bg-opacity-90 text-xs disabled:opacity-50"
+            className="bg-[#FF0000] text-black font-bold px-8 py-3 uppercase tracking-wider hover:bg-opacity-90 text-xs disabled:opacity-50"
           >
             {loading ? 'ENVIANDO...' : 'ENVIAR CONSULTA'}
           </button>
@@ -220,7 +220,7 @@ function SeguimientoForm() {
             placeholder="ORD-123456"
             value={buyOrder}
             onChange={(e) => setBuyOrder(e.target.value)}
-            className="w-full bg-[#0a0a0a] border border-white/10 p-3 text-sm focus:border-[#E88A5C] focus:outline-none text-white font-mono"
+            className="w-full bg-[#0a0a0a] border border-white/10 p-3 text-sm focus:border-[#FF0000] focus:outline-none text-white font-mono"
           />
         </div>
         <div>
@@ -230,14 +230,14 @@ function SeguimientoForm() {
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full bg-[#0a0a0a] border border-white/10 p-3 text-sm focus:border-[#E88A5C] focus:outline-none text-white font-mono"
+            className="w-full bg-[#0a0a0a] border border-white/10 p-3 text-sm focus:border-[#FF0000] focus:outline-none text-white font-mono"
           />
         </div>
         <div className="sm:col-span-2">
           <button
             type="submit"
             disabled={loading}
-            className="bg-[#E88A5C] text-black font-bold px-8 py-3 uppercase tracking-wider hover:bg-opacity-90 text-xs disabled:opacity-50"
+            className="bg-[#FF0000] text-black font-bold px-8 py-3 uppercase tracking-wider hover:bg-opacity-90 text-xs disabled:opacity-50"
           >
             {loading ? 'BUSCANDO...' : 'BUSCAR PEDIDO'}
           </button>
@@ -284,7 +284,7 @@ function SeguimientoForm() {
                       <div className="flex flex-col items-center">
                         <div
                           className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold border ${
-                            isDone ? 'bg-[#E88A5C] border-[#E88A5C] text-black' : 'bg-transparent border-white/20 text-gray-500'
+                            isDone ? 'bg-[#FF0000] border-[#FF0000] text-black' : 'bg-transparent border-white/20 text-gray-500'
                           }`}
                         >
                           {isDone ? '✓' : idx + 1}
@@ -298,7 +298,7 @@ function SeguimientoForm() {
                         </span>
                       </div>
                       {!isLast && (
-                        <div className={`flex-1 h-[2px] mx-2 mb-6 ${idx < order.shippingStepIndex ? 'bg-[#E88A5C]' : 'bg-white/10'}`} />
+                        <div className={`flex-1 h-[2px] mx-2 mb-6 ${idx < order.shippingStepIndex ? 'bg-[#FF0000]' : 'bg-white/10'}`} />
                       )}
                     </div>
                   );

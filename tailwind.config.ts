@@ -10,7 +10,7 @@ const config: Config = {
       colors: {
         background: "#0a0a0a",
         surface: "#121212",
-        coral: "#E88A5C",
+        coral: "#FF0000",
         dim: "#9a9a9a"
       },
       fontFamily: {

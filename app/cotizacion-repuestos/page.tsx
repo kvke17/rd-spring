@@ -43,7 +43,7 @@ function CotizacionForm() {
   const handleInstagram = () => {
     setTouched(true);
     if (!isValid) return;
-    window.open(STORE_CONFIG.INSTAGRAM_URL, '_blank');
+    window.open(STORE_CONFIG.INSTAGRAM_DM_URL, '_blank');
   };
 
   const handleEmail = async () => {
@@ -73,7 +73,7 @@ function CotizacionForm() {
               type="text"
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              className="w-full bg-[#0a0a0a] border border-white/10 p-3 text-sm focus:border-[#E88A5C] focus:outline-none text-white font-mono"
+              className="w-full bg-[#0a0a0a] border border-white/10 p-3 text-sm focus:border-[FF0000] focus:outline-none text-white font-mono"
             />
           </div>
           <div>
@@ -85,7 +85,7 @@ function CotizacionForm() {
               placeholder="Ej: BMW Serie 3 (F30) 2016"
               value={formData.vehicle}
               onChange={(e) => setFormData({ ...formData, vehicle: e.target.value })}
-              className="w-full bg-[#0a0a0a] border border-white/10 p-3 text-sm focus:border-[#E88A5C] focus:outline-none text-white font-mono"
+              className="w-full bg-[#0a0a0a] border border-white/10 p-3 text-sm focus:border-[FF0000] focus:outline-none text-white font-mono"
             />
           </div>
           <div>
@@ -95,7 +95,7 @@ function CotizacionForm() {
               placeholder="Requerido solo para cotizar por email"
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              className="w-full bg-[#0a0a0a] border border-white/10 p-3 text-sm focus:border-[#E88A5C] focus:outline-none text-white font-mono"
+              className="w-full bg-[#0a0a0a] border border-white/10 p-3 text-sm focus:border-[FF0000] focus:outline-none text-white font-mono"
             />
           </div>
           <div>
@@ -105,7 +105,7 @@ function CotizacionForm() {
               placeholder="Requerido solo para cotizar por email"
               value={formData.phone}
               onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-              className="w-full bg-[#0a0a0a] border border-white/10 p-3 text-sm focus:border-[#E88A5C] focus:outline-none text-white font-mono"
+              className="w-full bg-[#0a0a0a] border border-white/10 p-3 text-sm focus:border-[FF0000] focus:outline-none text-white font-mono"
             />
           </div>
           <div className="md:col-span-2">
@@ -117,7 +117,7 @@ function CotizacionForm() {
               placeholder="Ej: WP0ZZZ99ZKS123456"
               value={formData.vin}
               onChange={(e) => setFormData({ ...formData, vin: e.target.value })}
-              className="w-full bg-[#0a0a0a] border border-white/10 p-3 text-sm focus:border-[#E88A5C] focus:outline-none text-white font-mono"
+              className="w-full bg-[#0a0a0a] border border-white/10 p-3 text-sm focus:border-[FF0000] focus:outline-none text-white font-mono"
             />
           </div>
           <div className="md:col-span-2">
@@ -129,7 +129,7 @@ function CotizacionForm() {
               placeholder="Ej: Amortiguador trasero derecho, o el eje de suspensión completo delantero"
               value={formData.partNeeded}
               onChange={(e) => setFormData({ ...formData, partNeeded: e.target.value })}
-              className="w-full bg-[#0a0a0a] border border-white/10 p-3 text-sm focus:border-[#E88A5C] focus:outline-none text-white font-mono"
+              className="w-full bg-[#0a0a0a] border border-white/10 p-3 text-sm focus:border-[FF0000] focus:outline-none text-white font-mono"
             />
           </div>
         </div>
@@ -144,7 +144,7 @@ function CotizacionForm() {
           <button
             type="button"
             onClick={handleWhatsApp}
-            className="bg-[#E88A5C] text-black font-bold py-4 text-xs uppercase tracking-widest hover:bg-opacity-90 transition"
+            className="bg-[FF0000] text-black font-bold py-4 text-xs uppercase tracking-widest hover:bg-opacity-90 transition"
           >
             Cotizar por WhatsApp
           </button>
@@ -170,7 +170,7 @@ function CotizacionForm() {
         </p>
 
         {emailStatus === 'success' && (
-          <p className="text-xs text-[#E88A5C] font-mono">¡Listo! Tu solicitud fue enviada por correo, te responderemos a la brevedad.</p>
+          <p className="text-xs text-[FF0000] font-mono">¡Listo! Tu solicitud fue enviada por correo, te responderemos a la brevedad.</p>
         )}
         {emailStatus === 'error' && (
           <p className="text-xs text-red-500 font-mono">Ocurrió un error enviando tu solicitud por correo. Prueba por WhatsApp o Instagram.</p>
@@ -184,7 +184,7 @@ export default function CotizacionRepuestosPage() {
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white pt-28 pb-20">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-        <p className="text-xs uppercase tracking-[0.25em] text-[#E88A5C] font-mono mb-2">REPUESTOS BAJO PEDIDO</p>
+        <p className="text-xs uppercase tracking-[0.25em] text-[FF0000] font-mono mb-2">REPUESTOS BAJO PEDIDO</p>
         <h1 className="text-4xl font-bold uppercase tracking-tight mb-6">Cotización de Repuestos</h1>
         <p className="text-sm text-gray-400 font-mono leading-relaxed mb-10 max-w-2xl">
           Trabajamos con repuestos OEM de marcas como Bilstein, TRW, Sachs y Lemförder, importados directamente desde la Unión Europea, para Porsche, BMW, Audi y Land Rover. Cuéntanos qué necesitas y te cotizamos por el canal que prefieras.

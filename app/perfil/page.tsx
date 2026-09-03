@@ -37,7 +37,7 @@ export default async function PerfilPage() {
           {/* Columna Izquierda: Datos del Usuario */}
           <div className="md:col-span-1 space-y-6">
             <div className="bg-[#121212] border border-white/10 p-6 rounded-lg">
-              <p className="text-xs uppercase font-mono tracking-widest text-[#E88A5C] mb-4">Datos de la Cuenta</p>
+              <p className="text-xs uppercase font-mono tracking-widest text-[#FF0000] mb-4">Datos de la Cuenta</p>
               <div className="space-y-4">
                 <div>
                   <p className="text-[10px] text-gray-500 font-mono uppercase">Nombre</p>
@@ -55,12 +55,12 @@ export default async function PerfilPage() {
           {/* Columna Derecha: Historial de Pedidos */}
           <div className="md:col-span-2">
             <div className="bg-[#121212] border border-white/10 p-6 rounded-lg min-h-full">
-              <p className="text-xs uppercase font-mono tracking-widest text-[#E88A5C] mb-6">Historial de Pedidos</p>
+              <p className="text-xs uppercase font-mono tracking-widest text-[#FF0000] mb-6">Historial de Pedidos</p>
               
               {user.orders.length === 0 ? (
                 <div className="text-center py-12">
                   <p className="text-sm font-mono text-gray-500 mb-4">Aún no tienes pedidos registrados.</p>
-                  <Link href="/catalogo" className="text-xs font-mono uppercase tracking-widest text-[#E88A5C] hover:text-white transition-colors border border-white/20 px-4 py-2 rounded">
+                  <Link href="/catalogo" className="text-xs font-mono uppercase tracking-widest text-[#FF0000] hover:text-white transition-colors border border-white/20 px-4 py-2 rounded">
                     Ir a la tienda
                   </Link>
                 </div>
@@ -84,7 +84,7 @@ export default async function PerfilPage() {
                         <span className={`text-[10px] font-mono uppercase tracking-widest px-2 py-1 rounded border ${
                           order.shippingStatus === 'ENTREGADO' 
                             ? 'border-emerald-500/30 text-emerald-500 bg-emerald-500/10'
-                            : 'border-[#E88A5C]/30 text-[#E88A5C] bg-[#E88A5C]/10'
+                            : 'border-[#FF0000]/30 text-[#FF0000] bg-[#FF0000]/10'
                         }`}>
                           {order.shippingStatus}
                         </span>

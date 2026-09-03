@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Inter_Tight } from 'next/font/google';
-import './globals.css'; // <--- ¡ESTA ES LA LÍNEA MÁGICA QUE FALTABA!
+// @ts-ignore
+import './globals.css';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import AuthProvider from '@/components/AuthProvider';

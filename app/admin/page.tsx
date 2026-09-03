@@ -39,7 +39,7 @@ export default function AdminDashboard() {
   }, []);
 
   if (loading) {
-    return <div className="text-xs font-mono text-[#E88A5C] animate-pulse">Cargando métricas...</div>;
+    return <div className="text-xs font-mono text-[#FF0000] animate-pulse">Cargando métricas...</div>;
   }
 
   return (
@@ -52,7 +52,7 @@ export default function AdminDashboard() {
           <p className="text-3xl font-bold text-white mb-2">
             {STORE_CONFIG.CURRENCY_FORMAT.format(stats.totalSales)}
           </p>
-          <div className="absolute top-0 right-0 w-24 h-24 bg-[#E88A5C] opacity-5 rounded-full blur-2xl -mr-10 -mt-10 transition-opacity" />
+          <div className="absolute top-0 right-0 w-24 h-24 bg-[#FF0000] opacity-5 rounded-full blur-2xl -mr-10 -mt-10 transition-opacity" />
         </div>
 
         <div className="bg-[#121212] border border-white/10 p-6 rounded-lg hover:border-white/20 transition-colors">
@@ -83,8 +83,8 @@ export default function AdminDashboard() {
               <AreaChart data={stats.chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                 <defs>
                   <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#E88A5C" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="#E88A5C" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="#FF0000" stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor="#FF0000" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#333" vertical={false} />
@@ -104,13 +104,13 @@ export default function AdminDashboard() {
                 />
                 <Tooltip 
                   contentStyle={{ backgroundColor: '#121212', borderColor: '#333', borderRadius: '8px' }}
-                  itemStyle={{ color: '#E88A5C' }}
-                  formatter={(value: number) => [`$${value.toLocaleString('es-CL')}`, 'Ventas']}
+                  itemStyle={{ color: '#FF0000' }}
+                  formatter={(value: any) => [`$${Number(value).toLocaleString('es-CL')}`, 'Ventas']}
                 />
                 <Area 
                   type="monotone" 
                   dataKey="total" 
-                  stroke="#E88A5C" 
+                  stroke="#FF0000" 
                   strokeWidth={2}
                   fillOpacity={1} 
                   fill="url(#colorTotal)" 

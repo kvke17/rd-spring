@@ -65,12 +65,12 @@ export default function ReceiptEmail({
 
 // Estilos seguros para clientes de correo (CSS en JS)
 const main = { backgroundColor: '#f6f9fc', fontFamily: 'Arial, sans-serif' };
-const container = { backgroundColor: '#ffffff', margin: '0 auto', padding: '40px 20px', borderRadius: '5px', maxWidth: '600px' };
+const container = { backgroundColor: '#121212', margin: '0 auto', padding: '40px 20px', borderRadius: '5px', maxWidth: '600px' };
 const h1 = { color: '#0a0a0a', fontSize: '24px', fontWeight: 'bold', margin: '0', textAlign: 'center' as const };
-const subtitle = { color: '#E88A5C', fontSize: '12px', letterSpacing: '2px', textAlign: 'center' as const, marginTop: '4px' };
+const subtitle = { color: '#FF0000', fontSize: '12px', letterSpacing: '2px', textAlign: 'center' as const, marginTop: '4px' };
 const text = { color: '#333', fontSize: '14px', lineHeight: '24px' };
 const hr = { borderColor: '#e6ebf1', margin: '20px 0' };
 const receiptBox = { backgroundColor: '#f9f9f9', border: '1px solid #eee', padding: '20px', borderRadius: '4px', margin: '20px 0' };
-const receiptHeading = { color: '#E88A5C', fontSize: '12px', fontWeight: 'bold', letterSpacing: '1px', marginBottom: '12px' };
+const receiptHeading = { color: '#FF0000', fontSize: '12px', fontWeight: 'bold', letterSpacing: '1px', marginBottom: '12px' };
 const receiptText = { color: '#333', fontSize: '14px', margin: '4px 0' };
 const footer = { color: '#8898aa', fontSize: '12px', textAlign: 'center' as const };
