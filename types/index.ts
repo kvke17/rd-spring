@@ -9,14 +9,14 @@ export interface Product {
   category: string;
   type: string;
   price: number;
+  stock?: number; // Agregado para que Zustand no arroje errores en el carrito
   image: string;
   imageHover?: string;
-  vehicleBrands: string[];
-}
+  
   // Marcas de auto donde este repuesto es compatible (ej. ["BMW"], ["Audi"]).
   // Distinto de `brand`, que es el fabricante del repuesto (ej. "BILSTEIN", "TRW").
   vehicleBrands: string[];
-  category: string;
+  
   description: string;
   compatibility: string[];
   specs: Record<string, string>;

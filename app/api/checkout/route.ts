@@ -1,72 +1,93 @@
 import { NextResponse } from 'next/server';
 import { WebpayPlus, Options, IntegrationApiKeys, Environment, IntegrationCommerceCodes } from 'transbank-sdk';
 import { PrismaClient } from '@prisma/client';
-
-// Importamos tu catálogo real para que el servidor haga los cálculos
-import productsData from '@/data/products.json'; 
+import { Resend } from 'resend';
+// Asumo que tienes tu componente de correo aquí según el árbol de archivos
+import ReceiptEmail from '@/components/emails/ReceiptEmail'; 
 
 const prisma = new PrismaClient();
+const resend = new Resend(process.env.RESEND_API_KEY);
 
+// 1. CORRECCIÓN DE VARIABLES: Ahora busca WEBPAY_ primero, y luego TBK_ por si acaso.
 const tx = new WebpayPlus.Transaction(
   new Options(
-    process.env.TBK_COMMERCE_CODE || IntegrationCommerceCodes.WEBPAY_PLUS,
-    process.env.TBK_API_KEY || IntegrationApiKeys.WEBPAY,
-    process.env.TBK_COMMERCE_CODE ? Environment.Production : Environment.Integration
+    process.env.WEBPAY_COMMERCE_CODE || process.env.TBK_COMMERCE_CODE || IntegrationCommerceCodes.WEBPAY_PLUS,
+    process.env.WEBPAY_API_KEY || process.env.TBK_API_KEY || IntegrationApiKeys.WEBPAY,
+    process.env.WEBPAY_COMMERCE_CODE ? Environment.Production : Environment.Integration
   )
 );
 
 export async function POST(request: Request) {
   try {
-    const { sessionId, buyOrder, returnUrl, customer, items, documentType, shippingId } = await request.json();
+    const formData = await request.formData();
+    const token_ws = formData.get('token_ws')?.toString();
 
-    // 🚨 1. LÓGICA DE SEGURIDAD: RECALCULAMOS EL PRECIO DE LOS PRODUCTOS 🚨
-    let realTotalAmount = 0;
+    // Si no hay token, el usuario canceló el pago en la pantalla del banco
+    if (!token_ws) {
+      return NextResponse.redirect(new URL('/checkout/error', request.url));
+    }
 
-   for (const item of items) {
-      // Le decimos a TypeScript que confíe en que es un arreglo usando "as any[]"
-      const realProduct = (productsData as any[]).find(
-        (p) => p.id === item.product.id || p.sku === item.product.sku
-      );
+    // Confirmamos la transacción con Transbank
+    const response = await tx.commit(token_ws);
 
-      if (!realProduct) {
-        return NextResponse.json({ error: `Producto manipulado o no encontrado: ${item.product.sku}` }, { status: 400 });
+    if (response.response_code === 0 && response.status === 'AUTHORIZED') {
+      
+      // 2. ESTADO DEL PEDIDO: Marcamos como PAGADO
+      const order = await prisma.order.update({
+        where: { buyOrder: response.buy_order },
+        data: { status: 'PAGADO' }
+      });
+
+      const customer = JSON.parse(order.customer as string);
+      const items = JSON.parse(order.items as string);
+
+      // 3. DESCUENTO DE STOCK: Actualizamos la base de datos
+      try {
+        for (const item of items) {
+          await prisma.product.update({
+            where: { sku: item.product.sku },
+            data: { stock: { decrement: item.quantity } }
+          });
+        }
+      } catch (stockError) {
+        console.error('Error al descontar stock (posible producto sin tracking de DB):', stockError);
       }
 
-      realTotalAmount += realProduct.price * item.quantity;
+      try {
+        // Armamos un texto bonito con el resumen de los productos comprados
+        const itemsSummaryString = items
+          .map((item: any) => `${item.quantity}x ${item.product.name}`)
+          .join(', ');
+
+        await resend.emails.send({
+          from: 'Ventas RD Spring <ventas@rdspring.cl>', 
+          to: customer.email, 
+          subject: `Confirmación de compra - Pedido ${order.buyOrder}`,
+          // Le pasamos exactamente las 4 propiedades que pide ReceiptEmailProps
+          react: ReceiptEmail({ 
+            customerName: customer.fullName || 'Cliente', 
+            buyOrder: order.buyOrder, 
+            amount: order.amount, 
+            itemsSummary: itemsSummaryString 
+          }) 
+        });
+      } catch (emailError) {
+        console.error('Error enviando el recibo por correo:', emailError);
+      }
+
+      // Redirigir a la pantalla de éxito
+      return NextResponse.redirect(new URL(`/checkout/success?order=${order.buyOrder}`, request.url));
+    } else {
+      // El pago fue rechazado (sin saldo, clave errónea, etc.)
+      await prisma.order.update({
+        where: { buyOrder: response.buy_order },
+        data: { status: 'RECHAZADO' }
+      });
+      return NextResponse.redirect(new URL('/checkout/error', request.url));
     }
 
-    // 🚨 2. LÓGICA DE SEGURIDAD: SUMAMOS EL COSTO DE ENVÍO EXACTO 🚨
-    if (shippingId === 'santiago') {
-      realTotalAmount += 12000;
-    } else if (shippingId === 'regional') {
-      realTotalAmount += 19900;
-    }
-    // Si es 'pickup', el costo es 0, así que no sumamos nada.
-
-    // 3. Guardamos la orden con el monto REAL seguro
-    await prisma.order.create({
-      data: {
-        buyOrder,
-        amount: realTotalAmount, 
-        customer: JSON.stringify(customer),
-        items: JSON.stringify(items),
-        documentType: documentType || 'BOLETA',
-        razonSocial: customer.razonSocial || null,
-        giro: customer.giro || null,
-      },
-    });
-
-    // 4. Enviamos el monto REAL a Transbank
-    const response = await tx.create(buyOrder, sessionId, realTotalAmount, returnUrl);
-
-    await prisma.order.update({
-      where: { buyOrder },
-      data: { token: response.token },
-    });
-
-    return NextResponse.json({ url: response.url, token: response.token });
   } catch (error) {
-    console.error('Error al crear transacción segura:', error);
-    return NextResponse.json({ error: 'Fallo al inicializar pago' }, { status: 500 });
+    console.error('Error fatal confirmando pago:', error);
+    return NextResponse.redirect(new URL('/checkout/error', request.url));
   }
 }
