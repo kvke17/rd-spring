@@ -1,10 +1,9 @@
 import { NextResponse } from 'next/server';
 import { WebpayPlus, Options, IntegrationApiKeys, Environment, IntegrationCommerceCodes } from 'transbank-sdk';
-import { PrismaClient } from '@prisma/client';
+import prisma from '@/lib/prisma';
 import { Resend } from 'resend';
 import ReceiptEmail from '@/components/emails/ReceiptEmail';
 
-const prisma = new PrismaClient();
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 // Inicializamos Transbank
