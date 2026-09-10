@@ -10,7 +10,7 @@ const PAYMENT_STATUS_LABELS: Record<string, string> = {
 };
 
 // Orden de las etapas de envío.
-export const SHIPPING_STAGES = [
+const SHIPPING_STAGES = [
   { value: 'CONFIRMADO', label: 'Pedido confirmado' },
   { value: 'PREPARANDO', label: 'En preparación' },
   { value: 'EN_CAMINO', label: 'En camino' },
