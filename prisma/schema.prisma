@@ -19,6 +19,7 @@ model User {
   createdAt DateTime @default(now())
   
   orders    Order[]  
+  reviews   Review[]
 }
 
 // --- 2. MODELO DE ÓRDENES ACTUALIZADO ---
@@ -50,4 +51,26 @@ model Product {
   id    String @id
   sku   String @unique
   stock Int    @default(0)
+  reviews   Review[]
 }
+// Agrega este nuevo modelo al final de tu archivo
+model Review {
+  id        String   @id @default(cuid())
+  rating    Int      // Un número del 1 al 5
+  comment   String?  // El texto de la reseña (opcional)
+  createdAt DateTime @default(now())
+
+  // Relación con el Producto
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId String
+
+  // Relación con el Usuario (quien deja la reseña)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+}
+
+// ⚠️ IMPORTANTE: Busca tu modelo Product actual y agrégale esta línea adentro:
+// reviews Review[]
+
+// ⚠️ IMPORTANTE: Busca tu modelo User actual y agrégale esta línea adentro:
+// reviews Review[]
