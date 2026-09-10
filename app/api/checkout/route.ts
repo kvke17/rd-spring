@@ -31,7 +31,7 @@ export async function POST(request: Request) {
     const buyOrder = `ORD-${shortUuid}`;
     const finalSessionId = `SESSION-${shortUuid}`;
     
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
     const returnUrl = `${baseUrl}/api/checkout/confirm`;
 
     // 2. Crear orden vinculando el ID del usuario de la sesión
