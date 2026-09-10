@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 export default function AuthPage() {
   const router = useRouter();
@@ -64,8 +65,17 @@ export default function AuthPage() {
             <label className="block text-[10px] font-mono uppercase tracking-widest text-gray-400 mb-2">Correo Electrónico</label>
             <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full bg-[#0a0a0a] border border-white/20 rounded p-3 text-white focus:outline-none focus:border-[#FF0000]" required />
           </div>
+          
           <div>
-            <label className="block text-[10px] font-mono uppercase tracking-widest text-gray-400 mb-2">Contraseña</label>
+            {/* Contenedor Flex para alinear el label y el enlace de recuperar contraseña */}
+            <div className="flex justify-between items-center mb-2">
+              <label className="block text-[10px] font-mono uppercase tracking-widest text-gray-400">Contraseña</label>
+              {isLogin && (
+                <Link href="/recuperar" className="text-[10px] font-mono uppercase tracking-widest text-gray-500 hover:text-[#FF0000] transition-colors">
+                  ¿Olvidaste tu contraseña?
+                </Link>
+              )}
+            </div>
             <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full bg-[#0a0a0a] border border-white/20 rounded p-3 text-white focus:outline-none focus:border-[#FF0000]" required />
           </div>
 

@@ -26,7 +26,7 @@ const nextConfig = {
         permanent: true,
       },
       {
-        source: '/shop/cart', // Otra ruta común que usa Odoo para el carrito
+        source: '/shop/cart', 
         destination: '/carro',
         permanent: true,
       },

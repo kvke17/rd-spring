@@ -4,8 +4,7 @@ import prisma from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { STORE_CONFIG } from "@/config/constants";
-
-
+import ChangePasswordForm from "@/components/ChangePasswordForm"; // <-- Importación del nuevo componente
 
 export default async function PerfilPage() {
   const session = await getServerSession(authOptions);
@@ -34,7 +33,7 @@ export default async function PerfilPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           
-          {/* Columna Izquierda: Datos del Usuario */}
+          {/* Columna Izquierda: Datos del Usuario y Seguridad */}
           <div className="md:col-span-1 space-y-6">
             <div className="bg-[#121212] border border-white/10 p-6 rounded-lg">
               <p className="text-xs uppercase font-mono tracking-widest text-[#FF0000] mb-4">Datos de la Cuenta</p>
@@ -47,8 +46,11 @@ export default async function PerfilPage() {
                   <p className="text-[10px] text-gray-500 font-mono uppercase">Correo Electrónico</p>
                   <p className="text-sm">{user.email}</p>
                 </div>
-                {/* Bloque de "Rol de Cuenta" eliminado limpiamente */}
               </div>
+
+              {/* Aquí inyectamos el componente interactivo pasándole el correo */}
+              <ChangePasswordForm email={user.email} />
+              
             </div>
           </div>
 
