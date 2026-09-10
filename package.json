@@ -3,11 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-  "dev": "next dev",
-  "build": "npm install --legacy-peer-deps && next build",
-  "start": "next start",
-  "lint": "next lint"
-},
+    "dev": "next dev",
+    "build": "npm install --legacy-peer-deps && next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
   "dependencies": {
     "@libsql/client": "^0.18.0",
     "@prisma/adapter-libsql": "^5.22.0",
@@ -19,6 +19,7 @@
     "lucide-react": "^0.460.0",
     "next": "^15.0.0",
     "next-auth": "^4.24.15",
+    "tailwindcss": "^3.4.19",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "recharts": "^3.10.1",
@@ -33,12 +34,12 @@
     "@types/node": "^20.19.43",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "autoprefixer": "^10.0.1",
+    "autoprefixer": "^10.5.5",
     "eslint": "^8",
     "eslint-config-next": "^15.0.0",
-    "postcss": "^8",
+    "postcss": "^8.5.28",
     "prisma": "^5.22.0",
-    "tailwindcss": "^3.3.0",
+    "tailwindcss": "^3.4.19",
     "ts-node": "^10.9.2",
     "tsx": "^4.19.0",
     "typescript": "^5.9.3"
