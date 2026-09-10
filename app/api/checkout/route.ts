@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import { WebpayPlus, Options, Environment, IntegrationCommerceCodes, IntegrationApiKeys } from 'transbank-sdk';
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import prisma from '@/lib/prisma';
 import crypto from 'crypto';
 
@@ -10,6 +12,9 @@ const tx = new WebpayPlus.Transaction(new Options(commerceCode, apiKey, environm
 
 export async function POST(request: Request) {
   try {
+    // 1. Obtenemos la sesión del usuario logueado para vincular la compra
+    const session = await getServerSession(authOptions);
+
     const body = await request.json();
     const { customer, items } = body;
 
@@ -29,7 +34,7 @@ export async function POST(request: Request) {
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
     const returnUrl = `${baseUrl}/api/checkout/confirm`;
 
-    // 1. Crear orden
+    // 2. Crear orden vinculando el ID del usuario de la sesión
     const order = await prisma.order.create({
       data: {
         buyOrder: buyOrder,
@@ -38,13 +43,14 @@ export async function POST(request: Request) {
         shippingStatus: 'PREPARANDO',
         customer: JSON.stringify(customer),
         items: JSON.stringify(items),
+        userId: session?.user ? (session.user as any).id : null,
       }
     });
 
-    // 2. Iniciar Transbank
+    // 3. Iniciar Transbank
     const response = await tx.create(buyOrder, finalSessionId, totalAmount, returnUrl);
 
-    // 3. Vincular Token
+    // 4. Vincular Token
     await prisma.order.update({
       where: { buyOrder },
       data: { token: response.token }
