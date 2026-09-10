@@ -17,7 +17,7 @@ const nextConfig = {
     return [
       {
         source: '/contact-us',
-        destination: '/',
+        destination: '/soporte',
         permanent: true,
       },
       {
@@ -32,7 +32,7 @@ const nextConfig = {
       },
       {
         source: '/cotizar',
-        destination: '/', // O a la ruta de tu formulario de contacto si tienes una
+        destination: '/cotizacion', // O a la ruta de tu formulario de contacto si tienes una
         permanent: true,
       }
     ]
