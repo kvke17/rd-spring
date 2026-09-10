@@ -226,8 +226,9 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
             {activeTab === 'garantia' && (
               <div className="max-w-4xl text-sm text-gray-300 leading-relaxed space-y-4">
                 <h3 className="text-lg font-bold text-white mb-4">Garantía RD Spring</h3>
-                <p>Todos nuestros productos están respaldados por una garantía legal de 6 meses contra defectos de fabricación. Si el producto presenta fallas prematuras que no correspondan al desgaste natural por uso, procederemos con el reemplazo o reembolso.</p>
-                <p><strong>Devoluciones:</strong> Aceptamos devoluciones dentro de los primeros 10 días desde la recepción del producto, siempre y cuando este se encuentre sellado, sin uso y en su empaque original.</p>
+                <p>Garantía Limitada
+                    Todos nuestros productos cuentan con una garantía de un año contra defectos de fabricación. Esta garantía entra en vigor a partir de la fecha de recepción del producto.</p>
+                <p><strong>Devoluciones:</strong> Los productos de venta online pueden cambiarse o devolverse bajo las condiciones detalladas en nuestra página de Garantía, Cambios y Devoluciones, incluyendo plazos, estado requerido del producto y proceso de validación.</p>
               </div>
             )}
           </div>
