@@ -98,8 +98,7 @@ async function processPayment(request: Request) {
     console.error('Error al confirmar transacción:', error);
     return NextResponse.redirect(new URL('/carro?error=sistema', request.url), { status: 303 });
   }
-  // Cuando Transbank confirma que el pago fue exitoso:
-return NextResponse.redirect(new URL('/checkout/success', request.url), {
-  status: 303,
-});
+  
+  
+  
 }
