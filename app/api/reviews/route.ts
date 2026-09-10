@@ -41,4 +41,35 @@ export async function POST(request: Request) {
     console.error('Error creando reseña:', error);
     return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 });
   }
+
+  
+}
+
+// (Mantén la función export async function POST que ya tenías arriba)
+
+export async function GET(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const productId = searchParams.get('productId');
+
+    if (!productId) {
+      return NextResponse.json({ error: 'Falta el ID del producto' }, { status: 400 });
+    }
+
+    // Buscamos las reseñas y también traemos el nombre del usuario
+    const reviews = await prisma.review.findMany({
+      where: { productId },
+      include: {
+        user: {
+          select: { name: true }
+        }
+      },
+      orderBy: { createdAt: 'desc' } // Las más nuevas primero
+    });
+
+    return NextResponse.json(reviews);
+  } catch (error) {
+    console.error('Error al obtener reseñas:', error);
+    return NextResponse.json({ error: 'Error interno' }, { status: 500 });
+  }
 }

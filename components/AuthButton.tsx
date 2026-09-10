@@ -48,7 +48,7 @@ export default function AuthButton() {
   }
 
   return (
-    <Link href="/login" className="text-xs font-mono uppercase tracking-widest text-gray-400 hover:text-white transition-colors border border-white/20 px-4 py-2 rounded hover:border-white/50">
+    <Link href="/perfil" className="text-xs font-mono uppercase tracking-widest text-gray-400 hover:text-white transition-colors border border-white/20 px-4 py-2 rounded hover:border-white/50">
       LOGIN / REGISTRO
     </Link>
   );

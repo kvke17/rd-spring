@@ -9,6 +9,8 @@ import { Product } from '@/types';
 import { STORE_CONFIG } from '@/config/constants';
 import { useCartStore } from '@/lib/store';
 import QuoteModal from '@/components/QuoteModal';
+// 1. IMPORTAMOS EL COMPONENTE DE RESEÑAS
+import ProductReviews from '@/components/ProductoReviews';
 
 const TABS = [
   { id: 'descripcion', label: 'Descripción' },
@@ -50,7 +52,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
     setImgSrc(`/images/rowe/${currentSku}.png`);
   }, [currentSku]);
 
-  // 3. Agregar al Carro (Corrección aplicada)
+  // 3. Agregar al Carro
   const handleAddToCart = () => {
     if (stockDisponible <= 0) return;
     
@@ -65,7 +67,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
     };
 
     addItem(productToAdd, quantity);
-    alert('Producto agregado al carro');
+
   };
 
   return (
@@ -83,7 +85,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
               fill 
               className="object-contain p-8 transition-opacity duration-300" 
               priority 
-              onError={() => setImgSrc('/images/logo-rd.png')} // Salvavidas si la foto no existe
+              onError={() => setImgSrc('/images/logo-rd.png')}
             />
           </div>
 
@@ -98,7 +100,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                 {STORE_CONFIG.CURRENCY_FORMAT.format(currentPrice)}
               </div>
 
-              {/* BOTONES DE FORMATO (Aquí ocurre la magia) */}
+              {/* BOTONES DE FORMATO */}
               {product.formats && product.formats.length > 0 && (
                 <div className="mb-8">
                   <p className="text-[11px] uppercase tracking-widest text-gray-400 mb-3 font-mono">Seleccionar Formato</p>
@@ -145,7 +147,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
           </div>
         </div>
 
-        {/* PESTAÑAS ESTILO FCP EURO */}
+        {/* PESTAÑAS */}
         <div className="mt-20">
           <div className="flex overflow-x-auto no-scrollbar border-b border-white/10">
             {TABS.map((tab) => (
@@ -217,35 +219,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
 
             {activeTab === 'resenas' && (
               <div className="max-w-4xl space-y-12">
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-white/10 pb-6 gap-4">
-                  <div>
-                    <h3 className="text-xl font-bold text-white uppercase tracking-tight">Valoraciones de Clientes</h3>
-                    <div className="flex items-center mt-2">
-                      <span className="text-[#FF0000] text-lg tracking-widest">★★★★★</span>
-                      <span className="text-xs font-mono text-gray-400 ml-3">Basado en 1 reseña verificada</span>
-                    </div>
-                  </div>
-                  <button className="bg-white text-black font-bold px-6 py-3 uppercase tracking-wide text-xs hover:bg-gray-200 transition">
-                    Escribir Reseña
-                  </button>
-                </div>
-                <div className="space-y-6">
-                  <div className="bg-[#121212] p-6 border border-white/5">
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-[#FF0000]/10 text-[#FF0000] rounded-full flex items-center justify-center text-xs font-bold font-mono">JM</div>
-                        <div>
-                          <p className="text-sm font-bold text-white">Juan Morales</p>
-                          <p className="text-xs text-[#FF0000] tracking-widest mt-1">★★★★★ <span className="text-green-500 font-mono text-[10px] ml-2 tracking-normal uppercase">✓ Comprador Verificado</span></p>
-                        </div>
-                      </div>
-                      <span className="text-[10px] font-mono text-gray-500">hace 2 semanas</span>
-                    </div>
-                    <p className="text-sm text-gray-300 mb-6 leading-relaxed">
-                      Excelente aceite, llegó en el tiempo acordado y el envase en perfectas condiciones. Lo usé para mi vehículo y el motor anda impecable. Dejo una foto de cómo llegó el paquete protegido.
-                    </p>
-                  </div>
-                </div>
+                <ProductReviews productId={currentSku} />
               </div>
             )}
 

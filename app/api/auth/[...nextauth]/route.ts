@@ -1,9 +1,8 @@
 import NextAuth, { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { PrismaClient } from "@prisma/client";
+import prisma from '@/lib/prisma';
 import bcrypt from "bcrypt";
 
-const prisma = new PrismaClient();
 
 // Exportamos esta configuración para que el Backend la pueda usar
 export const authOptions: NextAuthOptions = {

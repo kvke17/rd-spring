@@ -3,6 +3,7 @@ import Image from 'next/image';
 import productsData from '@/data/products.json';
 import { STORE_CONFIG } from '@/config/constants';
 
+
 export default async function CatalogoPage({ searchParams }: { searchParams: Promise<{ categoria?: string }> }) {
   const params = await searchParams;
   const categoriaQuery = params.categoria?.toLowerCase();

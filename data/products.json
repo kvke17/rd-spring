@@ -269,27 +269,7 @@
         "sku": "20245-0010-99",
         "price": 15990,
         "stock": 10
-      }
-    ],
-    "description": "Aceite de motor de marcha suave y alta eficacia formulado sobre tecnología de síntesis HC, fabricado en Alemania. Desarrollado para satisfacer los requerimientos de motores a gasolina (bencina) y diésel, atmosféricos o turboalimentados, de los principales fabricantes asiáticos. Su formulación es compatible con filtros de partículas (DPF), ofreciendo protección contra el desgaste, excelente fluidez y un rendimiento optimizado bajo especificaciones ACEA C3 y API SN.",
-    "specs": {
-      "Base / Viscosidad": "Tecnología de síntesis HC (HC-Synthese) / SAE 5W-30 (Low/Mid-SAPS)",
-      "Aplicación / Emisiones": "Motores Bencina y Diésel (con/sin turbo). Compatible con Filtros de Partículas (DPF/GPF) y catalizadores",
-      "Especificaciones Industriales": "ACEA C3 | API SN",
-      "Recomendaciones": "Marcas Asiáticas: Honda, Hyundai, Kia, Mazda, Mitsubishi, Nissan, Subaru, Suzuki, Toyota, Daihatsu\r\nAPI: CF",
-      "Propiedades Destacadas": "Especialmente desarrollado para marcas asiáticas, excelente fluidez en frío y \r\ncompatibilidad total con DPF/GPF.",
-      "Origen": "Alemania (Made in Germany)"
-    }
-  },
-  {
-    "id": "aceite-motor-hightec-synt-asia-5w-30-4l",
-    "name": "ACEITE MOTOR HIGHTEC SYNT ASIA 5W-30 4L",
-    "slug": "aceite-motor-hightec-synt-asia-5w-30-4l",
-    "brand": "GENERIC",
-    "category": "Aceite de Motor",
-    "type": "venta_online",
-    "image": "/images/rowe/20245-0040-99.png",
-    "formats": [
+      },
       {
         "size": "4LT",
         "sku": "20245-0040-99",
@@ -303,9 +283,21 @@
       "Aplicación / Emisiones": "Motores Bencina y Diésel (con/sin turbo). Compatible con Filtros de Partículas (DPF/GPF) y catalizadores",
       "Especificaciones Industriales": "ACEA C3 | API SN",
       "Recomendaciones": "Marcas Asiáticas: Honda, Hyundai, Kia, Mazda, Mitsubishi, Nissan, Subaru, Suzuki, Toyota, Daihatsu\r\nAPI: CF",
-      "Propiedades Destacadas": "Especialmente desarrollado para marcas asiáticas, excelente fluidez en frío y \r\ncompatibilidad total con DPF/GPF.",
+      "Propiedades Destacadas": "Especialmente desarrollado para marcas asiáticas, excelente fluidez en frío y compatibilidad total con DPF/GPF.",
       "Origen": "Alemania (Made in Germany)"
-    }
+    },
+    "compatibility": [
+      "Honda",
+      "Hyundai",
+      "Kia",
+      "Mazda",
+      "Mitsubishi",
+      "Nissan",
+      "Subaru",
+      "Suzuki",
+      "Toyota",
+      "Daihatsu"
+    ]
   },
   {
     "id": "aceite-motor-hightec-synth-rs-5w-40",
