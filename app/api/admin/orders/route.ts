@@ -1,12 +1,11 @@
-import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route'; // Importamos las opciones
+export const dynamic = 'force-dynamic'; // Evita que Next.js congele la pantalla
 
-const prisma = new PrismaClient();
+import { NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import prisma from '@/lib/prisma'; // 🚨 AQUÍ ESTÁ LA MAGIA, USAMOS TURSO
 
 export async function GET() {
-  // Le pasamos authOptions para que sepa cómo leer la sesión
   const session = await getServerSession(authOptions);
   
   if (!session || (session.user as any).role !== "ADMIN") {

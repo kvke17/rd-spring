@@ -257,22 +257,8 @@ function SeguimientoForm() {
             <span className="text-white">{new Date(order.createdAt).toLocaleDateString('es-CL')}</span>
           </div>
 
-          {order.paymentStatus !== 'PAID' ? (
-            <div className="mb-6">
-              <span className="text-gray-400">Estado del pago</span>
-              <div className="mt-2">
-                <span
-                  className={`inline-block px-3 py-1 text-[10px] uppercase tracking-widest font-bold ${
-                    order.paymentStatus === 'REJECTED'
-                      ? 'bg-red-500/20 text-red-400 border border-red-500/50'
-                      : 'bg-white/10 text-gray-300 border border-white/20'
-                  }`}
-                >
-                  {order.paymentStatusLabel}
-                </span>
-              </div>
-            </div>
-          ) : (
+          {/* 🚨 AQUÍ EL ARREGLO: Permite "PAID" o "PAGADO" para mostrar la línea de tiempo */}
+          {order.paymentStatus === 'PAID' || order.paymentStatus === 'PAGADO' ? (
             <div className="mb-8">
               <span className="text-gray-400 block mb-4">Estado del envío</span>
               <div className="flex items-center">
@@ -303,6 +289,21 @@ function SeguimientoForm() {
                     </div>
                   );
                 })}
+              </div>
+            </div>
+          ) : (
+            <div className="mb-6">
+              <span className="text-gray-400">Estado del pago</span>
+              <div className="mt-2">
+                <span
+                  className={`inline-block px-3 py-1 text-[10px] uppercase tracking-widest font-bold ${
+                    order.paymentStatus === 'REJECTED'
+                      ? 'bg-red-500/20 text-red-400 border border-red-500/50'
+                      : 'bg-white/10 text-gray-300 border border-white/20'
+                  }`}
+                >
+                  {order.paymentStatusLabel}
+                </span>
               </div>
             </div>
           )}

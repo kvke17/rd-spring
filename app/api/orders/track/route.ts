@@ -1,15 +1,15 @@
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import prisma from '@/lib/prisma'; // 🚨 AQUÍ ESTÁ LA MAGIA: Conexión a Turso
 
-const prisma = new PrismaClient();
-
+// Agregamos PAGADO a las etiquetas para que lo reconozca
 const PAYMENT_STATUS_LABELS: Record<string, string> = {
   PENDING: 'Pendiente de pago',
   PAID: 'Pagado',
+  PAGADO: 'Pagado', 
   REJECTED: 'Pago rechazado',
 };
 
-// Orden de las etapas de envío. El índice se usa para dibujar la barra de progreso.
+// Orden de las etapas de envío.
 export const SHIPPING_STAGES = [
   { value: 'CONFIRMADO', label: 'Pedido confirmado' },
   { value: 'PREPARANDO', label: 'En preparación' },
@@ -27,6 +27,7 @@ export async function GET(request: Request) {
   }
 
   try {
+    // Busca en Turso
     const order = await prisma.order.findUnique({ where: { buyOrder } });
 
     if (!order) {
@@ -35,7 +36,7 @@ export async function GET(request: Request) {
 
     const customer = JSON.parse(order.customer);
 
-    // Verificación simple: el email debe coincidir con el usado en la compra.
+    // Verificación: el email debe coincidir
     if (!customer.email || customer.email.trim().toLowerCase() !== email) {
       return NextResponse.json({ error: 'El email no coincide con los datos de esa orden.' }, { status: 403 });
     }

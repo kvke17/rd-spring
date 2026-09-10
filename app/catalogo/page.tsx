@@ -1,7 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import productsData from '@/data/products.json';
-// Importamos tu configuración de moneda
 import { STORE_CONFIG } from '@/config/constants';
 
 export default async function CatalogoPage({ searchParams }: { searchParams: Promise<{ categoria?: string }> }) {
@@ -9,7 +8,6 @@ export default async function CatalogoPage({ searchParams }: { searchParams: Pro
   const categoriaQuery = params.categoria?.toLowerCase();
   const normalize = (s: string) => s.toLowerCase().replace(/[-\s]/g, '');
   
-  // Usamos temporalmente 'any[]' por si tu type Product aún no tiene la propiedad 'formats'
   let products = (productsData as any[]).filter((p) => p.type === 'venta_online');
 
   if (categoriaQuery) {
@@ -42,64 +40,83 @@ export default async function CatalogoPage({ searchParams }: { searchParams: Pro
           <p className="text-gray-400 font-mono text-sm">No se encontraron productos para esta categoría.</p>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {products.map((p) => (
-              <div key={p.id} className="border border-white/10 bg-[#121212] flex flex-col group">
-                
-                {/* CONTENEDOR DE IMAGEN MODIFICADO PARA OCUPAR EL 100% */}
-                <div className="aspect-square relative bg-[#0a0a0a] overflow-hidden group">
-                  <span className={`absolute top-3 right-3 text-[9px] font-mono tracking-wider px-2 py-1 uppercase font-bold z-10 ${p.type === 'venta_online' ? 'bg-[#FF0000] text-black' : 'border border-white/30 text-white bg-black/60 backdrop-blur-sm'}`}>
-                    {p.type === 'venta_online' ? 'VENTA ONLINE' : 'COTIZACIÓN'}
-                  </span>
-                  
-                  {/* Imagen Principal */}
-                  <Image 
-                    src={p.image} 
-                    alt={p.name} 
-                    fill
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 25vw"
-                    className={`object-cover transition-all duration-500 ease-in-out ${
-                      p.imageHover ? 'group-hover:opacity-0' : 'group-hover:scale-105'
-                    }`} 
-                  />
+            {products.map((p) => {
+              
+              // 🚨 LÓGICA DINÁMICA DE IMÁGENES
+              const hasFormats = p.formats && p.formats.length > 0;
+              
+              // 1. Imagen Principal: Usa el SKU del primer formato (ej: 1 Litro), si no existe usa la por defecto
+              const imgSrc = hasFormats 
+                ? `/images/rowe/${p.formats[0].sku}.png` 
+                : (p.image || '/images/logo-rd.png');
+              
+              // 2. Imagen Hover: Usa el SKU del último formato (ej: 4 o 5 Litros)
+              let hoverSrc = p.imageHover;
+              if (!hoverSrc && hasFormats && p.formats.length > 1) {
+                // Toma el último formato de la lista para el hover
+                const lastFormat = p.formats[p.formats.length - 1];
+                hoverSrc = `/images/rowe/${lastFormat.sku}.png`;
+              }
 
-                  {/* Imagen Secundaria (Hover) */}
-                  {p.imageHover && (
+              return (
+                <div key={p.id} className="border border-white/10 bg-[#121212] flex flex-col group">
+                  
+                  {/* CONTENEDOR DE IMAGEN MODIFICADO */}
+                  <div className="aspect-square relative bg-[#0a0a0a] overflow-hidden group">
+                    <span className={`absolute top-3 right-3 text-[9px] font-mono tracking-wider px-2 py-1 uppercase font-bold z-10 ${p.type === 'venta_online' ? 'bg-[#FF0000] text-black' : 'border border-white/30 text-white bg-black/60 backdrop-blur-sm'}`}>
+                      {p.type === 'venta_online' ? 'VENTA ONLINE' : 'COTIZACIÓN'}
+                    </span>
+                    
+                    {/* Imagen Principal (1 Litro) */}
                     <Image 
-                      src={p.imageHover} 
-                      alt={`${p.name} reverso`} 
+                      src={imgSrc} 
+                      alt={p.name} 
                       fill
                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 25vw"
-                      className="absolute inset-0 object-cover opacity-0 transition-opacity duration-500 ease-in-out group-hover:opacity-100" 
+                      className={`object-cover transition-all duration-500 ease-in-out ${
+                        hoverSrc ? 'group-hover:opacity-0' : 'group-hover:scale-105'
+                      }`} 
                     />
-                  )}
-                </div>
-                
-                <div className="p-5 flex-1 flex flex-col justify-between">
-                  <div>
-                    <p className="text-[10px] uppercase font-mono tracking-widest text-[#FF0000] mb-1">{p.brand} · {p.category}</p>
-                    <Link href={`/producto/${p.slug}`}>
-                      <h3 className="text-sm font-bold text-white line-clamp-2 hover:text-[#FF0000] transition">{p.name}</h3>
-                    </Link>
+
+                    {/* Imagen Secundaria (5 Litros al pasar el mouse) */}
+                    {hoverSrc && (
+                      <Image 
+                        src={hoverSrc} 
+                        alt={`${p.name} formato mayor`} 
+                        fill
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 25vw"
+                        className="absolute inset-0 object-cover opacity-0 transition-opacity duration-500 ease-in-out group-hover:opacity-100" 
+                      />
+                    )}
                   </div>
                   
-                  {/* LÓGICA DE PRECIO Y SKU DINÁMICOS */}
-                  <div className="mt-4 pt-4 border-t border-white/10 flex items-center justify-between font-mono">
-                    <p className="text-sm font-bold text-white">
-                      {p.formats && p.formats.length > 0 && (
-                        <span className="text-[10px] text-gray-500 font-mono mr-2 font-normal">DESDE</span>
-                      )}
-                      {STORE_CONFIG.CURRENCY_FORMAT.format(
-                        p.price || (p.formats && p.formats.length > 0 ? p.formats[0].price : 0)
-                      )}
-                    </p>
-                    <span className="text-[10px] text-gray-500">
-                      {p.sku || (p.formats && p.formats.length > 0 ? p.formats[0].sku : '')}
-                    </span>
+                  <div className="p-5 flex-1 flex flex-col justify-between">
+                    <div>
+                      <p className="text-[10px] uppercase font-mono tracking-widest text-[#FF0000] mb-1">{p.brand} · {p.category}</p>
+                      <Link href={`/producto/${p.slug}`}>
+                        <h3 className="text-sm font-bold text-white line-clamp-2 hover:text-[#FF0000] transition">{p.name}</h3>
+                      </Link>
+                    </div>
+                    
+                    {/* LÓGICA DE PRECIO Y SKU DINÁMICOS */}
+                    <div className="mt-4 pt-4 border-t border-white/10 flex items-center justify-between font-mono">
+                      <p className="text-sm font-bold text-white">
+                        {p.formats && p.formats.length > 0 && (
+                          <span className="text-[10px] text-gray-500 font-mono mr-2 font-normal">DESDE</span>
+                        )}
+                        {STORE_CONFIG.CURRENCY_FORMAT.format(
+                          p.price || (p.formats && p.formats.length > 0 ? p.formats[0].price : 0)
+                        )}
+                      </p>
+                      <span className="text-[10px] text-gray-500">
+                        {p.sku || (p.formats && p.formats.length > 0 ? p.formats[0].sku : '')}
+                      </span>
+                    </div>
+                    
                   </div>
-                  
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>

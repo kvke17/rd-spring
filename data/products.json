@@ -1,122 +1,571 @@
 [
   {
-    "id": "rowe-1",
-    "name": "ROWE HIGHTEC SYNT RS HC-D SAE 5W-40 (Porsche)",
-    "slug": "rowe-hightec-synt-rs-hc-d-5w40-porsche",
-    "brand": "ROWE",
+    "id": "aceite-motor-hightec-synt-rs-dls-5w-30",
+    "name": "ACEITE MOTOR HIGHTEC SYNT RS DLS 5W-30",
+    "slug": "aceite-motor-hightec-synt-rs-dls-5w-30",
+    "brand": "GENERIC",
     "category": "Aceite de Motor",
     "type": "venta_online",
-    "image": "/images/rowe/porsche-front.png",
-    "imageHover": "/images/rowe/porsche-back.png",
-    "vehicleBrands": ["Porsche", "Audi", "Volkswagen"],
-    "specs": {
-      "Viscosidad": "5W-40",
-      "Origen": "Alemania"
-    },
-    "compatibility": ["Motores Gasolina", "Motores Diésel", "Porsche A40"],
+    "image": "/images/rowe/20118-0010-99.png",
     "formats": [
       {
-        "size": "1 Litro",
-        "sku": "RW-POR-5W40-1L",
-        "price": 14500,
+        "size": "1LT",
+        "sku": "20118-0010-99",
+        "price": 14990,
         "stock": 10
       },
       {
-        "size": "5 Litros",
-        "sku": "RW-POR-5W40-5L",
-        "price": 45000,
-        "stock": 17
+        "size": "4LT",
+        "sku": "20118-0040-99",
+        "price": 54990,
+        "stock": 10
+      },
+      {
+        "size": "5LT",
+        "sku": "20118-0050-99",
+        "price": 69990,
+        "stock": 10
       }
+    ],
+    "description": "Aceite de motor sintético premium (tecnología HC-Synthese) de baja viscosidad y formulación Low-Ash (Mid-SAPS), desarrollado para motores de gasolina y diésel modernos, con o sin turbocompresor. Optimizado para proteger filtros de partículas diésel (DPF) y catalizadores al reducir los niveles de cenizas sulfatadas, fósforo y azufre, previniendo la acumulación de depósitos. Funciona como fluido de racionalización multimarca, ofreciendo excelente fluidez en arranques en frío, baja pérdida por evaporación para reducir el consumo de aceite.",
+    "specs": {
+      "Base / Viscosidad": "Tecnología de síntesis HC (HC-Synthese) / SAE 5W-30 (Low-Ash / Mid-SAPS)",
+      "Aplicación / Emisiones": "Motores Bencina y Diésel (con/sin turbo). Apto para filtro de partículas (DPF/GPF) y catalizadores",
+      "Especificaciones Industriales": "ACEA C2, C3 | API SP RC / SN PLUS RC | ILSAC GF-5, GF-6A",
+      "Aprobaciones": "BMW Longlife-04 (compatible con LL-01 y LL-98) \r\nMB-Freigabe 229.31 / 229.51 / 229.52",
+      "Especificaciones": "Ford WSS-M2C961-A1 \r\nOpel/Vauxhall OV 040 1547-D30 / G30 \r\nVWC 530 34",
+      "Recomendaciones": "GM dexos2 (reemplaza GM-LL-A-025 / GM-LL-B-025)  \r\nVW 505 00 / 505 01 \r\nFiat 9.55535-S1",
+      "Propiedades Destacadas": "Rápida lubricación en frío, baja formación de cenizas para proteger el DPF y alta resistencia \r\na la oxidación",
+      "Origen": "Alemania (Made in Germany)"
+    },
+    "compatibility": [
+      "BMW Longlife-04 (compatible con LL-01 y LL-98)",
+      "MB-Freigabe 229.31 / 229.51 / 229.52",
+      "Ford WSS-M2C961-A1",
+      "Opel/Vauxhall OV 040 1547-D30 / G30",
+      "VWC 530 34"
     ]
   },
   {
-    "id": "rowe-2",
-    "name": "ROWE HIGHTEC MULTI SYNT DPF SAE 5W-30 (BMW)",
-    "slug": "rowe-hightec-multi-synt-dpf-5w30-bmw",
-    "brand": "ROWE",
+    "id": "aceite-motor-hightec-multi-synt-dpf-5w-30",
+    "name": "ACEITE MOTOR HIGHTEC MULTI SYNT DPF 5W-30",
+    "slug": "aceite-motor-hightec-multi-synt-dpf-5w-30",
+    "brand": "GENERIC",
     "category": "Aceite de Motor",
     "type": "venta_online",
-    "image": "/images/rowe/bmw-front.png",
-    "imageHover": "/images/rowe/bmw-back.png",
-    "vehicleBrands": ["BMW", "Mercedes-Benz"],
-    "specs": {
-      "Viscosidad": "5W-30",
-      "Origen": "Alemania"
-    },
-    "compatibility": ["Motores Gasolina", "Motores Diésel", "BMW Longlife-04"],
+    "image": "/images/rowe/20125-0010-99.png",
     "formats": [
       {
-        "size": "1 Litro",
-        "sku": "RW-BMW-5W30-1L",
-        "price": 15900,
+        "size": "1LT",
+        "sku": "20125-0010-99",
+        "price": 17990,
         "stock": 10
       },
       {
-        "size": "5 Litros",
-        "sku": "RW-BMW-5W30-5L",
-        "price": 52000,
-        "stock": 17
+        "size": "4LT",
+        "sku": "20125-0040-99",
+        "price": 64990,
+        "stock": 10
+      },
+      {
+        "size": "5LT",
+        "sku": "20125-0050-99",
+        "price": 79990,
+        "stock": 10
       }
+    ],
+    "description": "Aceite de motor de calidad premium formulado sobre tecnología de síntesis HC de baja viscosidad, diseñado para motores de gasolina (bencina) y diésel de turismos\r\nmodernos, con o sin turbocompresor. Su formulación de bajo contenido en cenizas sulfatadas, fósforo y azufre protege y prolonga la vida útil de los filtros de partículas (DPF) y catalizadores. Funciona como\r\n un fluido de racionalización multimarca de alto rendimiento que permite intervalos de cambio extendidos de hasta 50.000 km (según el plan de mantenimiento del fabricante), garantizando \r\nun consumo optimizado de combustible, resistencia superior a la oxidación, baja evaporación de aceite y una película lubricante estable ante cizallamiento y altas temperaturas.",
+    "specs": {
+      "Base / Viscosidad": "Tecnología de síntesis HC (HC-Synthese) / SAE 5W-30 (Low/Mid-SAPS)",
+      "Aplicación / Emisiones": "Motores Bencina y Diésel (con/sin turbo). Totalmente compatible con Filtros de \r\nPartículas (DPF/GPF) y catalizadores",
+      "Especificaciones Industriales": "ACEA C3 | API SQ",
+      "Aprobaciones": "VW 504 00 / 507 00  \r\nBMW Longlife-04 (compatible hacia atrás con LL-01 y LL-98) \r\nMB-Freigabe 229.31 / 229.51 / 229.52 \r\nPorsche C30",
+      "Especificaciones": "Opel/Vauxhall OV 040 1547-D30 / G30",
+      "Recomendaciones": "VW 503 00 / 506 00  \r\nGM dexos2 \r\nAPI CF",
+      "Propiedades Destacadas": "Producto clave de racionalización para Grupo VAG, rápida lubricación en frío, protección DPF/GPF y \r\napto para intervalos de cambio extendidos LongLife",
+      "Origen": "Alemania (Made in Germany)"
+    },
+    "compatibility": [
+      "VW 504 00 / 507 00",
+      "BMW Longlife-04 (compatible hacia atrás con LL-01 y LL-98)",
+      "MB-Freigabe 229.31 / 229.51 / 229.52",
+      "Porsche C30",
+      "Opel/Vauxhall OV 040 1547-D30 / G30"
     ]
   },
   {
-    "id": "rowe-3",
-    "name": "ROWE HIGHTEC SYNT RS DLS SAE 5W-30 (Audi)",
-    "slug": "rowe-hightec-synt-rs-dls-5w30-audi",
-    "brand": "ROWE",
+    "id": "aceite-motor-hightec-synt-rs-d1-5w-30",
+    "name": "ACEITE MOTOR HIGHTEC SYNT RS D1 5W-30",
+    "slug": "aceite-motor-hightec-synt-rs-d1-5w-30",
+    "brand": "GENERIC",
     "category": "Aceite de Motor",
     "type": "venta_online",
-    "image": "/images/rowe/audi-front.png",
-    "imageHover": "/images/rowe/audi-back.png",
-    "vehicleBrands": ["Audi", "Volkswagen", "Seat", "Skoda"],
-    "specs": {
-      "Viscosidad": "5W-30",
-      "Origen": "Alemania"
-    },
-    "compatibility": ["Motores Gasolina", "Motores Diésel", "VW 504 00/507 00"],
+    "image": "/images/rowe/20212-0010-99.png",
     "formats": [
       {
-        "size": "1 Litro",
-        "sku": "RW-AUDI-5W30-1L",
-        "price": 14900,
+        "size": "1LT",
+        "sku": "20212-0010-99",
+        "price": 14990,
         "stock": 10
       },
       {
-        "size": "5 Litros",
-        "sku": "RW-AUDI-5W30-5L",
-        "price": 48000,
-        "stock": 17
+        "size": "5LT",
+        "sku": "20212-0050-99",
+        "price": 69990,
+        "stock": 10
       }
+    ],
+    "description": "Aceite de motor sintético premium (tecnología de síntesis HC) de baja viscosidad y máxima eficiencia en consumo de combustible, desarrollado\r\npara motores de gasolina (bencina) de turismos modernos, con o sin turbocompresor. Diseñado para cumplir con las exigentes normativas API SP RC (Resource Conserving), ILSAC GF-6A y GM Dexos1 Gen 3, ofrece un notable ahorro de combustible, excelente protección contra el desgaste y superior limpieza interna del motor, mientras prolonga la vida útil de los convertidores catalíticos.",
+    "specs": {
+      "Base / Viscosidad": "Tecnología de síntesis HC (HC-Synthese) / SAE 5W-30",
+      "Aplicación / Emisiones": "Motores a Gasolina (con/sin turbo e inyección directa). Optimizado para la protección del catalizador",
+      "Especificaciones Industriales": "API SQ / SP RC / SN PLUS RC (Resource Conserving) | ILSAC GF-5 / GF-6A / GF-7A",
+      "Aprobaciones": "GM dexos1 Gen 3",
+      "Especificaciones": "Ford WSS-M2C929-A / WSS-M2C946-A\r\nOpel/Vauxhall OV 040 1547-G30 (Solo gasolina)\r\nVWC 530 34\"",
+      "Recomendaciones": "Chrysler MS-6395 (T)\r\nFord WSS-M2C961-A1 / WSS-M2C946-B1\r\nGM 6094M / 4718M\r\nHonda/Acura HTO-06",
+      "Propiedades Destacadas": "Elevado ahorro de combustible, protección contra LSPI en motores turbo GDI, máxima limpieza de \r\nelementos internos y vida útil extendida de catalizadores.",
+      "Origen": "Alemania (Made in Germany)"
+    },
+    "compatibility": [
+      "GM dexos1 Gen 3",
+      "Ford WSS-M2C929-A / WSS-M2C946-A",
+      "Opel/Vauxhall OV 040 1547-G30 (Solo gasolina)",
+      "VWC 530 34\""
     ]
   },
   {
-    "id": "rowe-4",
-    "name": "ROWE HIGHTEC SYNT ASIA SAE 5W-30 (Land Rover)",
-    "slug": "rowe-hightec-synt-asia-sae-5w-30-land-rover",
-    "brand": "ROWE",
+    "id": "aceite-motor-hightec-synt-rs-hc-d-5w-30",
+    "name": "ACEITE MOTOR HIGHTEC SYNT RS HC-D 5W-30",
+    "slug": "aceite-motor-hightec-synt-rs-hc-d-5w-30",
+    "brand": "GENERIC",
     "category": "Aceite de Motor",
     "type": "venta_online",
-    "image": "/images/rowe/landrover-front.png",
-    "imageHover": "/images/rowe/landrover-back.png",
-    "vehicleBrands": ["Land Rover", "Jaguar", "Toyota"],
-    "specs": {
-      "Viscosidad": "5W-30",
-      "Origen": "Alemania"
-    },
-    "compatibility": ["Motores Gasolina", "Motores Diésel", "STJLR.03.5005"],
+    "image": "/images/rowe/20060-0010-99.png",
     "formats": [
       {
-        "size": "1 Litro",
-        "sku": "RW-LR-5W30-1L",
-        "price": 16900,
+        "size": "1LT",
+        "sku": "20060-0010-99",
+        "price": 15990,
         "stock": 10
       },
       {
-        "size": "5 Litros",
-        "sku": "RW-LR-5W30-5L",
-        "price": 55000,
-        "stock": 17
+        "size": "5LT",
+        "sku": "20060-0050-99",
+        "price": 74990,
+        "stock": 10
       }
+    ],
+    "description": "Aceite multigrado sintético de alto rendimiento (tecnología de síntesis HC) y baja viscosidad, fabricado en Alemania para motores de gasolina y diésel (con o sin turbocompresor). Diseñado específicamente para responder a las exigencias térmicas de motores que requieren alta protección de película lubricante y resistencia al cizallamiento (Full-SAPS). Ofrece rápida fluidez en arranques en frío, excelente limpieza interna del motor y óptima estabilidad frente a la oxidación en intervalos de servicio estándar.",
+    "specs": {
+      "Base / Viscosidad": "Tecnología de síntesis HC (HC-Synthese) / SAE 5W-30",
+      "Aplicación / Emisiones": "Motores a gasolina (bencina) y diésel con o sin turbo (sin DPF)",
+      "Especificaciones Industriales": "ACEA A3/B4 | API SL",
+      "Aprobaciones": "MB-Freigabe 229.5\r\nVW 502 00 / 505 00",
+      "Especificaciones": "Opel GM-LL-A-025 / GM-LL-B-025\r\nRenault RN 0700 / RN 0710",
+      "Recomendaciones": "BMW Longlife-01\r\nAPI CF",
+      "Propiedades Destacadas": "Rápida lubricación en arranques en frío, alta estabilidad frente al cizallamiento y \r\nprevención de sedimentos/lodos.",
+      "Origen": "Alemania (Made in Germany)"
+    },
+    "compatibility": [
+      "MB-Freigabe 229.5",
+      "VW 502 00 / 505 00",
+      "Opel GM-LL-A-025 / GM-LL-B-025",
+      "Renault RN 0700 / RN 0710"
+    ]
+  },
+  {
+    "id": "aceite-motor-hightec-synt-rs-5w-30-hc-fo",
+    "name": "ACEITE MOTOR HIGHTEC SYNT RS 5W-30 HC-FO",
+    "slug": "aceite-motor-hightec-synt-rs-5w-30-hc-fo",
+    "brand": "GENERIC",
+    "category": "Aceite de Motor",
+    "type": "venta_online",
+    "image": "/images/rowe/20146-0010-99.png",
+    "formats": [
+      {
+        "size": "1LT",
+        "sku": "20146-0010-99",
+        "price": 15990,
+        "stock": 10
+      },
+      {
+        "size": "5LT",
+        "sku": "20146-0050-99",
+        "price": 74990,
+        "stock": 10
+      }
+    ],
+    "description": "Aceite multigrado premium de baja viscosidad a base de tecnología de síntesis HC, desarrollado específicamente para las exigencias de motores modernos a gasolina y diésel de turismos (con o sin turbo). Diseñado a la medida para vehículos Ford, Volvo, Jaguar y Land Rover, cumple con la estricta homologación oficial Ford WSS-M2C913-D. Proporciona una notable reducción en la fricción interna del motor, favoreciendo el ahorro de combustible, una rápida lubricación en arranques en frío y una protección superior contra el desgaste en todo tipo de condiciones.",
+    "specs": {
+      "Base / Viscosidad": "Tecnología de síntesis HC (HC-Synthese) / SAE 5W-30",
+      "Aplicación / Emisiones": "Motores a gasolina (bencina) y diésel con/sin turbo. Apto para DPF/GPF según pautas de fabricante.",
+      "Especificaciones Industriales": "ACEA A5/B5, A1/B1 | API SN | ILSAC GF-3, GF-4",
+      "Aprobaciones": "Ford WSS-M2C913-D",
+      "Especificaciones": "Ford WSS-M2C913-A / WSS-M2C913-B / WSS-M2C913-C\r\nRenault RN 0700\r\nVWC 530 36",
+      "Recomendaciones": "Jaguar Land Rover STJLR.03.5003\r\nIveco 18-1811 S1\r\nAPI CF",
+      "Propiedades Destacadas": "Alta economía de combustible (Fuel Economy), rápida lubricación en arranques en frío y\r\n protección térmica superior en motores Ford y JLR.",
+      "Origen": "Alemania (Made in Germany)"
+    },
+    "compatibility": [
+      "Ford WSS-M2C913-D",
+      "Ford WSS-M2C913-A / WSS-M2C913-B / WSS-M2C913-C",
+      "Renault RN 0700",
+      "VWC 530 36"
+    ]
+  },
+  {
+    "id": "aceite-motor-hightec-synt-rss-03-5w-30",
+    "name": "ACEITE MOTOR HIGHTEC SYNT RSS 03 5W-30",
+    "slug": "aceite-motor-hightec-synt-rss-03-5w-30",
+    "brand": "GENERIC",
+    "category": "Aceite de Motor",
+    "type": "venta_online",
+    "image": "/images/rowe/20372-0010-99.png",
+    "formats": [
+      {
+        "size": "1LT",
+        "sku": "20372-0010-99",
+        "price": 14990,
+        "stock": 10
+      },
+      {
+        "size": "4LT",
+        "sku": "20372-0040-99",
+        "price": 54990,
+        "stock": 10
+      },
+      {
+        "size": "5LT",
+        "sku": "20372-0050-99",
+        "price": 64990,
+        "stock": 10
+      }
+    ],
+    "description": "Aceite multigrado premium de baja viscosidad a base de tecnología de síntesis HC, producido en Alemania para motores modernos a gasolina y diésel (con o sin turbocompresor). Formulado especialmente bajo la tecnología de baja ceniza (Low/Mid-SAPS) para proteger y maximizar la durabilidad de los filtros de partículas (DPF/GPF) y convertidores catalíticos. Diseñado específicamente para responder a las exigencias térmicas y de lubricación de motores del grupo Stellantis (Peugeot, Citroën, DS, Opel) y Renault, cumpliendo con la estricta especificación Stellantis FPW9.55535/03 y normativas ACEA C2/C3 y API SP.",
+    "specs": {
+      "Base / Viscosidad": "Tecnología de síntesis HC (HC-Synthese) / SAE 5W-30",
+      "Aplicación / Emisiones": "Motores Bencina y Diésel (con/sin turbo). Apto para Filtros de Partículas (DPF/GPF) y catalizadores",
+      "Especificaciones Industriales": "ACEA C2, C3 | API SP",
+      "Especificaciones": "MB 229.31 / 229.51",
+      "Recomendaciones": "Stellantis FPW9.55535/03\r\nPSA B71 2290 (última versión) / B71 2297\r\nRenault RN17",
+      "Propiedades Destacadas": "Rápida lubricación en frío, compatibilidad avanzada con sistemas de emisión \r\nStellantis/PSA y alta estabilidad frente a la oxidación.",
+      "Origen": "Alemania (Made in Germany)"
+    },
+    "compatibility": [
+      "MB 229.31 / 229.51"
+    ]
+  },
+  {
+    "id": "aceite-motor-hightec-synt-asia-5w-30-1l",
+    "name": "ACEITE MOTOR HIGHTEC SYNT ASIA 5W-30 1L",
+    "slug": "aceite-motor-hightec-synt-asia-5w-30-1l",
+    "brand": "GENERIC",
+    "category": "Aceite de Motor",
+    "type": "venta_online",
+    "image": "/images/rowe/20245-0010-99.png",
+    "formats": [
+      {
+        "size": "1LT",
+        "sku": "20245-0010-99",
+        "price": 15990,
+        "stock": 10
+      }
+    ],
+    "description": "Aceite de motor de marcha suave y alta eficacia formulado sobre tecnología de síntesis HC, fabricado en Alemania. Desarrollado para satisfacer los requerimientos de motores a gasolina (bencina) y diésel, atmosféricos o turboalimentados, de los principales fabricantes asiáticos. Su formulación es compatible con filtros de partículas (DPF), ofreciendo protección contra el desgaste, excelente fluidez y un rendimiento optimizado bajo especificaciones ACEA C3 y API SN.",
+    "specs": {
+      "Base / Viscosidad": "Tecnología de síntesis HC (HC-Synthese) / SAE 5W-30 (Low/Mid-SAPS)",
+      "Aplicación / Emisiones": "Motores Bencina y Diésel (con/sin turbo). Compatible con Filtros de Partículas (DPF/GPF) y catalizadores",
+      "Especificaciones Industriales": "ACEA C3 | API SN",
+      "Recomendaciones": "Marcas Asiáticas: Honda, Hyundai, Kia, Mazda, Mitsubishi, Nissan, Subaru, Suzuki, Toyota, Daihatsu\r\nAPI: CF",
+      "Propiedades Destacadas": "Especialmente desarrollado para marcas asiáticas, excelente fluidez en frío y \r\ncompatibilidad total con DPF/GPF.",
+      "Origen": "Alemania (Made in Germany)"
+    }
+  },
+  {
+    "id": "aceite-motor-hightec-synt-asia-5w-30-4l",
+    "name": "ACEITE MOTOR HIGHTEC SYNT ASIA 5W-30 4L",
+    "slug": "aceite-motor-hightec-synt-asia-5w-30-4l",
+    "brand": "GENERIC",
+    "category": "Aceite de Motor",
+    "type": "venta_online",
+    "image": "/images/rowe/20245-0040-99.png",
+    "formats": [
+      {
+        "size": "4LT",
+        "sku": "20245-0040-99",
+        "price": 59990,
+        "stock": 10
+      }
+    ],
+    "description": "Aceite de motor de marcha suave y alta eficacia formulado sobre tecnología de síntesis HC, fabricado en Alemania. Desarrollado para satisfacer los requerimientos de motores a gasolina (bencina) y diésel, atmosféricos o turboalimentados, de los principales fabricantes asiáticos. Su formulación es compatible con filtros de partículas (DPF), ofreciendo protección contra el desgaste, excelente fluidez y un rendimiento optimizado bajo especificaciones ACEA C3 y API SN.",
+    "specs": {
+      "Base / Viscosidad": "Tecnología de síntesis HC (HC-Synthese) / SAE 5W-30 (Low/Mid-SAPS)",
+      "Aplicación / Emisiones": "Motores Bencina y Diésel (con/sin turbo). Compatible con Filtros de Partículas (DPF/GPF) y catalizadores",
+      "Especificaciones Industriales": "ACEA C3 | API SN",
+      "Recomendaciones": "Marcas Asiáticas: Honda, Hyundai, Kia, Mazda, Mitsubishi, Nissan, Subaru, Suzuki, Toyota, Daihatsu\r\nAPI: CF",
+      "Propiedades Destacadas": "Especialmente desarrollado para marcas asiáticas, excelente fluidez en frío y \r\ncompatibilidad total con DPF/GPF.",
+      "Origen": "Alemania (Made in Germany)"
+    }
+  },
+  {
+    "id": "aceite-motor-hightec-synth-rs-5w-40",
+    "name": "ACEITE MOTOR HIGHTEC SYNTH RS 5W-40",
+    "slug": "aceite-motor-hightec-synth-rs-5w-40",
+    "brand": "GENERIC",
+    "category": "Aceite de Motor",
+    "type": "venta_online",
+    "image": "/images/rowe/20001-0010-99.png",
+    "formats": [
+      {
+        "size": "1LT",
+        "sku": "20001-0010-99",
+        "price": 17990,
+        "stock": 10
+      },
+      {
+        "size": "4LT",
+        "sku": "20001-0040-99",
+        "price": 64990,
+        "stock": 10
+      },
+      {
+        "size": "5LT",
+        "sku": "20001-0050-99",
+        "price": 79990,
+        "stock": 10
+      }
+    ],
+    "description": "Aceite de motor 100% sintético formulado a base de polialfaolefinas (PAO) de alto rendimiento y aditivos de última generación. Desarrollado en Alemania para motores de gasolina y diésel modernos y deportivos, atmosféricos o con turbocompresor (sin DPF). Ofrece un comportamiento temperatura/viscosidad excepcional gracias a su alto índice de viscosidad natural. Garantiza una película lubricante extremadamente estable a altas temperaturas, una rápida fluidez en arranques en frío y máxima protección contra el desgaste bajo condiciones de conducción exigentes o de alto rendimiento.",
+    "specs": {
+      "Base / Viscosidad": "100% Sintético PAO (Polialfaolefinas) / SAE 5W-40 (Full-SAPS)",
+      "Aplicación / Emisiones": "Motores Bencina y Diésel (con/sin turbo). Para vehículos sin filtro de partículas diésel (DPF).",
+      "Especificaciones Industriales": "ACEA A3/B4 | API SN",
+      "Aprobaciones": "MB-Freigabe 229.5\r\nPorsche A40\r\nPSA B71 2296\r\nVW 502 00 / 505 00",
+      "Recomendaciones": "BMW Longlife-01 (LL-01)\r\nFiat 9.55535-Z2\r\nAPI CF",
+      "Propiedades Destacadas": "Base 100% PAO de máxima estabilidad térmica, resistencia extrema al cizallamiento en motores \r\ndeportivos y excelente protección en arranques en frío.",
+      "Origen": "Alemania (Made in Germany)"
+    },
+    "compatibility": [
+      "MB-Freigabe 229.5",
+      "Porsche A40",
+      "PSA B71 2296",
+      "VW 502 00 / 505 00"
+    ]
+  },
+  {
+    "id": "aceite-motor-hightec-synt-rsi-5w-40",
+    "name": "ACEITE MOTOR HIGHTEC SYNT RSi 5W-40",
+    "slug": "aceite-motor-hightec-synt-rsi-5w-40",
+    "brand": "GENERIC",
+    "category": "Aceite de Motor",
+    "type": "venta_online",
+    "image": "/images/rowe/20068-0010-99.png",
+    "formats": [
+      {
+        "size": "1LT",
+        "sku": "20068-0010-99",
+        "price": 14990,
+        "stock": 10
+      },
+      {
+        "size": "5LT",
+        "sku": "20068-0050-99",
+        "price": 64990,
+        "stock": 10
+      }
+    ],
+    "description": "Aceite multifuncional de alto rendimiento a base de tecnología de síntesis HC, desarrollado especialmente para motores modernos a gasolina y diésel (con o sin turbocompresor). Funciona como una solución de racionalización de primera clase para talleres multimarca en vehículos sin prolongación de intervalo de servicio. Previene la formación de depósitos, coquización y lodos en turbos, válvulas y pistones. Garantiza una excelente lubricación en arranques en frío, óptimo funcionamiento de taqués hidráulicos y un consumo de lubricante sumamente bajo gracias a su mínima pérdida por evaporación.",
+    "specs": {
+      "Base / Viscosidad": "Tecnología de síntesis HC (HC-Synthese) / SAE 5W-40 (Full-SAPS)",
+      "Aplicación / Emisiones": "Motores Bencina y Diésel (con/sin turbo). Para vehículos sin filtro de partículas diésel (DPF).",
+      "Especificaciones Industriales": "ACEA A3/B4 | API SN",
+      "Aprobaciones": "MB-Freigabe 229.3 / 226.5\r\nPorsche A40\r\nVW 502 00 / 505 00",
+      "Especificaciones": "Renault RN 0700 / RN 0710",
+      "Recomendaciones": "PSA B71 2296\r\nOpel GM-LL-A-025 / GM-LL-B-025\r\nAPI CF",
+      "Propiedades Destacadas": "Producto multimarca ideal para racionalización en talleres, excelente fluidez en frío, protección \r\ncontra lodos/coquización en turbo y correcto funcionamiento de taqués hidráulicos.",
+      "Origen": "Alemania (Made in Germany)"
+    },
+    "compatibility": [
+      "MB-Freigabe 229.3 / 226.5",
+      "Porsche A40",
+      "VW 502 00 / 505 00",
+      "Renault RN 0700 / RN 0710"
+    ]
+  },
+  {
+    "id": "aceite-motor-hightec-synt-rs-dls-5w-40",
+    "name": "ACEITE MOTOR HIGHTEC SYNT RS DLS 5W-40",
+    "slug": "aceite-motor-hightec-synt-rs-dls-5w-40",
+    "brand": "GENERIC",
+    "category": "Aceite de Motor",
+    "type": "venta_online",
+    "image": "/images/rowe/20307-0010-99.png",
+    "formats": [
+      {
+        "size": "1LT",
+        "sku": "20307-0010-99",
+        "price": 15990,
+        "stock": 10
+      },
+      {
+        "size": "4LT",
+        "sku": "20307-0040-99",
+        "price": 59990,
+        "stock": 10
+      },
+      {
+        "size": "5LT",
+        "sku": "20307-0050-99",
+        "price": 74990,
+        "stock": 10
+      }
+    ],
+    "description": "Aceite multigrado premium a base de tecnología de síntesis HC, formulado especialmente para motores a gasolina y diésel modernos con o sin turbocompresor. Su composición de baja viscosidad e innovadora tecnología Mid-SAPS es plenamente compatible con filtros de partículas (DPF/GPF) y sistemas de postratamiento de gases de escape. Destaca como un fluido de racionalización multimarca ideal de alta gama, cumpliendo con la exigente homologación Porsche C40 y VW 511 00 (para motores V8/V10/V12 de alto rendimiento), además de contar con licencias oficiales para modelos BMW y Mercedes-Benz.",
+    "specs": {
+      "Base / Viscosidad": "Tecnología de síntesis HC (HC-Synthese) / SAE 5W-40 (Low/Mid-SAPS)",
+      "Aplicación / Emisiones": "Motores Bencina y Diésel (con/sin turbo). Totalmente compatible con Filtros de \r\nPartículas (DPF/GPF) y catalizadores",
+      "Especificaciones Industriales": "ACEA C3 | API SN",
+      "Aprobaciones": "BMW Longlife-04\r\nMB-Freigabe 229.31 / 229.51 / 229.52\r\nPorsche C40",
+      "Especificaciones": "VW 511 00\r\nGM dexos2\r\nRenault RN 0700 / RN 0710",
+      "Recomendaciones": "Fiat 9.55535-S2\r\nAPI CF",
+      "Propiedades Destacadas": "Fluido de racionalización multimarca de alta gama, formulado para la exigente norma \r\nPorsche C40/VW 511 00, alta estabilidad térmica y máxima protección del DPF/GPF.",
+      "Origen": "Alemania (Made in Germany)"
+    },
+    "compatibility": [
+      "BMW Longlife-04",
+      "MB-Freigabe 229.31 / 229.51 / 229.52",
+      "Porsche C40",
+      "VW 511 00",
+      "GM dexos2",
+      "Renault RN 0700 / RN 0710"
+    ]
+  },
+  {
+    "id": "aceite-motor-hightec-racing-motor-oil-5w-40",
+    "name": "ACEITE MOTOR HIGHTEC RACING MOTOR OIL 5W-40",
+    "slug": "aceite-motor-hightec-racing-motor-oil-5w-40",
+    "brand": "GENERIC",
+    "category": "Aceite de Motor",
+    "type": "venta_online",
+    "image": "/images/rowe/20044-0010-99.png",
+    "formats": [
+      {
+        "size": "1LT",
+        "sku": "20044-0010-99",
+        "price": 24990,
+        "stock": 10
+      },
+      {
+        "size": "5LT",
+        "sku": "20044-0050-99",
+        "price": 119990,
+        "stock": 10
+      }
+    ],
+    "description": "Aceite de motor 100% sintético de súper alto rendimiento formulado para las condiciones extremas de la alta \r\ncompetición. Desarrollado con la exclusiva MULTI-ESTER TECHNOLOGY combinada con bases sintéticas PAO (polialfaolefinas) de máxima pureza, es la misma fórmula probada en victorias absolutas en las 24 Horas de Spa-Francorchamps y Nürburgring por el ROWE RACING TEAM. Diseñado para motores de carreras atmosféricos de alto régimen de revoluciones y sobrealimentados (turbo/compresor). Ofrece una estabilidad al cizallamiento inquebrantable, presión de aceite constante en carreras de larga distancia (hasta 24 horas), rápida disipación térmica y máxima protección antidesgaste en plataformas de alta potencia.",
+    "specs": {
+      "Base / Viscosidad": "100% Sintético PAO + MULTI-ESTER TECHNOLOGY / SAE 5W-40",
+      "Aplicación / Emisiones": "Motores 4T de alta competición (Bencina/Gasolina), atmosféricos de alto RPM, turbo y\r\n supercargados. Exclusivo uso en pista/carreras.",
+      "Especificaciones Industriales": "Formulación orientada 100% a Motorsport (supera exigencias térmicas convencionales)",
+      "Aprobaciones": "(Desarrollo exclusivo para competición, sin homologaciones de calle)",
+      "Especificaciones": "Fabricantes(Desarrollo exclusivo para competición, sin especificaciones de calle)",
+      "Recomendaciones": "Porsche 911 (991) GT3 RS | Audi RS6 / S3\r\nBMW M6 Competition / M2 | Mercedes-AMG GT S / C63 S\r\nFerrari F12 tdf | Lamborghini Gallardo | Aston Martin Vantage GT12\r\nNissan GT-R Nismo (R35) | Chevrolet Corvette Z06\r\nFord Focus RS | VW Golf VII R | Opel Astra OPC",
+      "Propiedades Destacadas": "Tecnología Multi-Éster probada en carreras de 24 horas, presión de aceite ultra estable, máxima \r\nresistencia al cizallamiento térmico y disipación de calor extrema.",
+      "Origen": "Alemania (Made in Germany)"
+    },
+    "compatibility": [
+      "(Desarrollo exclusivo para competición, sin homologaciones de calle)",
+      "Fabricantes(Desarrollo exclusivo para competición, sin especificaciones de calle)"
+    ]
+  },
+  {
+    "id": "aceite-motor-hightec-multi-formula-5w-40",
+    "name": "ACEITE MOTOR HIGHTEC MULTI FORMULA 5W-40",
+    "slug": "aceite-motor-hightec-multi-formula-5w-40",
+    "brand": "GENERIC",
+    "category": "Aceite de Motor",
+    "type": "venta_online",
+    "image": "/images/rowe/20138-0010-99.png",
+    "formats": [
+      {
+        "size": "1LT",
+        "sku": "20138-0010-99",
+        "price": 15990,
+        "stock": 10
+      },
+      {
+        "size": "5LT",
+        "sku": "20138-0050-99",
+        "price": 69990,
+        "stock": 10
+      }
+    ],
+    "description": "Aceite multifuncional de alto rendimiento a base de tecnología de síntesis HC, de viscosidad SAE 5W-40 y bajo contenido de cenizas (Low-Ash / Mid-SAPS). Diseñado especialmente para responder a las exigencias de motores a gasolina y diésel modernos, con o sin turbocompresor, equipados con sistemas de postratamiento de gases de escape (DPF/GPF) y catalizadores. Es un producto de racionalización multimarca ideal que destaca por cumplir la exigente especificación VW 505 01 (bomba-tobera) y contar con homologaciones oficiales para Mercedes-Benz y el Grupo Volkswagen, garantizando además bajo consumo por evaporación y máxima protección contra la formación de sedimentos.",
+    "specs": {
+      "Base / Viscosidad": "Tecnología de síntesis HC (HC-Synthese) / SAE 5W-40 (Low/Mid-SAPS)",
+      "Aplicación / Emisiones": "Motores Bencina y Diésel (con/sin turbo). Compatible con Filtros de Partículas \r\n(DPF/GPF), catalizadores y sistemas Bomba-Tobera (VW).",
+      "Especificaciones Industriales": "ACEA C3 | API SN",
+      "Aprobaciones": "MB-Freigabe 229.31 / 229.51\r\nVW 505 00 / 505 01 (especial Bomba-Tobera)",
+      "Especificaciones": "Porsche A40\r\nGM dexos2\r\nFord WSS-M2C917-A\r\nRenault RN 0700 / RN 0710\r\nMB 226.5 | Fiat 9.55535-S2",
+      "Recomendaciones": "BMW Longlife-04\r\nFiat 9.55535-T2\r\nAPI CF",
+      "Propiedades Destacadas": "Excelente opción para racionalización multimarca, protección completa para inyección Bomba-Tobera VW, \r\ncuidado de DPF/GPF y baja evaporación.",
+      "Origen": "Alemania (Made in Germany)"
+    },
+    "compatibility": [
+      "MB-Freigabe 229.31 / 229.51",
+      "VW 505 00 / 505 01 (especial Bomba-Tobera)",
+      "Porsche A40",
+      "GM dexos2",
+      "Ford WSS-M2C917-A",
+      "Renault RN 0700 / RN 0710",
+      "MB 226.5 | Fiat 9.55535-S2"
+    ]
+  },
+  {
+    "id": "aceite-motor-hightec-super-leichtlauf-hc-o-10w-40",
+    "name": "ACEITE MOTOR HIGHTEC SUPER LEICHTLAUF HC-O 10W-40",
+    "slug": "aceite-motor-hightec-super-leichtlauf-hc-o-10w-40",
+    "brand": "GENERIC",
+    "category": "Aceite de Motor",
+    "type": "venta_online",
+    "image": "/images/rowe/20058-0010-99.png",
+    "formats": [
+      {
+        "size": "1LT",
+        "sku": "20058-0010-99",
+        "price": 12990,
+        "stock": 10
+      },
+      {
+        "size": "4LT",
+        "sku": "20058-0040-99",
+        "price": 44990,
+        "stock": 10
+      },
+      {
+        "size": "5LT",
+        "sku": "20058-0050-99",
+        "price": 54990,
+        "stock": 10
+      }
+    ],
+    "description": "Aceite de motor de marcha suave (Super Leichtlauf) y alto rendimiento de viscosidad SAE 10W-40, formulado a base de \r\ntecnología de síntesis HC y aditivos avanzados de la más alta calidad. Diseñado para motores de gasolina y diésel (con o sin turbocompresor) en vehículos sin intervalo de servicio extendido. Proporciona una película lubricante extremadamente estable a altas temperaturas e intensas cargas de trabajo, protegiendo eficazmente componentes críticos del motor y del turbocargador contra depósitos, coquización y lodos negros. Garantiza además un bajo consumo de lubricante por evaporación y el óptimo funcionamiento de los taqués hidráulicos.",
+    "specs": {
+      "Base / Viscosidad": "Tecnología de síntesis HC (HC-Synthese) / SAE 10W-40 (Full-SAPS)",
+      "Aplicación / Emisiones": "Motores Bencina y Diésel (con/sin turbo). Para vehículos sin filtro de partículas diésel (DPF).",
+      "Especificaciones Industriales": "ACEA A3/B4 | API SN",
+      "Aprobaciones": "MB-Freigabe 229.3\r\nVW 501 01 / 505 00",
+      "Especificaciones": "MB 226.5\r\nPSA B71 2300\r\nRenault RN 0700 / RN 0710",
+      "Recomendaciones": "Fiat 9.55535-G2 / 9.55535-D2\r\nMB 229.1\r\nVW 500 00\r\nAPI CF",
+      "Propiedades Destacadas": "Película de lubricación muy estable a altas temperaturas, prevención de coquización en turbos \r\ny depósitos, y correcto funcionamiento de taqués hidráulicos.",
+      "Origen": "Alemania (Made in Germany)"
+    },
+    "compatibility": [
+      "MB-Freigabe 229.3",
+      "VW 501 01 / 505 00",
+      "MB 226.5",
+      "PSA B71 2300",
+      "Renault RN 0700 / RN 0710"
     ]
   }
 ]
