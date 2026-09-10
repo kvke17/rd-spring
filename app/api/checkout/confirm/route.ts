@@ -70,7 +70,7 @@ async function processPayment(request: Request) {
 
       try {
         await resend.emails.send({
-          from: 'onboarding@resend.dev',
+          from: 'Ventas RD Spring <contacto@rdspring.cl>', // Usa el correo oficial verificado
           to: customer.email, 
           subject: `Confirmación de pedido #${pendingOrder.buyOrder} - RD Spring`,
           react: ReceiptEmail({
