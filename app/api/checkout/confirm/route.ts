@@ -64,13 +64,65 @@ async function processPayment(request: Request) {
         }
       });
 
-      // MOCK BOLETA
-      let folioBoleta = "TEST-999";
-      let linkPdfBoleta = "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf";
+      // ==========================================
+      // GENERACIÓN DE BOLETA ELECTRÓNICA (Simple API)
+      // ==========================================
+      let folioBoleta = "Pendiente";
+      let linkPdfBoleta = "Se enviará a la brevedad";
 
       try {
+        const detallesBoleta = items.map((item: any, index: number) => ({
+          NroLinDet: index + 1,
+          NmbItem: item.product.name,
+          QtyItem: item.quantity,
+          PrcItem: item.product.price,
+          MontoItem: item.quantity * item.product.price
+        }));
+
+        const boletaPayload = {
+          Documento: {
+            Encabezado: {
+              IdDoc: {
+                TipoDTE: 39 // 39 es el código del SII para Boleta Electrónica
+              },
+              Receptor: {
+                RUTRecep: customer.rut || "66666666-6", // RUT genérico por si falla
+                RznSocRecep: customer.fullName || "Cliente Web",
+                DirRecep: customer.address || "Sin dirección",
+                CmnaRecep: "Santiago"
+              }
+            },
+            Detalle: detallesBoleta
+          }
+        };
+
+        const boletaResponse = await fetch(process.env.SIMPLE_API_URL as string, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${process.env.SIMPLE_API_KEY}` 
+          },
+          body: JSON.stringify(boletaPayload)
+        });
+
+        if (boletaResponse.ok) {
+          const boletaData = await boletaResponse.json();
+          folioBoleta = boletaData.folio || boletaData.Folio || "Generado";
+          linkPdfBoleta = boletaData.pdf || boletaData.UrlPdf || linkPdfBoleta; 
+          console.log(`Boleta generada con éxito: Folio ${folioBoleta}`);
+        } else {
+          const errorApi = await boletaResponse.text();
+          console.error("=== ERROR SIMPLE API ===", errorApi);
+        }
+      } catch (boletaError) {
+        console.error("Error de red con Simple API:", boletaError);
+      }
+      // ==========================================
+
+      // ENVÍO DE CORREO
+      try {
         await resend.emails.send({
-          from: 'Ventas RD Spring <contacto@rdspring.cl>', // Usa el correo oficial verificado
+          from: 'Ventas RD Spring <contacto@rdspring.cl>', 
           to: customer.email, 
           subject: `Confirmación de pedido #${pendingOrder.buyOrder} - RD Spring`,
           react: ReceiptEmail({
@@ -98,7 +150,4 @@ async function processPayment(request: Request) {
     console.error('Error al confirmar transacción:', error);
     return NextResponse.redirect(new URL('/carro?error=sistema', request.url), { status: 303 });
   }
-  
-  
-  
 }
