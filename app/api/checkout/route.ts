@@ -6,7 +6,7 @@ import prisma from '@/lib/prisma';
 import crypto from 'crypto';
 
 const commerceCode = process.env.TBK_COMMERCE_CODE || IntegrationCommerceCodes.WEBPAY_PLUS;
-const apiKey = process.env.TBK_API_KEY || IntegrationApiKeys.WEBPAY;
+const apiKey = process.env.TBK_API_KEY_SECRET || IntegrationApiKeys.WEBPAY;
 const environment = process.env.TBK_COMMERCE_CODE ? Environment.Production : Environment.Integration;
 const tx = new WebpayPlus.Transaction(new Options(commerceCode, apiKey, environment));
 
