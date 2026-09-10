@@ -7,7 +7,7 @@ import ReceiptEmail from '@/components/emails/ReceiptEmail';
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 const commerceCode = process.env.TBK_COMMERCE_CODE || IntegrationCommerceCodes.WEBPAY_PLUS;
-const apiKey = process.env.TBK_API_KEY || IntegrationApiKeys.WEBPAY;
+const apiKey = process.env.TBK_API_KEY_SECRET || IntegrationApiKeys.WEBPAY;
 const environment = process.env.TBK_COMMERCE_CODE ? Environment.Production : Environment.Integration;
 const tx = new WebpayPlus.Transaction(new Options(commerceCode, apiKey, environment));
 
