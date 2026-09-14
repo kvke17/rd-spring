@@ -7,26 +7,25 @@ import AuthButton from '@/components/AuthButton';
 
 export default function Navbar() {
   const [mounted, setMounted] = useState(false);
+  const [isOpen, setIsOpen] = useState(false); // Estado para el menú móvil
   
-  // --- INICIO: Estados para el Smart Navbar ---
+  // --- Estados para el Smart Navbar ---
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
-  // --- FIN: Estados para el Smart Navbar ---
 
   const cartCount = useCartStore((state) => state.getCartCount());
 
   useEffect(() => {
     setMounted(true);
 
-    // --- INICIO: Lógica para detectar el scroll ---
+    // --- Lógica para detectar el scroll ---
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
 
-      // Si bajamos más de 80px (la altura del menú), lo ocultamos
       if (currentScrollY > lastScrollY && currentScrollY > 80) {
         setIsVisible(false);
+        setIsOpen(false); // Cierra el menú móvil si hace scroll hacia abajo
       } else {
-        // Si subimos, lo volvemos a mostrar
         setIsVisible(true);
       }
       
@@ -38,7 +37,6 @@ export default function Navbar() {
     return () => {
       window.removeEventListener('scroll', handleScroll);
     };
-    // --- FIN: Lógica para detectar el scroll ---
   }, [lastScrollY]);
 
   return (
@@ -60,26 +58,74 @@ export default function Navbar() {
             />
           </Link>
           
-          {/* MENÚ CENTRAL LIMPIO Y MINIMALISTA */}
+          {/* MENÚ CENTRAL DE ESCRITORIO */}
           <div className="hidden md:flex gap-8 text-[11px] font-bold uppercase tracking-widest">
             <Link href="/cotizacion" className="text-[#b3131b] hover:text-red-800 transition">COTIZAR REPUESTO</Link>
             <Link href="/catalogo" className="text-gray-600 hover:text-gray-900 transition">ACEITES</Link>
             <Link href="/soporte" className="text-gray-600 hover:text-gray-900 transition">SOPORTE</Link>
             <Link href="/nosotros" className="text-gray-600 hover:text-gray-900 transition">NOSOTROS</Link>
-            
           </div>
         </div>
         
-        {/* Lado Derecho: Autenticación y Carro */}
-        <div className="flex items-center gap-6">
+        {/* Lado Derecho: Autenticación, Carro y Botón Hamburguesa Móvil */}
+        <div className="flex items-center gap-4 sm:gap-6">
           <AuthButton />
           
           <Link href="/carro" className="flex items-center gap-2 border border-gray-300 px-4 py-2 text-[11px] font-bold uppercase tracking-widest hover:bg-gray-50 text-gray-900 transition">
             <span>Carro</span>
             {mounted && cartCount > 0 && <span className="text-[#b3131b]">[{cartCount}]</span>}
           </Link>
+
+          {/* BOTÓN HAMBURGUESA (Solo visible en celular) */}
+          <button 
+            onClick={() => setIsOpen(!isOpen)}
+            className="md:hidden text-gray-900 focus:outline-none p-2"
+            aria-label="Abrir menú"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              {isOpen ? (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              ) : (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              )}
+            </svg>
+          </button>
         </div>
       </div>
+
+      {/* MENÚ LATERAL / DESPLEGABLE MÓVIL */}
+      {isOpen && (
+        <div className="absolute top-20 left-0 w-full bg-white border-b border-gray-200 shadow-xl md:hidden flex flex-col p-6 space-y-4 animate-in fade-in slide-in-from-top duration-200">
+          <Link 
+            href="/cotizacion" 
+            onClick={() => setIsOpen(false)}
+            className="text-xs font-bold uppercase tracking-widest text-[#b3131b] border-b border-gray-100 pb-3"
+          >
+            COTIZAR REPUESTO
+          </Link>
+          <Link 
+            href="/catalogo" 
+            onClick={() => setIsOpen(false)}
+            className="text-xs font-bold uppercase tracking-widest text-gray-800 border-b border-gray-100 pb-3"
+          >
+            ACEITES
+          </Link>
+          <Link 
+            href="/soporte" 
+            onClick={() => setIsOpen(false)}
+            className="text-xs font-bold uppercase tracking-widest text-gray-800 border-b border-gray-100 pb-3"
+          >
+            SOPORTE
+          </Link>
+          <Link 
+            href="/nosotros" 
+            onClick={() => setIsOpen(false)}
+            className="text-xs font-bold uppercase tracking-widest text-gray-800 pb-2"
+          >
+            NOSOTROS
+          </Link>
+        </div>
+      )}
     </nav>
   );
 }
