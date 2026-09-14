@@ -50,7 +50,7 @@ export default function AsistenteIA() {
       {!abierto && (
         <button
           onClick={() => setAbierto(true)}
-          className="bg-[linear-gradient(to_right,#4285F4,#34A853,#FBBC05,#EA4335)] text-white font-bold text-xs tracking-widest px-6 py-4 rounded-full shadow-lg hover:opacity-90 transition-all flex items-center gap-2 border border-white/50"
+          className="bg-[linear-gradient(#000000)] text-white font-bold text-xs tracking-widest px-6 py-4 rounded-full shadow-lg hover:opacity-90 transition-all flex items-center gap-2 border border-white/50"
         >
           <span>✨ ASISTENTE IA</span>
         </button>
