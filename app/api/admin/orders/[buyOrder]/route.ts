@@ -31,11 +31,12 @@ export async function PATCH(
     // 2. Extraemos los datos del cliente
     const customer = JSON.parse(updatedOrder.customer as string);
 
-    // 3. Envío de correo con Resend
+    // 3. Envío de correo con Resend a los destinatarios correctos
     try {
       await resend.emails.send({
         from: 'RD Spring <onboarding@resend.dev>', 
-        to: ['jorg.arayab@duocuc.cl'], 
+        // AQUÍ ESTÁ EL CAMBIO: Enviamos al correo del cliente Y al de administración
+        to: [customer.email, 'contacto@rdspring.cl'], 
         subject: `Actualización de envío - Pedido #${buyOrder}`,
         react: OrderStatusEmail({
           customerName: customer.fullName || 'Cliente',
