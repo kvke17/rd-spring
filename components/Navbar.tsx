@@ -3,7 +3,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import { useCartStore } from '@/lib/store';
-import AuthButton from '@/components/AuthButton'; // <-- 1. Importamos el botón inteligente
+import AuthButton from '@/components/AuthButton'; 
 
 export default function Navbar() {
   const [mounted, setMounted] = useState(false);
@@ -43,41 +43,40 @@ export default function Navbar() {
 
   return (
     <nav 
-      className={`fixed top-0 w-full z-50 bg-[#0a0a0a]/90 backdrop-blur-md border-b border-white/10 transition-transform duration-300 ease-in-out ${
+      className={`fixed top-0 w-full z-50 bg-white/90 backdrop-blur-md border-b border-gray-200 transition-transform duration-300 ease-in-out ${
         isVisible ? 'translate-y-0' : '-translate-y-full'
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-        <div className="flex items-center gap-8">
+        <div className="flex items-center gap-12">
           <Link href="/" className="flex items-center">
             <Image 
               src="/images/logo-rd.png" 
               alt="RD Spring Logo" 
-              width={130} 
+              width={150} 
               height={50} 
               className="object-contain"
               priority
             />
           </Link>
           
-          <div className="hidden md:flex gap-6 text-[11px] font-mono uppercase tracking-widest text-gray-400">
-            <Link href="/cotizacion?marca=Porsche" className="hover:text-white transition">Porsche</Link>
-            <Link href="/cotizacion?marca=BMW" className="hover:text-white transition">BMW</Link>
-            <Link href="/cotizacion?marca=Audi" className="hover:text-white transition">Audi</Link>
-            <Link href="/cotizacion?marca=Land Rover" className="hover:text-white transition">Land Rover</Link>
-            <Link href="/cotizacion" className="hover:text-[#FF0000] text-[#FF0000] transition ml-4 pl-4 border-l border-white/10">Cotizar Repuesto</Link>
-            <Link href="/catalogo" className="hover:text-white transition">Aceites</Link>
-            <Link href="/soporte" className="hover:text-white transition">Soporte</Link>
+          {/* MENÚ CENTRAL LIMPIO Y MINIMALISTA */}
+          <div className="hidden md:flex gap-8 text-[11px] font-bold uppercase tracking-widest">
+            <Link href="/cotizacion" className="text-[#b3131b] hover:text-red-800 transition">COTIZAR REPUESTO</Link>
+            <Link href="/catalogo" className="text-gray-600 hover:text-gray-900 transition">ACEITES</Link>
+            <Link href="/soporte" className="text-gray-600 hover:text-gray-900 transition">SOPORTE</Link>
+            <Link href="/nosotros" className="text-gray-600 hover:text-gray-900 transition">NOSOTROS</Link>
+            
           </div>
         </div>
         
-        {/* 2. Envolvemos el AuthButton y el Carro en un div flexible */}
+        {/* Lado Derecho: Autenticación y Carro */}
         <div className="flex items-center gap-6">
           <AuthButton />
           
-          <Link href="/carro" className="flex items-center gap-2 border border-white/20 px-4 py-2 text-xs font-mono uppercase tracking-widest hover:bg-white/10 transition">
+          <Link href="/carro" className="flex items-center gap-2 border border-gray-300 px-4 py-2 text-[11px] font-bold uppercase tracking-widest hover:bg-gray-50 text-gray-900 transition">
             <span>Carro</span>
-            {mounted && cartCount > 0 && <span className="text-[#FF0000]">[{cartCount}]</span>}
+            {mounted && cartCount > 0 && <span className="text-[#b3131b]">[{cartCount}]</span>}
           </Link>
         </div>
       </div>

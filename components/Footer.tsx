@@ -2,35 +2,64 @@ import Link from 'next/link';
 
 export default function Footer() {
   return (
-    <footer className="bg-[#121212] border-t border-white/10 pt-16 pb-8">
+    <footer className="bg-white border-t border-gray-200 py-16 text-gray-900 mt-auto">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
-          <div className="col-span-1 md:col-span-2">
-            <Link href="/" className="flex items-center gap-1 font-bold text-xl tracking-tighter mb-4">
-              <span className="text-[#FF0000]">RD</span><span className="text-white">SPRING</span>
-            </Link>
-            <p className="text-xs text-gray-400 font-mono leading-relaxed max-w-sm">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+          
+          {/* Columna 1: RD Spring */}
+          <div className="space-y-4">
+            <h3 className="text-2xl font-bold tracking-tight text-[#b91c1c]">
+              RD <span className="text-gray-900">SPRING</span>
+            </h3>
+            <p className="text-base font-medium text-gray-700 max-w-sm leading-relaxed">
               La ingeniería que sostiene el lujo en movimiento. Componentes y fluidos de alto rendimiento en Santiago de Chile.
             </p>
           </div>
-          <div>
-            <h4 className="text-[10px] uppercase tracking-widest text-[#FF0000] font-mono mb-4">Repuestos</h4>
-            <ul className="space-y-2 text-xs font-mono text-gray-400">
-              <li><Link href="/cotizacion" className="hover:text-white">Cotizar repuesto</Link></li>
-              <li><Link href="/catalogo" className="hover:text-white">Aceites y Lubricantes</Link></li>
+
+          {/* Columna 2: Repuestos */}
+          <div className="space-y-6">
+            <h4 className="text-sm font-bold uppercase tracking-widest text-[#b91c1c]">Repuestos</h4>
+            <ul className="space-y-4">
+              <li>
+                <Link href="/cotizacion" className="text-base font-semibold text-gray-700 hover:text-[#b91c1c] transition-colors">
+                  Cotizar repuesto
+                </Link>
+              </li>
+              <li>
+                <Link href="/catalogo" className="text-base font-semibold text-gray-700 hover:text-[#b91c1c] transition-colors">
+                  Aceites y Lubricantes
+                </Link>
+              </li>
             </ul>
           </div>
-          <div>
-            <h4 className="text-[10px] uppercase tracking-widest text-[#FF0000] font-mono mb-4">Atención al Cliente</h4>
-            <ul className="space-y-2 text-xs font-mono text-gray-400">
-              <li><Link href="/soporte" className="hover:text-white">Soporte y Contacto</Link></li>
-              <li><Link href="/terminos" className="hover:text-white">Términos y Condiciones</Link></li>
-              <li><Link href="/garantia" className="hover:text-white">Políticas de Garantía</Link></li>
+
+          {/* Columna 3: Atención al Cliente */}
+          <div className="space-y-6">
+            <h4 className="text-sm font-bold uppercase tracking-widest text-[#b91c1c]">Atención al Cliente</h4>
+            <ul className="space-y-4">
+              <li>
+                <Link href="/contacto" className="text-base font-semibold text-gray-700 hover:text-[#b91c1c] transition-colors">
+                  Soporte y Contacto
+                </Link>
+              </li>
+              <li>
+                <Link href="/terminos" className="text-base font-semibold text-gray-700 hover:text-[#b91c1c] transition-colors">
+                  Términos y Condiciones
+                </Link>
+              </li>
+              <li>
+                <Link href="/garantia" className="text-base font-semibold text-gray-700 hover:text-[#b91c1c] transition-colors">
+                  Políticas de Garantía
+                </Link>
+              </li>
+              <li>
+                <Link href="/garantia" className="text-base font-semibold text-gray-700 hover:text-[#b91c1c] transition-colors">
+                  1 Año de Garantía
+                </Link>
+              </li>
             </ul>
           </div>
-        </div>
-        <div className="border-t border-white/10 pt-8 text-center text-[10px] font-mono text-gray-600 uppercase tracking-widest">
-          © {new Date().getFullYear()} RD Spring. Todos los derechos reservados.
+          
         </div>
       </div>
     </footer>

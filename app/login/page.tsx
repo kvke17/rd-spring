@@ -45,48 +45,48 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center p-4">
-      <div className="max-w-md w-full bg-[#121212] p-8 rounded-lg border border-white/10">
-        <h1 className="text-2xl font-bold text-white mb-2 text-center">
+    <div className="min-h-screen bg-white flex items-center justify-center p-4">
+      <div className="max-w-md w-full bg-gray-50 p-8 rounded-lg border border-gray-200">
+        <h1 className="text-2xl font-bold text-gray-900 mb-2 text-center">
           {isLogin ? 'Acceso Seguro' : 'Crear Cuenta'}
         </h1>
-        <p className="text-xs font-mono text-gray-500 uppercase tracking-widest text-center mb-8">
+        <p className="text-xs  text-gray-500 uppercase tracking-widest text-center mb-8">
           {isLogin ? 'Ingresa a tu cuenta' : 'Únete a nuestra tienda'}
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {!isLogin && (
             <div>
-              <label className="block text-[10px] font-mono uppercase tracking-widest text-gray-400 mb-2">Nombre Completo</label>
-              <input type="text" value={name} onChange={(e) => setName(e.target.value)} className="w-full bg-[#0a0a0a] border border-white/20 rounded p-3 text-white focus:outline-none focus:border-[#FF0000]" required={!isLogin} />
+              <label className="block text-[10px]  uppercase tracking-widest text-gray-600 mb-2">Nombre Completo</label>
+              <input type="text" value={name} onChange={(e) => setName(e.target.value)} className="w-full bg-white border border-gray-300 rounded p-3 text-gray-900 focus:outline-none focus:border-[#b3131b]" required={!isLogin} />
             </div>
           )}
           <div>
-            <label className="block text-[10px] font-mono uppercase tracking-widest text-gray-400 mb-2">Correo Electrónico</label>
-            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full bg-[#0a0a0a] border border-white/20 rounded p-3 text-white focus:outline-none focus:border-[#FF0000]" required />
+            <label className="block text-[10px]  uppercase tracking-widest text-gray-600 mb-2">Correo Electrónico</label>
+            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full bg-white border border-gray-300 rounded p-3 text-gray-900 focus:outline-none focus:border-[#b3131b]" required />
           </div>
           
           <div>
             {/* Contenedor Flex para alinear el label y el enlace de recuperar contraseña */}
             <div className="flex justify-between items-center mb-2">
-              <label className="block text-[10px] font-mono uppercase tracking-widest text-gray-400">Contraseña</label>
+              <label className="block text-[10px]  uppercase tracking-widest text-gray-600">Contraseña</label>
               {isLogin && (
-                <Link href="/recuperar" className="text-[10px] font-mono uppercase tracking-widest text-gray-500 hover:text-[#FF0000] transition-colors">
+                <Link href="/recuperar" className="text-[10px]  uppercase tracking-widest text-gray-500 hover:text-[#b3131b] transition-colors">
                   ¿Olvidaste tu contraseña?
                 </Link>
               )}
             </div>
-            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full bg-[#0a0a0a] border border-white/20 rounded p-3 text-white focus:outline-none focus:border-[#FF0000]" required />
+            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full bg-white border border-gray-300 rounded p-3 text-gray-900 focus:outline-none focus:border-[#b3131b]" required />
           </div>
 
-          {error && <p className="text-red-500 text-xs font-mono text-center border border-red-500/20 bg-red-500/10 p-2 rounded">{error}</p>}
+          {error && <p className="text-red-500 text-xs  text-center border border-red-500/20 bg-red-500/10 p-2 rounded">{error}</p>}
 
-          <button type="submit" className="w-full bg-[#FF0000] text-black font-bold py-4 rounded text-xs uppercase tracking-widest hover:bg-opacity-90 transition-all mt-4">
+          <button type="submit" className="w-full bg-[#b3131b] text-black font-bold py-4 rounded text-xs uppercase tracking-widest hover:bg-opacity-90 transition-all mt-4">
             {isLogin ? 'Iniciar Sesión' : 'Registrarme'}
           </button>
         </form>
 
-        <button onClick={() => setIsLogin(!isLogin)} className="w-full mt-6 text-xs text-gray-400 hover:text-white font-mono tracking-widest transition-colors">
+        <button onClick={() => setIsLogin(!isLogin)} className="w-full mt-6 text-xs text-gray-600 hover:text-gray-900  tracking-widest transition-colors">
           {isLogin ? '¿NO TIENES CUENTA? REGÍSTRATE AQUÍ' : '¿YA TIENES CUENTA? INICIA SESIÓN'}
         </button>
       </div>

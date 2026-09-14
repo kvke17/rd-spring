@@ -14,25 +14,25 @@ export default function AuthButton() {
   };
 
   if (status === 'loading') {
-    return <div className="text-xs font-mono text-gray-500">...</div>;
+    return <div className="text-xs  text-gray-500">...</div>;
   }
 
   if (session) {
     const isRoleAdmin = (session.user as any)?.role === 'ADMIN';
 
     return (
-      <div className="flex items-center gap-4 text-xs font-mono uppercase tracking-widest">
+      <div className="flex items-center gap-4 text-xs  uppercase tracking-widest">
         
         {/* Aquí está el cambio: Transformamos el nombre en un enlace */}
         <Link 
           href="/perfil" 
-          className="text-[#FF0000] hover:text-white transition-colors hidden sm:inline"
+          className="text-[#b3131b] hover:text-gray-900 transition-colors hidden sm:inline"
         >
           {session.user?.name?.split(' ')[0]}
         </Link>
         
         {isRoleAdmin && (
-          <Link href="/admin" className="text-gray-400 hover:text-white transition-colors">
+          <Link href="/admin" className="text-gray-600 hover:text-gray-900 transition-colors">
             ADMIN
           </Link>
         )}
@@ -48,7 +48,7 @@ export default function AuthButton() {
   }
 
   return (
-    <Link href="/perfil" className="text-xs font-mono uppercase tracking-widest text-gray-400 hover:text-white transition-colors border border-white/20 px-4 py-2 rounded hover:border-white/50">
+    <Link href="/login" className="text-xs  uppercase tracking-widest text-gray-600 hover:text-gray-900 transition-colors border border-gray-300 px-4 py-2 rounded hover:border-white/50">
       LOGIN / REGISTRO
     </Link>
   );

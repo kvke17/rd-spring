@@ -56,8 +56,8 @@ export default function OrderStatusEmail({
                           width: '24px',
                           height: '24px',
                           borderRadius: '50%',
-                          backgroundColor: isDone ? '#FF0000' : 'transparent',
-                          border: isDone ? '1px solid #FF0000' : '1px solid #333',
+                          backgroundColor: isDone ? '#b3131b' : 'transparent',
+                          border: isDone ? '1px solid #b3131b' : '1px solid #333',
                           color: isDone ? '#000' : '#666',
                           textAlign: 'center',
                           lineHeight: '24px',
@@ -72,7 +72,7 @@ export default function OrderStatusEmail({
                           <div style={{
                             width: '2px',
                             height: '40px',
-                            backgroundColor: index < activeIndex ? '#FF0000' : '#333',
+                            backgroundColor: index < activeIndex ? '#b3131b' : '#333',
                             margin: '4px auto'
                           }} />
                         )}
@@ -125,7 +125,7 @@ const container = {
 };
 
 const logo = {
-  color: '#FF0000',
+  color: '#b3131b',
   fontSize: '12px',
   fontWeight: 'bold',
   letterSpacing: '4px',

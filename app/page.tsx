@@ -1,105 +1,139 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import productsData from '@/data/products.json';
-import { Product } from '@/types';
 import { STORE_CONFIG } from '@/config/constants';
 
-// Cambiamos temporalmente a any[] para evitar errores de TypeScript con los nuevos formatos
+// Datos de productos
 const featuredProducts = productsData as any[];
-const categories = [
-  { id: 'amortiguadores', name: 'Amortiguadores', desc: 'Damping electrónico y coilovers regulables.', link: '/cotizacion' },
-  { id: 'resortes', name: 'Resortes', desc: 'Acero al cromo-silicio templado en frío.', link: '/cotizacion' },
-  { id: 'suspension-neumatica', name: 'Suspensión neumática', desc: 'Fuelles y compresores para SUV de altura variable.', link: '/cotizacion' },
-  { id: 'bujes-brazos', name: 'Bujes y brazos', desc: 'Geometría recuperada con precisión de fábrica.', link: '/cotizacion' },
-  { id: 'barras-estabilizadoras', name: 'Barras estabilizadoras', desc: 'Control de balanceo ajustable en pista y ciudad.', link: '/cotizacion' },
-  { id: 'soportes-topes', name: 'Soportes y topes', desc: 'Rodamientos y topes mecanizados en aluminio.', link: '/cotizacion' },
-  { id: 'aceites-lubricantes', name: 'Aceites y lubricantes', desc: 'Lubricación sintética de alto rendimiento para motor y tren motriz.', link: '/catalogo' },
+
+// Las 7 marcas de tu imagen para la nueva sección
+const marcas = [
+  { nombre: 'Porsche', logo: '/images/marcas/porsche.png' },
+  { nombre: 'Audi', logo: '/images/marcas/audi.png' },
+  { nombre: 'BMW', logo: '/images/marcas/bmw.png' },
+  { nombre: 'Land Rover', logo: '/images/marcas/landrover.png' },
+  { nombre: 'Volkswagen', logo: '/images/marcas/vw.png' },
+  { nombre: 'Mercedes-Benz', logo: '/images/marcas/mercedes.png' },
+  { nombre: 'Jaguar', logo: '/images/marcas/jaguar.png' },
 ];
 
+// Las 4 imágenes de repuestos que subiste para el lado derecho
+const repuestos = [
+  { id: 1, src: '/videos/repuestos/brazo-1.mp4', alt: 'Brazo de suspensión superior' },
+  { id: 2, src: '/videos/repuestos/brazo-2.mp4', alt: 'Brazo de control inferior' },
+  { id: 3, src: '/videos/repuestos/bieleta.mp4', alt: 'Bieleta estabilizadora' },
+  { id: 4, src: '/videos/repuestos/suspencion.mp4', alt: 'Brazo tensor' },
+];
 export default function HomePage() {
   return (
-    <div className="bg-[#0a0a0a] text-white min-h-screen">
-      <section className="relative pt-28 pb-20 border-b border-white/10 overflow-hidden">
-        {/* Video de fondo detrás de todo el Hero */}
-        <video
-          src="/videos/marcas-3d.mp4"
-          autoPlay
-          loop
-          muted
-          playsInline
-          className="absolute inset-0 w-full h-full object-cover z-0"
-        />
-        {/* Capa oscura encima del video para que el texto siga siendo legible */}
-        <div className="absolute inset-0 bg-[#0a0a0a]/80 z-0" />
-
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-            <div className="lg:col-span-7 space-y-8">
-              <p className="text-xs uppercase tracking-[0.25em] text-[#FF0000] font-mono">CHASSIS PRESTIGE · SANTIAGO DE CHILE</p>
-              <h1 className="text-4xl sm:text-6xl font-bold tracking-tight text-white leading-[1.05]">La ingeniería que sostiene el lujo en movimiento.</h1>
-              <p className="text-base sm:text-lg text-gray-400 max-w-2xl leading-relaxed">Amortiguadores, resortes y suspensión neumática original y de alto rendimiento para Porsche, BMW, Audi y Land Rover. Compatibilidad verificada por generación de chasis.</p>
+    <div className="bg-white text-gray-900 min-h-screen">
+      
+      {/* 1. SECCIÓN HERO (LIMPIA Y BLANCA) */}
+      <section className="pt-32 pb-20 border-b border-gray-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          
+          {/* Dividimos la pantalla en 2 columnas (Izquierda: Texto | Derecha: Imágenes) */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            
+            {/* LADO IZQUIERDO: Textos y Botones (Mantenemos los tuyos) */}
+            <div className="space-y-8">
+              <p className="text-xs uppercase tracking-[0.25em] text-[#b3131b] font-bold">
+                CHASSIS PRESTIGE · SANTIAGO DE CHILE
+              </p>
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-gray-900 leading-[1.1]">
+                La ingeniería que sostiene el lujo en movimiento.
+              </h1>
+              <p className="text-base sm:text-lg text-gray-600 max-w-xl leading-relaxed">
+                Amortiguadores, resortes y suspensión neumática original y de alto rendimiento para Porsche, BMW, Audi y Land Rover. Compatibilidad verificada por generación de chasis.
+              </p>
+              
+              {/* Botones mantenidos */}
               <div className="flex flex-wrap gap-4 pt-2">
-                <Link href="/cotizacion" className="bg-[#FF0000] text-black font-bold px-8 py-4 uppercase text-xs tracking-widest hover:bg-opacity-90 transition">COTIZAR REPUESTO</Link>
-                <Link href="/catalogo" className="border border-white/20 text-white font-bold px-8 py-4 uppercase text-xs tracking-widest hover:bg-white/10 transition">VER ACEITES</Link>
+                <Link href="/cotizacion" className="bg-[#b91c1c] text-white font-bold px-8 py-4 uppercase text-xs tracking-widest hover:bg-red-800 transition shadow-md">
+                  COTIZAR REPUESTO
+                </Link>
+                <Link href="/catalogo" className="bg-white border border-gray-300 text-gray-900 font-bold px-8 py-4 uppercase text-xs tracking-widest hover:bg-gray-50 transition shadow-md">
+                  VER ACEITES
+                </Link>
               </div>
-              <div className="grid grid-cols-3 gap-8 pt-8 border-t border-white/10 max-w-lg">
+
+              {/* Estadísticas */}
+              <div className="grid grid-cols-3 gap-8 pt-10 mt-8 border-t border-gray-200">
                 <div>
-                  <span className="block text-3xl font-bold tracking-tight text-white font-sans">18</span>
-                  <span className="text-[11px] text-gray-400 uppercase tracking-widest font-mono">AÑOS</span>
+                  <span className="block text-3xl font-bold tracking-tight text-gray-900"></span>
+                  <span className="text-[11px] text-gray-500 uppercase tracking-widest font-bold"></span>
                 </div>
                 <div>
-                  <span className="block text-3xl font-bold tracking-tight text-white font-sans">4</span>
-                  <span className="text-[11px] text-gray-400 uppercase tracking-widest font-mono">MARCAS</span>
+                  <span className="block text-3xl font-bold tracking-tight text-gray-900"></span>
+                  <span className="text-[11px] text-gray-500 uppercase tracking-widest font-bold"></span>
                 </div>
                 <div>
-                  <span className="block text-3xl font-bold tracking-tight text-white font-sans">1 AÑO</span>
-                  <span className="text-[11px] text-gray-400 uppercase tracking-widest font-mono">GARANTÍA</span>
+                  <span className="block text-3xl font-bold tracking-tight text-gray-900"></span>
+                  <span className="text-[11px] text-gray-500 uppercase tracking-widest font-bold"></span>
                 </div>
               </div>
             </div>
+
+            {/* LADO DERECHO: Cuadrícula de 4 Repuestos en Video 3D */}
+            <div className="relative h-[500px] flex items-center justify-center bg-gray-50 rounded-2xl border border-gray-100 p-8">
+              <div className="grid grid-cols-2 gap-6 w-full h-full relative">
+                {repuestos.map((item) => (
+                  <div key={item.id} className="relative w-full h-full bg-white rounded-lg shadow-sm border border-gray-100 flex items-center justify-center p-2 overflow-hidden group">
+                    <video 
+                      src={item.src} 
+                      title={item.alt}
+                      autoPlay 
+                      loop 
+                      muted 
+                      playsInline 
+                      className="w-full h-full object-cover sm:object-contain group-hover:scale-110 transition-transform duration-700 ease-in-out"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+
           </div>
         </div>
       </section>
 
-      <section className="py-20 border-b border-white/10">
-        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-          <p className="text-xs uppercase tracking-[0.25em] text-[#FF0000] font-mono mb-2">COMPONENT ATELIER</p>
-          <h2 className="text-3xl font-bold uppercase tracking-tight mb-12">Sistemas por especialidad</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-white/10 border border-white/10 overflow-hidden">
-            {categories.map((cat, idx) => (
-              <div
-                key={cat.id}
-                className={`bg-[#0d0d0d] p-8 flex flex-col justify-between h-64 group hover:bg-[#121212] transition ${
-                  idx === categories.length - 1 ? 'md:col-span-2 lg:col-span-3' : ''
-                }`}
-              >
-                <div>
-                  <h3 className="text-xl font-bold uppercase tracking-tight text-white group-hover:text-[#FF0000] transition">{cat.name}</h3>
-                  <p className="text-xs text-gray-400 mt-2 font-mono leading-relaxed max-w-md">{cat.desc}</p>
-                </div>
-                <Link href={cat.link} className="text-xs uppercase tracking-widest text-[#FF0000] font-mono flex items-center gap-2 group-hover:translate-x-1 transition-transform">EXPLORAR →</Link>
+      {/* 2. NUEVA SECCIÓN DE MARCAS (Reemplaza Component Atelier) */}
+      <section className="py-24 border-b border-gray-100 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <p className="text-xs uppercase tracking-[0.25em] text-gray-400 font-bold mb-4">ESPECIALISTAS EN ALTA GAMA</p>
+          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-16">Marcas con las que trabajamos</h2>
+          
+          <div className="flex flex-wrap justify-center items-center gap-12 md:gap-20">
+            {marcas.map((marca, idx) => (
+              <div key={idx} className="relative w-24 h-24 md:w-32 md:h-32 hover:scale-110 transition-transform duration-300">
+                <Image
+                  src={marca.logo} 
+                  alt={`Logo de ${marca.nombre}`}
+                  fill
+                  className="object-contain"
+                />
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="py-20">
+      {/* 3. SECCIÓN VENTA ONLINE (Mantenida intacta) */}
+      <section className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-end mb-12">
             <div>
-              <p className="text-xs uppercase tracking-[0.25em] text-[#FF0000] font-mono mb-2">VENTA ONLINE</p>
+              <p className="text-xs uppercase tracking-[0.25em] text-[#b3131b] mb-2 font-bold">VENTA ONLINE</p>
               <h2 className="text-3xl font-bold uppercase tracking-tight">Aceites y Lubricantes</h2>
             </div>
-            <Link href="/catalogo" className="border border-white/20 text-xs font-mono uppercase tracking-widest px-4 py-2 hover:bg-white/10 text-white">VER TODOS</Link>
+            <Link href="/catalogo" className="border border-gray-300 bg-white text-xs uppercase tracking-widest px-4 py-2 hover:bg-gray-100 text-gray-900 font-bold shadow-sm">VER TODOS</Link>
           </div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {featuredProducts.slice(0, 4).map((p) => (
-              <div key={p.id} className="border border-white/10 bg-[#121212] flex flex-col group">
-                
-                <div className="aspect-square relative bg-[#0a0a0a] overflow-hidden group">
-                  <span className={`absolute top-3 right-3 text-[9px] font-mono tracking-wider px-2 py-1 uppercase font-bold z-10 ${p.type === 'venta_online' ? 'bg-[#FF0000] text-black' : 'border border-white/30 text-white bg-black/60 backdrop-blur-sm'}`}>
+              <div key={p.id} className="border border-gray-200 bg-white flex flex-col group hover:shadow-lg transition">
+                <div className="aspect-square relative bg-white overflow-hidden group">
+                  <span className={`absolute top-3 right-3 text-[9px] tracking-wider px-2 py-1 uppercase font-bold z-10 ${p.type === 'venta_online' ? 'bg-[#b3131b] text-white' : 'border border-gray-300 text-gray-900 bg-white/90 backdrop-blur-sm'}`}>
                     {p.type === 'venta_online' ? 'VENTA ONLINE' : 'COTIZACIÓN'}
                   </span>
                   
@@ -107,10 +141,8 @@ export default function HomePage() {
                     src={p.image} 
                     alt={p.name} 
                     fill
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 33vw"
-                    className={`object-cover transition-all duration-500 ease-in-out ${
-                      p.imageHover ? 'group-hover:opacity-0' : 'group-hover:scale-105'
-                    }`} 
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 25vw, 25vw"
+                    className={`object-cover transition-all duration-500 ease-in-out ${p.imageHover ? 'group-hover:opacity-0' : 'group-hover:scale-105'}`} 
                   />
 
                   {p.imageHover && (
@@ -118,7 +150,7 @@ export default function HomePage() {
                       src={p.imageHover} 
                       alt={`${p.name} reverso`} 
                       fill
-                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 33vw"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 25vw, 25vw"
                       className="absolute inset-0 object-cover opacity-0 transition-opacity duration-500 ease-in-out group-hover:opacity-100" 
                     />
                   )}
@@ -126,17 +158,16 @@ export default function HomePage() {
 
                 <div className="p-5 flex-1 flex flex-col justify-between">
                   <div>
-                    <p className="text-[10px] uppercase font-mono tracking-widest text-[#FF0000] mb-1">{p.brand} · {p.category}</p>
+                    <p className="text-[10px] uppercase tracking-widest text-[#b3131b] mb-1 font-bold">{p.brand} · {p.category}</p>
                     <Link href={`/producto/${p.slug}`}>
-                      <h3 className="text-sm font-bold text-white line-clamp-2 hover:text-[#FF0000] transition">{p.name}</h3>
+                      <h3 className="text-sm font-bold text-gray-900 line-clamp-2 hover:text-[#b3131b] transition">{p.name}</h3>
                     </Link>
                   </div>
                   
-                  {/* LÓGICA DE PRECIO Y SKU DINÁMICOS PARA LA PÁGINA PRINCIPAL */}
-                  <div className="mt-4 pt-4 border-t border-white/10 flex items-center justify-between font-mono">
-                    <p className="text-sm font-bold text-white">
+                  <div className="mt-4 pt-4 border-t border-gray-200 flex items-center justify-between">
+                    <p className="text-sm font-bold text-gray-900">
                       {p.formats && p.formats.length > 0 && (
-                        <span className="text-[10px] text-gray-500 font-mono mr-2 font-normal">DESDE</span>
+                        <span className="text-[10px] text-gray-500 mr-2 font-normal">DESDE</span>
                       )}
                       {STORE_CONFIG.CURRENCY_FORMAT.format(
                         p.price || (p.formats && p.formats.length > 0 ? p.formats[0].price : 0)
@@ -146,7 +177,6 @@ export default function HomePage() {
                       {p.sku || (p.formats && p.formats.length > 0 ? p.formats[0].sku : '')}
                     </span>
                   </div>
-                  
                 </div>
               </div>
             ))}

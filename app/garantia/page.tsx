@@ -72,19 +72,19 @@ function NumberedCard({
   bullets?: string[];
 }) {
   return (
-    <div id={id} className="border border-white/10 bg-[#121212] p-6 sm:p-8 scroll-mt-28">
+    <div id={id} className="border border-gray-200 bg-gray-50 p-6 sm:p-8 scroll-mt-28">
       <div className="flex items-start gap-5">
-        <div className="w-10 h-10 border border-[#FF0000] text-[#FF0000] font-mono font-bold text-sm flex items-center justify-center flex-shrink-0">
+        <div className="w-10 h-10 border border-[#b3131b] text-[#b3131b]  font-bold text-sm flex items-center justify-center flex-shrink-0">
           {number}
         </div>
         <div className="flex-1">
-          <h3 className="text-white text-base font-bold uppercase tracking-widest mb-3">{title}</h3>
-          <p className="text-sm text-gray-400 font-mono leading-relaxed">{body}</p>
+          <h3 className="text-gray-900 text-base font-bold uppercase tracking-widest mb-3">{title}</h3>
+          <p className="text-sm text-gray-600  leading-relaxed">{body}</p>
           {bullets && (
             <ul className="mt-4 space-y-2">
               {bullets.map((b, i) => (
-                <li key={i} className="flex gap-3 text-sm text-gray-400 font-mono leading-relaxed">
-                  <span className="text-[#FF0000] flex-shrink-0">—</span>
+                <li key={i} className="flex gap-3 text-sm text-gray-600  leading-relaxed">
+                  <span className="text-[#b3131b] flex-shrink-0">—</span>
                   <span>{b}</span>
                 </li>
               ))}
@@ -100,21 +100,21 @@ export default function WarrantyPage() {
   const allIds = [...GARANTIA_SECTIONS, ...CAMBIOS_SECTIONS].map((s) => s.id);
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white pt-28 pb-20">
+    <div className="min-h-screen bg-white text-gray-900 pt-28 pb-20">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <p className="text-xs uppercase tracking-[0.25em] text-[#FF0000] font-mono mb-2">RESPALDO TÉCNICO</p>
+        <p className="text-xs uppercase tracking-[0.25em] text-[#b3131b]  mb-2">RESPALDO TÉCNICO</p>
         <h1 className="text-4xl font-bold uppercase tracking-tight mb-6">Garantía, Cambios y Devoluciones</h1>
-        <p className="text-sm text-gray-400 font-mono leading-relaxed mb-10 max-w-2xl">
+        <p className="text-sm text-gray-600  leading-relaxed mb-10 max-w-2xl">
           En RD Spring nuestro objetivo es que tu vehículo recupere su rendimiento óptimo. Aquí encuentras el detalle completo de nuestra garantía y de las condiciones para cambios o devoluciones.
         </p>
 
         {/* Índice rápido */}
-        <div className="flex flex-wrap gap-x-6 gap-y-2 border-y border-white/10 py-4 mb-12">
+        <div className="flex flex-wrap gap-x-6 gap-y-2 border-y border-gray-200 py-4 mb-12">
           {[...GARANTIA_SECTIONS, ...CAMBIOS_SECTIONS].map((s, idx) => (
             <a
               key={s.id}
               href={`#${s.id}`}
-              className="text-[10px] font-mono uppercase tracking-widest text-gray-400 hover:text-[#FF0000] transition"
+              className="text-[10px]  uppercase tracking-widest text-gray-600 hover:text-[#b3131b] transition"
             >
               {String(idx + 1).padStart(2, '0')} · {s.title}
             </a>
@@ -122,7 +122,7 @@ export default function WarrantyPage() {
         </div>
 
         {/* BLOQUE 1: GARANTÍA */}
-        <p className="text-xs uppercase tracking-[0.25em] text-[#FF0000] font-mono mb-4">01 · POLÍTICA DE GARANTÍA (1 AÑO)</p>
+        <p className="text-xs uppercase tracking-[0.25em] text-[#b3131b]  mb-4">01 · POLÍTICA DE GARANTÍA (1 AÑO)</p>
         <div className="space-y-6 mb-16">
           {GARANTIA_SECTIONS.map((s, idx) => (
             <NumberedCard
@@ -137,8 +137,8 @@ export default function WarrantyPage() {
         </div>
 
         {/* BLOQUE 2: CAMBIOS Y DEVOLUCIONES */}
-        <p className="text-xs uppercase tracking-[0.25em] text-[#FF0000] font-mono mb-2">02 · CAMBIOS Y DEVOLUCIONES</p>
-        <p className="text-sm text-gray-400 font-mono leading-relaxed mb-6 max-w-2xl">
+        <p className="text-xs uppercase tracking-[0.25em] text-[#b3131b]  mb-2">02 · CAMBIOS Y DEVOLUCIONES</p>
+        <p className="text-sm text-gray-600  leading-relaxed mb-6 max-w-2xl">
           Si cometiste un error en la selección de tu repuesto, te ofrecemos una ventana de 15 días corridos desde la recepción del producto para solicitar un cambio o la devolución de tu dinero, bajo las siguientes condiciones:
         </p>
         <div className="space-y-6">
@@ -154,11 +154,11 @@ export default function WarrantyPage() {
           ))}
         </div>
 
-        <div className="mt-12 pt-8 border-t border-white/10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <p className="text-xs text-gray-500 font-mono">Última actualización: agosto de 2026.</p>
+        <div className="mt-12 pt-8 border-t border-gray-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <p className="text-xs text-gray-500 ">Última actualización: agosto de 2026.</p>
           <a
             href="/soporte"
-            className="inline-block bg-[#FF0000] text-black font-bold px-6 py-3 uppercase tracking-widest text-xs hover:bg-opacity-90 transition text-center"
+            className="inline-block bg-[#b3131b] text-white font-bold px-6 py-3 uppercase tracking-widest text-xs hover:bg-opacity-90 transition text-center"
           >
             Solicitar garantía o devolución
           </a>

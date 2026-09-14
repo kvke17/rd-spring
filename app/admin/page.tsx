@@ -39,7 +39,7 @@ export default function AdminDashboard() {
   }, []);
 
   if (loading) {
-    return <div className="text-xs font-mono text-[#FF0000] animate-pulse">Cargando métricas...</div>;
+    return <div className="text-xs  text-[#b3131b] animate-pulse">Cargando métricas...</div>;
   }
 
   return (
@@ -47,35 +47,35 @@ export default function AdminDashboard() {
       {/* Grid de Tarjetas de Estadísticas */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         
-        <div className="bg-[#121212] border border-white/10 p-6 rounded-lg relative overflow-hidden group hover:border-white/20 transition-colors">
-          <p className="text-[10px] font-mono uppercase tracking-widest text-gray-400 mb-2">Ventas Totales</p>
-          <p className="text-3xl font-bold text-white mb-2">
+        <div className="bg-gray-50 border border-gray-200 p-6 rounded-lg relative overflow-hidden group hover:border-gray-300 transition-colors">
+          <p className="text-[10px]  uppercase tracking-widest text-gray-600 mb-2">Ventas Totales</p>
+          <p className="text-3xl font-bold text-gray-900 mb-2">
             {STORE_CONFIG.CURRENCY_FORMAT.format(stats.totalSales)}
           </p>
-          <div className="absolute top-0 right-0 w-24 h-24 bg-[#FF0000] opacity-5 rounded-full blur-2xl -mr-10 -mt-10 transition-opacity" />
+          <div className="absolute top-0 right-0 w-24 h-24 bg-[#b3131b] opacity-5 rounded-full blur-2xl -mr-10 -mt-10 transition-opacity" />
         </div>
 
-        <div className="bg-[#121212] border border-white/10 p-6 rounded-lg hover:border-white/20 transition-colors">
-          <p className="text-[10px] font-mono uppercase tracking-widest text-gray-400 mb-2">Pedidos Pagados</p>
-          <p className="text-3xl font-bold text-white mb-2">{stats.ordersCount}</p>
+        <div className="bg-gray-50 border border-gray-200 p-6 rounded-lg hover:border-gray-300 transition-colors">
+          <p className="text-[10px]  uppercase tracking-widest text-gray-600 mb-2">Pedidos Pagados</p>
+          <p className="text-3xl font-bold text-gray-900 mb-2">{stats.ordersCount}</p>
         </div>
 
-        <div className="bg-[#121212] border border-white/10 p-6 rounded-lg hover:border-white/20 transition-colors">
-          <p className="text-[10px] font-mono uppercase tracking-widest text-gray-400 mb-2">Ticket Promedio</p>
-          <p className="text-3xl font-bold text-white mb-2">
+        <div className="bg-gray-50 border border-gray-200 p-6 rounded-lg hover:border-gray-300 transition-colors">
+          <p className="text-[10px]  uppercase tracking-widest text-gray-600 mb-2">Ticket Promedio</p>
+          <p className="text-3xl font-bold text-gray-900 mb-2">
             {STORE_CONFIG.CURRENCY_FORMAT.format(stats.averageTicket)}
           </p>
         </div>
       </div>
 
       {/* Sección del Gráfico */}
-      <div className="bg-[#121212] border border-white/10 p-6 rounded-lg">
-        <h3 className="text-xs font-mono uppercase tracking-widest text-gray-400 mb-6">
+      <div className="bg-gray-50 border border-gray-200 p-6 rounded-lg">
+        <h3 className="text-xs  uppercase tracking-widest text-gray-600 mb-6">
           Flujo de Ingresos
         </h3>
         <div className="h-80 w-full">
           {stats.chartData.length === 0 ? (
-            <div className="w-full h-full flex items-center justify-center text-xs font-mono text-gray-600">
+            <div className="w-full h-full flex items-center justify-center text-xs  text-gray-600">
               Aún no hay ventas para graficar.
             </div>
           ) : (
@@ -83,8 +83,8 @@ export default function AdminDashboard() {
               <AreaChart data={stats.chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                 <defs>
                   <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#FF0000" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="#FF0000" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="#b3131b" stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor="#b3131b" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#333" vertical={false} />
@@ -104,13 +104,13 @@ export default function AdminDashboard() {
                 />
                 <Tooltip 
                   contentStyle={{ backgroundColor: '#121212', borderColor: '#333', borderRadius: '8px' }}
-                  itemStyle={{ color: '#FF0000' }}
+                  itemStyle={{ color: '#b3131b' }}
                   formatter={(value: any) => [`$${Number(value).toLocaleString('es-CL')}`, 'Ventas']}
                 />
                 <Area 
                   type="monotone" 
                   dataKey="total" 
-                  stroke="#FF0000" 
+                  stroke="#b3131b" 
                   strokeWidth={2}
                   fillOpacity={1} 
                   fill="url(#colorTotal)" 

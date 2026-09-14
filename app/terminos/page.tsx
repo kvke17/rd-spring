@@ -28,21 +28,21 @@ const SECTIONS = [
 
 export default function TermsPage() {
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white pt-28 pb-20">
+    <div className="min-h-screen bg-white text-gray-900 pt-28 pb-20">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <p className="text-xs uppercase tracking-[0.25em] text-[#FF0000] font-mono mb-2">MARCO LEGAL</p>
+        <p className="text-xs uppercase tracking-[0.25em] text-[#b3131b]  mb-2">MARCO LEGAL</p>
         <h1 className="text-4xl font-bold uppercase tracking-tight mb-6">Términos y Condiciones</h1>
-        <p className="text-sm text-gray-400 font-mono leading-relaxed mb-10 max-w-2xl">
+        <p className="text-sm text-gray-600  leading-relaxed mb-10 max-w-2xl">
           Al utilizar los servicios de RD Spring —ya sea para cotizar un repuesto o comprar en línea— usted acepta los siguientes términos.
         </p>
 
         {/* Índice rápido */}
-        <div className="flex flex-wrap gap-x-6 gap-y-2 border-y border-white/10 py-4 mb-12">
+        <div className="flex flex-wrap gap-x-6 gap-y-2 border-y border-gray-200 py-4 mb-12">
           {SECTIONS.map((s, idx) => (
             <a
               key={s.id}
               href={`#${s.id}`}
-              className="text-[10px] font-mono uppercase tracking-widest text-gray-400 hover:text-[#FF0000] transition"
+              className="text-[10px]  uppercase tracking-widest text-gray-600 hover:text-[#b3131b] transition"
             >
               {String(idx + 1).padStart(2, '0')} · {s.title}
             </a>
@@ -51,23 +51,23 @@ export default function TermsPage() {
 
         <div className="space-y-6">
           {SECTIONS.map((s, idx) => (
-            <div key={s.id} id={s.id} className="border border-white/10 bg-[#121212] p-6 sm:p-8 scroll-mt-28">
+            <div key={s.id} id={s.id} className="border border-gray-200 bg-gray-50 p-6 sm:p-8 scroll-mt-28">
               <div className="flex items-start gap-5">
-                <div className="w-10 h-10 border border-[#FF0000] text-[#FF0000] font-mono font-bold text-sm flex items-center justify-center flex-shrink-0">
+                <div className="w-10 h-10 border border-[#b3131b] text-[#b3131b]  font-bold text-sm flex items-center justify-center flex-shrink-0">
                   {String(idx + 1).padStart(2, '0')}
                 </div>
                 <div>
-                  <h2 className="text-white text-base font-bold uppercase tracking-widest mb-3">{s.title}</h2>
-                  <p className="text-sm text-gray-400 font-mono leading-relaxed">{s.body}</p>
+                  <h2 className="text-gray-900 text-base font-bold uppercase tracking-widest mb-3">{s.title}</h2>
+                  <p className="text-sm text-gray-600  leading-relaxed">{s.body}</p>
                 </div>
               </div>
             </div>
           ))}
         </div>
 
-        <p className="text-xs text-gray-500 font-mono mt-12 pt-8 border-t border-white/10">
+        <p className="text-xs text-gray-500  mt-12 pt-8 border-t border-gray-200">
           Última actualización: agosto de 2026. Ante dudas sobre estos términos, contáctanos desde la sección{' '}
-          <a href="/soporte" className="text-[#FF0000] hover:underline">Soporte</a>.
+          <a href="/soporte" className="text-[#b3131b] hover:underline">Soporte</a>.
         </p>
       </div>
     </div>

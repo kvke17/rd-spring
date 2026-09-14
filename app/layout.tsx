@@ -1,15 +1,18 @@
 import type { Metadata } from 'next';
-import { Inter_Tight } from 'next/font/google';
+// Importamos Playfair Display para un look de lujo
+import { Playfair_Display } from 'next/font/google'; 
 // @ts-ignore
 import './globals.css';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import AuthProvider from '@/components/AuthProvider';
+import AsistenteIA from '@/components/AsistenteIA';
 
-const interTight = Inter_Tight({
+const fuentePrincipal = Playfair_Display({
   subsets: ['latin'],
   display: 'swap',
-  variable: '--font-inter-tight',
+  variable: '--font-principal',
+  weight: ['400', '600', '700'], 
 });
 
 export const metadata: Metadata = {
@@ -19,12 +22,13 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="es" className={`${interTight.variable} font-sans`}>
-      <body className="bg-[#0a0a0a] text-white min-h-screen flex flex-col">
+    <html lang="es" className={`${fuentePrincipal.variable} font-sans`}>
+      <body className="bg-white text-gray-900 min-h-screen flex flex-col">
         <AuthProvider>
           <Navbar />
           <main className="flex-1">{children}</main>
           <Footer />
+          <AsistenteIA />
         </AuthProvider>
       </body>
     </html>

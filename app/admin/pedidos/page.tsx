@@ -69,8 +69,8 @@ export default function AdminOrdersPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0a0a0a] text-white flex items-center justify-center pt-20">
-        <p className="text-xs uppercase tracking-widest font-mono text-[#FF0000] animate-pulse">
+      <div className="min-h-screen bg-white text-gray-900 flex items-center justify-center pt-20">
+        <p className="text-xs uppercase tracking-widest  text-[#b3131b] animate-pulse">
           Cargando pedidos...
         </p>
       </div>
@@ -79,36 +79,36 @@ export default function AdminOrdersPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-[#0a0a0a] text-white flex items-center justify-center pt-20">
-        <p className="text-xs uppercase tracking-widest font-mono text-red-500">{error}</p>
+      <div className="min-h-screen bg-white text-gray-900 flex items-center justify-center pt-20">
+        <p className="text-xs uppercase tracking-widest  text-red-500">{error}</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white pt-28 pb-20">
+    <div className="min-h-screen bg-white text-gray-900 pt-28 pb-20">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <h1 className="text-3xl font-bold uppercase tracking-tight mb-8">Pedidos pagados</h1>
 
         {orders.length === 0 ? (
-          <p className="text-gray-400 font-mono text-sm">No hay pedidos pagados todavía.</p>
+          <p className="text-gray-600  text-sm">No hay pedidos pagados todavía.</p>
         ) : (
-          <div className="border border-white/10 divide-y divide-white/10">
+          <div className="border border-gray-200 divide-y divide-white/10">
             {orders.map((o) => (
-              <div key={o.buyOrder} className="p-6 grid grid-cols-1 md:grid-cols-5 gap-4 items-center bg-[#121212]">
+              <div key={o.buyOrder} className="p-6 grid grid-cols-1 md:grid-cols-5 gap-4 items-center bg-gray-50">
                 <div>
-                  <p className="text-xs font-mono text-gray-500">{new Date(o.createdAt).toLocaleDateString('es-CL')}</p>
-                  <p className="text-sm font-bold text-white font-mono">{o.buyOrder}</p>
+                  <p className="text-xs  text-gray-500">{new Date(o.createdAt).toLocaleDateString('es-CL')}</p>
+                  <p className="text-sm font-bold text-gray-900 ">{o.buyOrder}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-white">{o.customerName}</p>
-                  <p className="text-xs text-gray-500 font-mono">{o.customerEmail}</p>
+                  <p className="text-sm text-gray-900">{o.customerName}</p>
+                  <p className="text-xs text-gray-500 ">{o.customerEmail}</p>
                 </div>
                 <div className="md:col-span-1">
-                  <p className="text-xs text-gray-400 font-mono line-clamp-2">{o.itemsSummary}</p>
+                  <p className="text-xs text-gray-600  line-clamp-2">{o.itemsSummary}</p>
                 </div>
                 <div>
-                  <p className="text-sm font-bold text-[#FF0000] font-mono">
+                  <p className="text-sm font-bold text-[#b3131b] ">
                     {new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 }).format(o.amount)}
                   </p>
                 </div>
@@ -117,7 +117,7 @@ export default function AdminOrdersPage() {
                     value={o.shippingStatus}
                     disabled={savingOrder === o.buyOrder}
                     onChange={(e) => handleStatusChange(o.buyOrder, e.target.value)}
-                    className="w-full bg-[#0a0a0a] border border-white/10 p-2 text-xs focus:border-[#FF0000] focus:outline-none text-white font-mono disabled:opacity-50"
+                    className="w-full bg-white border border-gray-200 p-2 text-xs focus:border-[#b3131b] focus:outline-none text-gray-900  disabled:opacity-50"
                   >
                     {SHIPPING_STAGES.map((s) => (
                       <option key={s.value} value={s.value}>{s.label}</option>

@@ -37,16 +37,16 @@ export default function RecuperarPasswordPage() {
   };
 
   return (
-    <div className="min-h-[70vh] flex items-center justify-center bg-[#0a0a0a] px-4 py-12">
+    <div className="min-h-[70vh] flex items-center justify-center bg-white px-4 py-12">
       <div className="max-w-md w-full bg-[#111111] p-8 rounded-xl shadow-2xl border border-neutral-800">
-        <h1 className="text-2xl font-bold text-white mb-2 text-center">Recuperar Contraseña</h1>
-        <p className="text-gray-400 text-sm mb-8 text-center">
+        <h1 className="text-2xl font-bold text-gray-900 mb-2 text-center">Recuperar Contraseña</h1>
+        <p className="text-gray-600 text-sm mb-8 text-center">
           Ingresa tu correo electrónico y te enviaremos un enlace seguro para crear una nueva contraseña.
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-1">
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
               Correo Electrónico
             </label>
             <input
@@ -55,7 +55,7 @@ export default function RecuperarPasswordPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full rounded-md bg-black border border-neutral-700 text-white px-4 py-3 focus:outline-none focus:border-[#eab308] focus:ring-1 focus:ring-[#eab308] transition-colors"
+              className="w-full rounded-md bg-black border border-neutral-700 text-gray-900 px-4 py-3 focus:outline-none focus:border-[#eab308] focus:ring-1 focus:ring-[#eab308] transition-colors"
               placeholder="tu@correo.com"
             />
           </div>
@@ -76,7 +76,7 @@ export default function RecuperarPasswordPage() {
         )}
 
         <div className="mt-8 text-center">
-          <Link href="/login" className="text-sm text-gray-400 hover:text-white transition-colors">
+          <Link href="/login" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">
             ¿Recordaste tu contraseña? <span className="text-[#eab308]">Inicia sesión aquí</span>
           </Link>
         </div>
