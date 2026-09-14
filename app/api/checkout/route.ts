@@ -34,12 +34,12 @@ export async function POST(request: Request) {
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
     const returnUrl = `${baseUrl}/api/checkout/confirm`;
 
-    // 2. Crear orden vinculando el ID del usuario de la sesión
+    // 2. Crear orden vinculando el ID del usuario de la sesión y estado PENDIENTE
     const order = await prisma.order.create({
       data: {
         buyOrder: buyOrder,
         amount: totalAmount,
-        status: 'PENDING',
+        status: 'PENDIENTE',
         shippingStatus: 'PREPARANDO',
         customer: JSON.stringify(customer),
         items: JSON.stringify(items),
