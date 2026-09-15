@@ -1,4 +1,3 @@
-
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import productsData from '@/data/products.json'; // Tu catálogo real
@@ -8,17 +7,27 @@ export async function GET() {
     let count = 0;
 
     for (const item of productsData as any[]) {
-      // Usamos upsert: si el producto no existe lo crea, si ya existe lo ignora
-      await prisma.product.upsert({
-        where: { sku: item.sku },
-        update: {}, 
-        create: {
-          id: item.id || item.sku,
-          sku: item.sku,
-          stock: item.stock || 10, // Si no tiene stock en el JSON, le pone 10 por defecto
-        }
+      // 1. Buscamos si el producto ya existe usando findFirst
+      const productoExistente = await prisma.product.findFirst({
+        where: { sku: item.sku }
       });
-      count++;
+
+      // 2. Si el producto no existe, lo creamos con TODOS los campos obligatorios
+      if (!productoExistente) {
+        await prisma.product.create({
+          data: {
+            id: item.id || item.sku,
+            sku: item.sku,
+            // Agregamos los campos que Prisma exige como obligatorios:
+            name: item.name || `Producto ${item.sku}`,
+            slug: item.slug || item.sku.toLowerCase(),
+            brand: item.brand || 'Generico',
+            category: item.category || 'Sin Categoria',
+            image: item.image || '/images/logo-rd.png'
+          }
+        });
+        count++; // Sumamos 1 al contador solo si realmente se creó
+      }
     }
 
     return NextResponse.json({ 
