@@ -30,20 +30,22 @@ export async function PATCH(
     const customer = JSON.parse(updatedOrder.customer as string);
     
     // Verificamos si la orden es para retiro de forma segura y amplia
-  const orderData = updatedOrder as any;
-    let isPickup = false;
+  // Detección blindada de retiro
+    const orderData = updatedOrder as any;
     
+    let isPickup = false;
     try {
-      // Convertimos TODO el registro de la orden a texto para buscar pistas
       const fullOrderString = JSON.stringify(orderData).toUpperCase();
-      
-      // Si el pedido incluye la palabra RETIRO o el usuario seleccionó retiro en tienda de cualquier forma
+      // Si incluye la palabra retiro, o si el estado actual o anterior incluye "RETIRO"
       isPickup = fullOrderString.includes('RETIRO') || 
                  fullOrderString.includes('LAS CONDES') ||
+                 shippingStatus === 'LISTO_PARA_RETIRO' ||
                  orderData.shippingStatus === 'LISTO_PARA_RETIRO';
     } catch (e) {
       isPickup = shippingStatus === 'LISTO_PARA_RETIRO';
     }
+
+    console.log(`--- DEBUG CORREO --- Orden: ${buyOrder} | Estado: ${shippingStatus} | Es Retiro?: ${isPickup}`);
 
     const subjectLine = shippingStatus === 'LISTO_PARA_RETIRO' 
       ? `📍 ¡Tu pedido #${buyOrder} está listo para retiro!` 
