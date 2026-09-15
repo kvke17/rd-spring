@@ -22,35 +22,37 @@ export async function PATCH(
     const body = await request.json();
     const { shippingStatus } = body;
 
-    // 1. Actualizamos el estado del pedido
     const updatedOrder = await prisma.order.update({
       where: { buyOrder },
       data: { shippingStatus }
     });
 
-    // 2. Extraemos los datos del cliente
     const customer = JSON.parse(updatedOrder.customer as string);
+    
+    // Verificamos si la orden es para retiro
+    // Verificamos si la orden es para retiro de forma segura evitando el error de TypeScript
+    const orderData = updatedOrder as any;
+    const isPickup = orderData.shippingInfo 
+      ? String(orderData.shippingInfo).toUpperCase().includes('RETIRO') 
+      : false;
 
-    // 3. Generamos un asunto dinámico para el correo
     const subjectLine = shippingStatus === 'LISTO_PARA_RETIRO' 
       ? `📍 ¡Tu pedido #${buyOrder} está listo para retiro!` 
       : `Actualización de envío - Pedido #${buyOrder}`;
 
-    // 4. Envío de correo con Resend
     try {
-      const emailResponse = await resend.emails.send({
+      await resend.emails.send({
         from: 'RD Spring <contacto@rdspring.cl>', 
-        to: [customer.email, 'contacto@rdspring.cl'], 
+        // SOLUCIONADO: Ya solo se le envía al cliente, NO a la tienda.
+        to: [customer.email], 
         subject: subjectLine,
         react: OrderStatusEmail({
           customerName: customer.fullName || 'Cliente',
           buyOrder: buyOrder,
-          shippingStatus: shippingStatus
+          shippingStatus: shippingStatus,
+          isPickup: isPickup // Le pasamos el dato al correo
         }),
       });
-
-      console.log('RESPUESTA EXITOSA DE RESEND:', emailResponse);
-
     } catch (emailError: any) {
       console.error('ERROR CRÍTICO AL ENVIAR CORREO:', JSON.stringify(emailError, null, 2));
     }
