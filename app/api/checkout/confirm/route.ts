@@ -57,7 +57,7 @@ async function processPayment(request: Request) {
           data: { status: 'PAGADO', shippingStatus: 'CONFIRMADO' }
         });
         for (const item of items) {
-          await txPrisma.product.update({
+          await txPrisma.product.updateMany({
             where: { sku: item.product.sku },
             data: { stock: { decrement: item.quantity } }
           });
