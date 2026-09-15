@@ -30,17 +30,19 @@ export async function PATCH(
     const customer = JSON.parse(updatedOrder.customer as string);
     
     // Verificamos si la orden es para retiro de forma segura y amplia
-    const orderData = updatedOrder as any;
+  const orderData = updatedOrder as any;
     let isPickup = false;
     
     try {
-      const shippingStr = JSON.stringify(orderData.shippingInfo || '').toUpperCase();
-      const customerStr = JSON.stringify(orderData.customer || '').toUpperCase();
+      // Convertimos TODO el registro de la orden a texto para buscar pistas
+      const fullOrderString = JSON.stringify(orderData).toUpperCase();
       
-      // Buscamos la palabra RETIRO en la información de envío o en los datos del cliente
-      isPickup = shippingStr.includes('RETIRO') || customerStr.includes('RETIRO');
+      // Si el pedido incluye la palabra RETIRO o el usuario seleccionó retiro en tienda de cualquier forma
+      isPickup = fullOrderString.includes('RETIRO') || 
+                 fullOrderString.includes('LAS CONDES') ||
+                 orderData.shippingStatus === 'LISTO_PARA_RETIRO';
     } catch (e) {
-      isPickup = false;
+      isPickup = shippingStatus === 'LISTO_PARA_RETIRO';
     }
 
     const subjectLine = shippingStatus === 'LISTO_PARA_RETIRO' 
