@@ -3,6 +3,7 @@ import { WebpayPlus, Options, Environment, IntegrationCommerceCodes, Integration
 import prisma from '@/lib/prisma';
 import { Resend } from 'resend';
 import ReceiptEmail from '@/components/emails/ReceiptEmail';
+import { emitirDTE } from '@/lib/simpleapi';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -60,9 +61,36 @@ async function processPayment(request: Request) {
       const customer = JSON.parse(pendingOrder.customer);
 
       // ==========================================
-      // ESTADO DE LA BOLETA (Se emitirá manualmente desde el Admin)
+      // EMISIÓN AUTOMÁTICA DE BOLETA/FACTURA (SimpleAPI)
+      // Si falla, no rompe la confirmación de pago: queda con
+      // dteEstado = "ERROR" para que puedas emitirla manualmente
+      // desde el Admin, igual que antes.
       // ==========================================
       let summaryText = `Tu pago ha sido procesado con éxito. Tu boleta electrónica será emitida y enviada a tu correo a la brevedad.`;
+      const tipoDocumento = pendingOrder.documentType === 'FACTURA' ? 'factura' : 'boleta';
+
+      try {
+        const dte = await emitirDTE(pendingOrder);
+        await prisma.order.update({
+          where: { token: token_ws },
+          data: {
+            dteEstado: 'EMITIDO',
+            dteFolio: dte.folio,
+            dteTipoDte: dte.tipoDte,
+            dtePdfUrl: dte.pdfUrl,
+          },
+        });
+        summaryText = dte.folio
+          ? `Tu ${tipoDocumento} electrónica N° ${dte.folio} fue emitida con éxito.`
+          : `Tu ${tipoDocumento} electrónica fue emitida con éxito.`;
+      } catch (dteError: any) {
+        console.error('=== ERROR EMITIENDO DTE (SimpleAPI) ===', dteError);
+        await prisma.order.update({
+          where: { token: token_ws },
+          data: { dteEstado: 'ERROR', dteError: String(dteError?.message ?? dteError) },
+        });
+        // summaryText se queda con el mensaje original: se emitirá manualmente
+      }
 
       // ==========================================
       // ENVÍO DE CORREO AL CLIENTE

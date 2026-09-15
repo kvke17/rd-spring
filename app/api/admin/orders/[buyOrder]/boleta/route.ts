@@ -27,62 +27,82 @@ export async function POST(
     const items = JSON.parse(order.items as string);
     const customer = JSON.parse(order.customer as string);
 
-    if (!process.env.SIMPLE_API_URL || !process.env.SIMPLE_API_KEY) {
-      return NextResponse.json({ error: "Faltan las credenciales de Simple API en las variables de entorno" }, { status: 500 });
+    // Variables de entorno para SimpleFactura
+    const rutEmisor = process.env.SIMPLE_RUT_EMBISOR; // Ej: 78181331-1 (Sin puntos, con guión)
+    const rutContribuyente = process.env.SIMPLE_RUT_CONTRIBUYENTE; 
+    const sucursal = process.env.SIMPLE_SUCURSAL || "Casa Matriz";
+    const ambiente = process.env.SIMPLE_AMBIENTE || "1"; // 0: Certificación, 1: Producción
+
+    if (!rutEmisor) {
+      return NextResponse.json({ 
+        error: "Falta configurar el RUT del emisor de SimpleFactura en las variables de entorno (SIMPLE_RUT_EMBISOR)." 
+      }, { status: 400 });
     }
 
-    const detallesBoleta = items.map((item: any, index: number) => ({
-      NroLinDet: index + 1,
-      NmbItem: item.product.name,
-      QtyItem: item.quantity,
-      PrcItem: item.product.price,
-      MontoItem: item.quantity * item.product.price
+    // 1. Mapeo de los detalles de productos según el formato de SimpleFactura
+    const detallesDTE = items.map((item: any, index: number) => ({
+      nroLinDet: index + 1,
+      nombre: item.product.name.substring(0, 40),
+      descripcion: item.product.name,
+      cantidad: item.quantity,
+      precio: item.product.price,
+      montoItem: item.quantity * item.product.price
     }));
 
-    const boletaPayload = {
-      Documento: {
-        Encabezado: {
-          IdDoc: { TipoDTE: 39 },
-          Receptor: {
-            RUTRecep: customer.rut || "66666666-6",
-            RznSocRecep: customer.fullName || "Cliente Web",
-            DirRecep: customer.address || "Sin dirección",
-            CmnaRecep: customer.comuna || "Santiago"
+    // 2. Estructura oficial del payload que exige SimpleFactura para emitir DTE / Boleta (Tipo 39)
+    const simplePayload = {
+      credenciales: {
+        rutEmisor: rutEmisor,
+        rutContribuyente: rutContribuyente || rutEmisor
+      },
+      dte: {
+        encabezado: {
+          idDoc: {
+            tipoDTE: 39 // 39 = Boleta Electrónica
+          },
+          receptor: {
+            rutRecep: customer.rut || "66666666-6",
+            rznSocRecep: customer.fullName || "Cliente Web",
+            dirRecep: customer.address || "Sin dirección",
+            cmnaRecep: customer.comuna || "Santiago"
           }
         },
-        Detalle: detallesBoleta
-      }
+        detalle: detallesDTE
+      },
+      ambiente: Number(ambiente)
     };
 
-    const boletaResponse = await fetch(process.env.SIMPLE_API_URL as string, {
+    // Endpoint oficial de emisión en SimpleFactura
+    const targetUrl = `https://api.simplefactura.cl/invoiceV2/${encodeURIComponent(sucursal)}`;
+
+    const simpleResponse = await fetch(targetUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Authorization': `Bearer ${process.env.SIMPLE_API_KEY}` 
+        'Accept': 'application/json'
       },
-      body: JSON.stringify(boletaPayload)
+      body: JSON.stringify(simplePayload)
     });
 
-    if (boletaResponse.ok) {
-      const boletaData = await boletaResponse.json();
-      const folioBoleta = boletaData.folio || boletaData.Folio || "Generado";
-      const linkPdfBoleta = boletaData.pdf || boletaData.UrlPdf || "";
+    if (simpleResponse.ok) {
+      const responseData = await simpleResponse.json();
+      const folioGenerado = responseData.folio || responseData.Folio || "Emitido";
+      const urlPdf = responseData.pdf || responseData.UrlPdf || "";
 
       return NextResponse.json({ 
         success: true, 
-        message: `Boleta emitida con éxito (Folio: ${folioBoleta})`,
-        folio: folioBoleta,
-        pdf: linkPdfBoleta
+        message: `Boleta emitida con éxito en SimpleFactura (Folio: ${folioGenerado})`,
+        folio: folioGenerado,
+        pdf: urlPdf
       });
     } else {
-      const errorText = await boletaResponse.text();
-      console.error("Error Simple API Admin:", errorText);
-      return NextResponse.json({ error: `Error del proveedor de boletas: ${errorText}` }, { status: 400 });
+      const errorText = await simpleResponse.text();
+      console.error("Error SimpleFactura API Admin:", errorText);
+      return NextResponse.json({ error: `Error de SimpleFactura: ${errorText}` }, { status: 400 });
     }
 
   } catch (error: any) {
-    console.error('Error al emitir boleta manual:', error);
+    console.error('Error al emitir boleta con SimpleFactura:', error);
     return NextResponse.json({ error: error.message || "Error interno al generar boleta" }, { status: 500 });
   }
 }

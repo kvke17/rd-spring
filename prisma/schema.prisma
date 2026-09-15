@@ -41,7 +41,14 @@ model Order {
   documentType   String   @default("BOLETA")
   razonSocial    String?
   giro           String?
-  
+
+  // --- RESULTADO DE LA EMISIÓN DEL DTE (SimpleAPI) ---
+  dteEstado      String   @default("PENDIENTE") // PENDIENTE | EMITIDO | ERROR
+  dteFolio       Int?
+  dteTipoDte     Int?
+  dtePdfUrl      String?
+  dteError       String?
+
   createdAt      DateTime @default(now())
 }
 
