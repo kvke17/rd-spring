@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
 import { authOptions } from "@/lib/auth";
+import { emitirDTE } from '@/lib/simpleapi';
 
 export async function POST(
   request: Request,
@@ -24,85 +25,53 @@ export async function POST(
       return NextResponse.json({ error: "Orden no encontrada" }, { status: 404 });
     }
 
-    const items = JSON.parse(order.items as string);
-    const customer = JSON.parse(order.customer as string);
-
-    // Variables de entorno para SimpleFactura
-    const rutEmisor = process.env.SIMPLE_RUT_EMBISOR; // Ej: 78181331-1 (Sin puntos, con guión)
-    const rutContribuyente = process.env.SIMPLE_RUT_CONTRIBUYENTE; 
-    const sucursal = process.env.SIMPLE_SUCURSAL || "Casa Matriz";
-    const ambiente = process.env.SIMPLE_AMBIENTE || "1"; // 0: Certificación, 1: Producción
-
-    if (!rutEmisor) {
-      return NextResponse.json({ 
-        error: "Falta configurar el RUT del emisor de SimpleFactura en las variables de entorno (SIMPLE_RUT_EMBISOR)." 
-      }, { status: 400 });
+    if (order.dteEstado === "EMITIDO") {
+      return NextResponse.json({ error: "Esta orden ya tiene una boleta o factura emitida exitosamente." }, { status: 400 });
     }
 
-    // 1. Mapeo de los detalles de productos según el formato de SimpleFactura
-    const detallesDTE = items.map((item: any, index: number) => ({
-      nroLinDet: index + 1,
-      nombre: item.product.name.substring(0, 40),
-      descripcion: item.product.name,
-      cantidad: item.quantity,
-      precio: item.product.price,
-      montoItem: item.quantity * item.product.price
-    }));
-
-    // 2. Estructura oficial del payload que exige SimpleFactura para emitir DTE / Boleta (Tipo 39)
-    const simplePayload = {
-      credenciales: {
-        rutEmisor: rutEmisor,
-        rutContribuyente: rutContribuyente || rutEmisor
-      },
-      dte: {
-        encabezado: {
-          idDoc: {
-            tipoDTE: 39 // 39 = Boleta Electrónica
-          },
-          receptor: {
-            rutRecep: customer.rut || "66666666-6",
-            rznSocRecep: customer.fullName || "Cliente Web",
-            dirRecep: customer.address || "Sin dirección",
-            cmnaRecep: customer.comuna || "Santiago"
-          }
-        },
-        detalle: detallesDTE
-      },
-      ambiente: Number(ambiente)
-    };
-
-    // Endpoint oficial de emisión en SimpleFactura
-    const targetUrl = `https://api.simplefactura.cl/invoiceV2/${encodeURIComponent(sucursal)}`;
-
-    const simpleResponse = await fetch(targetUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      },
-      body: JSON.stringify(simplePayload)
+    // Usamos EXACTAMENTE la misma función que el checkout automático
+    const dteResult = await emitirDTE({
+      buyOrder: order.buyOrder,
+      documentType: order.documentType,
+      razonSocial: order.razonSocial,
+      giro: order.giro,
+      customer: order.customer,
+      items: order.items
     });
 
-    if (simpleResponse.ok) {
-      const responseData = await simpleResponse.json();
-      const folioGenerado = responseData.folio || responseData.Folio || "Emitido";
-      const urlPdf = responseData.pdf || responseData.UrlPdf || "";
+    // Si fue exitoso, actualizamos la orden en la base de datos
+    await prisma.order.update({
+      where: { id: order.id },
+      data: {
+        dteEstado: 'EMITIDO',
+        dteFolio: dteResult.folio,
+        dteTipoDte: dteResult.tipoDte,
+        dtePdfUrl: dteResult.pdfUrl,
+        dteError: null
+      }
+    });
 
-      return NextResponse.json({ 
-        success: true, 
-        message: `Boleta emitida con éxito en SimpleFactura (Folio: ${folioGenerado})`,
-        folio: folioGenerado,
-        pdf: urlPdf
-      });
-    } else {
-      const errorText = await simpleResponse.text();
-      console.error("Error SimpleFactura API Admin:", errorText);
-      return NextResponse.json({ error: `Error de SimpleFactura: ${errorText}` }, { status: 400 });
-    }
+    return NextResponse.json({ 
+      success: true, 
+      message: `Boleta emitida con éxito en Simple API (Folio: ${dteResult.folio})`,
+      folio: dteResult.folio,
+      pdf: dteResult.pdfUrl
+    });
 
   } catch (error: any) {
-    console.error('Error al emitir boleta con SimpleFactura:', error);
+    console.error('Error desde el Admin al emitir boleta:', error);
+    
+    // Si falla, guardamos el error en la base de datos para que lo puedas leer
+    try {
+        const { buyOrder } = await params;
+        await prisma.order.update({
+            where: { buyOrder },
+            data: { dteEstado: 'ERROR', dteError: String(error?.message || error) }
+        });
+    } catch (dbError) {
+        console.error("No se pudo actualizar el estado de error en la BD:", dbError);
+    }
+
     return NextResponse.json({ error: error.message || "Error interno al generar boleta" }, { status: 500 });
   }
 }
