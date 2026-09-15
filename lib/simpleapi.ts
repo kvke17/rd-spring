@@ -1,7 +1,7 @@
 // lib/simpleapi.ts
 type ItemOrden = {
   quantity: number;
-  product: { name: string; price: number; id?: string };
+  product: { name: string; price: number };
 };
 
 type ClienteOrden = {
@@ -9,7 +9,6 @@ type ClienteOrden = {
   rut?: string;
   address?: string;
   comuna?: string;
-  email?: string;
 };
 
 type OrdenParaDTE = {
@@ -28,69 +27,51 @@ export type ResultadoDTE = {
   raw: unknown;
 };
 
+const RUT_GENERICO_BOLETA = '66666666-6';
+
 export async function emitirDTE(order: OrdenParaDTE): Promise<ResultadoDTE> {
   const customer: ClienteOrden = JSON.parse(order.customer);
   const items: ItemOrden[] = JSON.parse(order.items);
-  
   const esFactura = order.documentType === 'FACTURA';
   const tipoDte = esFactura ? 33 : 39; 
 
-  const rutEmisor = process.env.SIMPLE_RUT_EMBISOR; 
-  const rutContribuyente = process.env.SIMPLE_RUT_CONTRIBUYENTE || rutEmisor;
-  const sucursal = process.env.SIMPLE_SUCURSAL || "Casa Matriz";
-  const ambiente = process.env.SIMPLE_AMBIENTE || "1"; 
-
-  if (!rutEmisor) {
-    throw new Error("Falta configurar SIMPLE_RUT_EMBISOR en las variables de entorno.");
-  }
-
-  // 1. Mapeo de detalles según SimpleFactura
-  const detallesDTE = items.map((item, index) => ({
-    nroLinDet: index + 1,
-    nombre: item.product.name.substring(0, 40),
-    descripcion: item.product.name,
-    cantidad: item.quantity,
-    precio: item.product.price,
-    montoItem: item.quantity * item.product.price
-  }));
-
-  // 2. Estructura oficial del payload
+  // Estructura oficial exacta para Simple API (simpleapi.cl)
   const body = {
-    credenciales: {
-      rutEmisor: rutEmisor,
-      rutContribuyente: rutContribuyente
+    Encabezado: {
+      IdDoc: { TipoDTE: tipoDte },
+      Receptor: esFactura
+        ? {
+            RUTRecep: customer.rut,
+            RznSocRecep: order.razonSocial || customer.fullName,
+            GiroRecep: order.giro || "Particular",
+            DirRecep: customer.address || "Sin dirección",
+            CmnaRecep: customer.comuna || "Santiago",
+          }
+        : {
+            RUTRecep: customer.rut || RUT_GENERICO_BOLETA,
+            RznSocRecep: customer.fullName || "Cliente Web",
+          },
     },
-    dte: {
-      encabezado: {
-        idDoc: { tipoDTE: tipoDte },
-        receptor: esFactura
-          ? {
-              RUTRecep: customer.rut,
-              RznSocRecep: order.razonSocial || customer.fullName,
-              GiroRecep: order.giro,
-              DirRecep: customer.address,
-              CmnaRecep: customer.comuna,
-            }
-          : {
-              RUTRecep: customer.rut || "66666666-6",
-              RznSocRecep: customer.fullName || "Cliente Web",
-              DirRecep: customer.address || "Sin dirección",
-              CmnaRecep: customer.comuna || "Santiago"
-            },
-      },
-      detalle: detallesDTE
-    },
-    ambiente: Number(ambiente)
+    Detalle: items.map((item, index) => ({
+      NroLinDet: index + 1,
+      NmbItem: item.product.name.substring(0, 80),
+      QtyItem: item.quantity,
+      PrcItem: item.product.price,
+    })),
   };
 
-  const targetUrl = `https://api.simplefactura.cl/invoiceV2/${encodeURIComponent(sucursal)}`;
+  const apiKey = process.env.SIMPLE_API_KEY || "";
 
-  const res = await fetch(targetUrl, {
+  // Hay APIs que piden la llave directa y otras con "Bearer". 
+  // Según la FAQ de Simple API, a veces va directo, pero si vuelve a dar 401 
+  // cambiaremos esta línea a: `Bearer ${apiKey}` o Basic Auth.
+  const authHeader = apiKey; 
+
+  const res = await fetch(process.env.SIMPLE_API_URL as string, {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-      'Authorization': process.env.SIMPLE_API_KEY || "" // <-- ESTA ES LA LÍNEA QUE FALTABA
+      'Authorization': authHeader,
+      'Content-Type': 'application/json'
     },
     body: JSON.stringify(body),
   });
@@ -99,17 +80,16 @@ export async function emitirDTE(order: OrdenParaDTE): Promise<ResultadoDTE> {
   let data: any = null;
   try {
     data = rawText ? JSON.parse(rawText) : null;
-  } catch {
-    // Ignorar si no es JSON
-  }
+  } catch {}
 
   if (!res.ok) {
-    throw new Error(`SimpleFactura respondió ${res.status}: ${rawText.slice(0, 200)}`);
+    throw new Error(`Simple API respondió ${res.status}: ${rawText.slice(0, 200)}`);
   }
 
   return {
+    // Simple API suele devolver estos campos, ajustamos por si vienen en mayúscula o minúscula
     folio: data?.folio ?? data?.Folio ?? null,
-    pdfUrl: data?.pdf ?? data?.UrlPdf ?? null,
+    pdfUrl: data?.urlPdf ?? data?.UrlPdf ?? data?.pdf ?? null,
     tipoDte,
     raw: data,
   };
