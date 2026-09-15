@@ -33,9 +33,8 @@ export async function PATCH(
 
     // 3. Envío de correo con Resend a los destinatarios correctos
     try {
-      await resend.emails.send({
-        from: 'RD Spring <onboarding@resend.dev>', 
-        // AQUÍ ESTÁ EL CAMBIO: Enviamos al correo del cliente Y al de administración
+      const emailResponse = await resend.emails.send({
+        from: 'RD Spring <contacto@rdspring.cl>', 
         to: [customer.email, 'contacto@rdspring.cl'], 
         subject: `Actualización de envío - Pedido #${buyOrder}`,
         react: OrderStatusEmail({
@@ -44,8 +43,12 @@ export async function PATCH(
           shippingStatus: shippingStatus
         }),
       });
-    } catch (emailError) {
-      console.error('El pedido se actualizó, pero falló el envío del correo:', emailError);
+
+      console.log('RESPUESTA EXITOSA DE RESEND:', emailResponse);
+
+    } catch (emailError: any) {
+      // ESTO FORZARÁ A IMPRIMIR EL MOTIVO EXACTO EN ROJO EN TU TERMINAL
+      console.error('ERROR CRÍTICO AL ENVIAR CORREO:', JSON.stringify(emailError, null, 2));
     }
 
     return NextResponse.json({ success: true, order: updatedOrder });

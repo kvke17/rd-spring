@@ -121,7 +121,7 @@ async function processPayment(request: Request) {
 
       // ENVÍO DE CORREO
       try {
-        await resend.emails.send({
+        const dataResend = await resend.emails.send({
           from: 'Ventas RD Spring <contacto@rdspring.cl>', 
           to: customer.email, 
           subject: `Confirmación de pedido #${pendingOrder.buyOrder} - RD Spring`,
@@ -132,8 +132,10 @@ async function processPayment(request: Request) {
             itemsSummary: `Tu boleta (Folio: ${folioBoleta}) ha sido emitida. Descárgala aquí: ${linkPdfBoleta}` 
           }),
         });
-      } catch (emailError) {
-        console.error('Error enviando correo:', emailError);
+        console.log("Correo enviado exitosamente:", dataResend);
+      } catch (emailError: any) {
+        // AQUÍ MOSTRAMOS EL ERROR EXACTO QUE DEVUELVE RESEND
+        console.error('=== ERROR DETALLADO DE RESEND ===', JSON.stringify(emailError, null, 2));
       }
 
       return NextResponse.redirect(new URL(`/checkout/success?buyOrder=${pendingOrder.buyOrder}&amount=${pendingOrder.amount}`, request.url), { status: 303 });
