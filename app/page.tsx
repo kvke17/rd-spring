@@ -17,13 +17,6 @@ const marcas = [
   { nombre: 'Jaguar', logo: '/images/marcas/jaguar.png' },
 ];
 
-// Las 4 imágenes de repuestos que subiste para el lado derecho
-const repuestos = [
-  { id: 1, src: '/videos/repuestos/brazo-1.mp4', alt: 'Brazo de suspensión superior' },
-  { id: 2, src: '/videos/repuestos/brazo-2.mp4', alt: 'Brazo de control inferior' },
-  { id: 3, src: '/videos/repuestos/bieleta.mp4', alt: 'Bieleta estabilizadora' },
-  { id: 4, src: '/videos/repuestos/suspencion.mp4', alt: 'Brazo tensor' },
-];
 export default function HomePage() {
   return (
     <div className="bg-white text-gray-900 min-h-screen">
@@ -32,22 +25,22 @@ export default function HomePage() {
       <section className="pt-32 pb-20 border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
-          {/* Dividimos la pantalla en 2 columnas (Izquierda: Texto | Derecha: Imágenes) */}
+          {/* Dividimos la pantalla en 2 columnas (Izquierda: Texto | Derecha: Imagen) */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             
-            {/* LADO IZQUIERDO: Textos y Botones (Mantenemos los tuyos) */}
+            {/* LADO IZQUIERDO: Textos y Botones */}
             <div className="space-y-8">
               <p className="text-xs uppercase tracking-[0.25em] text-[#b3131b] font-bold">
                 CHASSIS PRESTIGE · SANTIAGO DE CHILE
               </p>
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-gray-900 leading-[1.1]">
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-gray-900 leading-[1.1]">
                 La ingeniería que sostiene el lujo en movimiento.
               </h1>
               <p className="text-base sm:text-lg text-gray-600 max-w-xl leading-relaxed">
                 Amortiguadores, resortes y suspensión neumática original y de alto rendimiento para Porsche, BMW, Audi y Land Rover. Compatibilidad verificada por generación de chasis.
               </p>
               
-              {/* Botones mantenidos */}
+              {/* Botones */}
               <div className="flex flex-wrap gap-4 pt-2">
                 <Link href="/cotizacion" className="bg-[#b91c1c] text-white font-bold px-8 py-4 uppercase text-xs tracking-widest hover:bg-red-800 transition shadow-md">
                   COTIZAR REPUESTO
@@ -74,51 +67,65 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* LADO DERECHO: Cuadrícula de 4 Repuestos en Video 3D */}
-            <div className="relative h-[500px] flex items-center justify-center bg-gray-50 rounded-2xl border border-gray-100 p-8">
-              <div className="grid grid-cols-2 gap-6 w-full h-full relative">
-                {repuestos.map((item) => (
-                  <div key={item.id} className="relative w-full h-full bg-white rounded-lg shadow-sm border border-gray-100 flex items-center justify-center p-2 overflow-hidden group">
-                    <video 
-                      src={item.src} 
-                      title={item.alt}
-                      autoPlay 
-                      loop 
-                      muted 
-                      playsInline 
-                      className="w-full h-full object-cover sm:object-contain group-hover:scale-110 transition-transform duration-700 ease-in-out"
-                    />
-                  </div>
-                ))}
-              </div>
+            {/* LADO DERECHO: Imagen de Suspensión (Reemplaza los videos 3D) */}
+            <div className="relative h-[400px] lg:h-[600px] w-full rounded-2xl overflow-hidden shadow-2xl border border-gray-100 group">
+              <Image 
+                src="/images/suspension.jpg" // <-- Asegúrate de guardar la foto con este nombre en tu carpeta public/images
+                alt="Mecánico instalando suspensión de alto rendimiento"
+                fill
+                priority
+                sizes="(max-width: 864px) 100vw, 50vw"
+                className="object-cover group-hover:scale-105 transition-transform duration-700 ease-in-out"
+              />
+              {/* Degradado sutil para un toque premium */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none"></div>
             </div>
 
           </div>
         </div>
       </section>
 
-      {/* 2. NUEVA SECCIÓN DE MARCAS (Reemplaza Component Atelier) */}
+      {/* 2. NUEVA SECCIÓN DE MARCAS (4 arriba, 3 abajo) */}
       <section className="py-24 border-b border-gray-100 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <p className="text-xs uppercase tracking-[0.25em] text-gray-400 font-bold mb-4">ESPECIALISTAS EN ALTA GAMA</p>
-          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-16">Marcas con las que trabajamos</h2>
+          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-16 tracking-tight">Marcas con las que trabajamos</h2>
           
-          <div className="flex flex-wrap justify-center items-center gap-12 md:gap-20">
-            {marcas.map((marca, idx) => (
-              <div key={idx} className="relative w-24 h-24 md:w-32 md:h-32 hover:scale-110 transition-transform duration-300">
-                <Image
-                  src={marca.logo} 
-                  alt={`Logo de ${marca.nombre}`}
-                  fill
-                  className="object-contain"
-                />
-              </div>
-            ))}
+          <div className="flex flex-col items-center gap-10 md:gap-14">
+            
+            {/* FILA 1: Las primeras 4 marcas */}
+            <div className="flex flex-wrap justify-center items-center gap-8 md:gap-16 w-full">
+              {marcas.slice(0, 4).map((marca, idx) => (
+                <div key={idx} className="relative w-28 h-12 md:w-40 h-20 md:w-64 md:h-32 hover:scale-110 transition-transform duration-300">
+                  <Image
+                    src={marca.logo} 
+                    alt={`Logo de ${marca.nombre}`}
+                    fill
+                    className="object-contain"
+                  />
+                </div>
+              ))}
+            </div>
+
+            {/* FILA 2: Las 3 marcas restantes */}
+            <div className="flex flex-wrap justify-center items-center gap-8 md:gap-16 w-full">
+              {marcas.slice(4).map((marca, idx) => (
+                <div key={idx + 4} className="relative w-28 h-12 md:w-40 h-20 md:w-64 md:h-32 hover:scale-110 transition-transform duration-300">
+                  <Image
+                    src={marca.logo} 
+                    alt={`Logo de ${marca.nombre}`}
+                    fill
+                    className="object-contain"
+                  />
+                </div>
+              ))}
+            </div>
+
           </div>
         </div>
       </section>
 
-      {/* 3. SECCIÓN VENTA ONLINE (Mantenida intacta) */}
+      {/* 3. SECCIÓN VENTA ONLINE */}
       <section className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-end mb-12">
