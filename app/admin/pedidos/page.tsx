@@ -2,9 +2,11 @@
 
 import { useState, useEffect } from 'react';
 
+// Agregamos el nuevo estado a la lista
 const SHIPPING_STAGES = [
   { value: 'CONFIRMADO', label: 'Pedido confirmado' },
   { value: 'PREPARANDO', label: 'En preparación' },
+  { value: 'LISTO_PARA_RETIRO', label: 'Listo para retiro' },
   { value: 'EN_CAMINO', label: 'En camino' },
   { value: 'ENTREGADO', label: 'Entregado' },
 ];
@@ -19,13 +21,30 @@ interface AdminOrder {
   itemsSummary: string;
 }
 
+// Función para renderizar el "globito" de color según el estado
+const getStatusBadge = (status: string) => {
+  switch (status) {
+    case 'CONFIRMADO':
+      return <span className="px-2 py-1 bg-yellow-100 text-yellow-800 border border-yellow-200 rounded-full text-[10px] uppercase font-bold tracking-wider">Confirmado</span>;
+    case 'PREPARANDO':
+      return <span className="px-2 py-1 bg-orange-100 text-orange-800 border border-orange-200 rounded-full text-[10px] uppercase font-bold tracking-wider">Preparando</span>;
+    case 'LISTO_PARA_RETIRO':
+      return <span className="px-2 py-1 bg-cyan-100 text-cyan-800 border border-cyan-200 rounded-full text-[10px] uppercase font-bold tracking-wider animate-pulse shadow-sm">Listo para Retiro</span>;
+    case 'EN_CAMINO':
+      return <span className="px-2 py-1 bg-indigo-100 text-indigo-800 border border-indigo-200 rounded-full text-[10px] uppercase font-bold tracking-wider">En camino</span>;
+    case 'ENTREGADO':
+      return <span className="px-2 py-1 bg-green-100 text-green-800 border border-green-200 rounded-full text-[10px] uppercase font-bold tracking-wider">Entregado</span>;
+    default:
+      return <span className="px-2 py-1 bg-gray-100 text-gray-800 border border-gray-200 rounded-full text-[10px] uppercase font-bold tracking-wider">{status}</span>;
+  }
+};
+
 export default function AdminOrdersPage() {
   const [orders, setOrders] = useState<AdminOrder[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [savingOrder, setSavingOrder] = useState<string | null>(null);
 
-  // Cargamos los pedidos automáticamente apenas el Administrador entra a la página
   useEffect(() => {
     loadOrders();
   }, []);
@@ -34,8 +53,6 @@ export default function AdminOrdersPage() {
     setLoading(true);
     setError('');
     try {
-      // Ya no enviamos el header secreto 'x-admin-key'. 
-      // NextAuth envía las cookies de sesión automáticamente por debajo.
       const res = await fetch('/api/admin/orders');
       const data = await res.json();
       if (!res.ok) {
@@ -70,7 +87,7 @@ export default function AdminOrdersPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-white text-gray-900 flex items-center justify-center pt-20">
-        <p className="text-xs uppercase tracking-widest  text-[#b3131b] animate-pulse">
+        <p className="text-xs uppercase tracking-widest text-[#b3131b] font-bold animate-pulse">
           Cargando pedidos...
         </p>
       </div>
@@ -80,7 +97,7 @@ export default function AdminOrdersPage() {
   if (error) {
     return (
       <div className="min-h-screen bg-white text-gray-900 flex items-center justify-center pt-20">
-        <p className="text-xs uppercase tracking-widest  text-red-500">{error}</p>
+        <p className="text-xs uppercase tracking-widest text-red-500 font-bold">{error}</p>
       </div>
     );
   }
@@ -91,33 +108,40 @@ export default function AdminOrdersPage() {
         <h1 className="text-3xl font-bold uppercase tracking-tight mb-8">Pedidos pagados</h1>
 
         {orders.length === 0 ? (
-          <p className="text-gray-600  text-sm">No hay pedidos pagados todavía.</p>
+          <div className="bg-gray-50 border border-gray-200 rounded-lg p-8 text-center">
+            <p className="text-gray-500 text-sm">No hay pedidos pagados todavía.</p>
+          </div>
         ) : (
-          <div className="border border-gray-200 divide-y divide-white/10">
+          <div className="border border-gray-200 divide-y divide-gray-200 rounded-lg overflow-hidden shadow-sm">
             {orders.map((o) => (
-              <div key={o.buyOrder} className="p-6 grid grid-cols-1 md:grid-cols-5 gap-4 items-center bg-gray-50">
+              <div key={o.buyOrder} className="p-6 grid grid-cols-1 md:grid-cols-5 gap-6 items-center bg-white hover:bg-gray-50 transition-colors">
                 <div>
-                  <p className="text-xs  text-gray-500">{new Date(o.createdAt).toLocaleDateString('es-CL')}</p>
-                  <p className="text-sm font-bold text-gray-900 ">{o.buyOrder}</p>
+                  <p className="text-[11px] uppercase tracking-widest text-gray-500 mb-1">
+                    {new Date(o.createdAt).toLocaleDateString('es-CL')}
+                  </p>
+                  <p className="text-sm font-black text-gray-900">{o.buyOrder}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-900">{o.customerName}</p>
-                  <p className="text-xs text-gray-500 ">{o.customerEmail}</p>
+                  <p className="text-sm font-bold text-gray-900">{o.customerName}</p>
+                  <p className="text-xs text-gray-500 mt-1">{o.customerEmail}</p>
                 </div>
                 <div className="md:col-span-1">
-                  <p className="text-xs text-gray-600  line-clamp-2">{o.itemsSummary}</p>
+                  <p className="text-xs text-gray-600 line-clamp-2 leading-relaxed">{o.itemsSummary}</p>
                 </div>
                 <div>
-                  <p className="text-sm font-bold text-[#b3131b] ">
+                  <p className="text-base font-black text-[#b3131b]">
                     {new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 }).format(o.amount)}
                   </p>
                 </div>
-                <div>
+                <div className="flex flex-col gap-3 items-start md:items-end">
+                  {/* Aquí se renderiza la etiqueta de color */}
+                  {getStatusBadge(o.shippingStatus)}
+                  
                   <select
                     value={o.shippingStatus}
                     disabled={savingOrder === o.buyOrder}
                     onChange={(e) => handleStatusChange(o.buyOrder, e.target.value)}
-                    className="w-full bg-white border border-gray-200 p-2 text-xs focus:border-[#b3131b] focus:outline-none text-gray-900  disabled:opacity-50"
+                    className="w-full bg-white border border-gray-300 rounded-md p-2 text-xs font-bold text-gray-900 focus:border-black focus:ring-1 focus:ring-black outline-none transition-colors disabled:opacity-50 cursor-pointer"
                   >
                     {SHIPPING_STAGES.map((s) => (
                       <option key={s.value} value={s.value}>{s.label}</option>

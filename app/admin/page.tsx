@@ -39,81 +39,113 @@ export default function AdminDashboard() {
   }, []);
 
   if (loading) {
-    return <div className="text-xs  text-[#b3131b] animate-pulse">Cargando métricas...</div>;
+    return (
+      <div className="flex h-64 items-center justify-center">
+        <div className="text-xs uppercase tracking-widest text-[#FF0000] font-bold animate-pulse">
+          Cargando métricas...
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 font-sans">
+      
       {/* Grid de Tarjetas de Estadísticas */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         
-        <div className="bg-gray-50 border border-gray-200 p-6 rounded-lg relative overflow-hidden group hover:border-gray-300 transition-colors">
-          <p className="text-[10px]  uppercase tracking-widest text-gray-600 mb-2">Ventas Totales</p>
-          <p className="text-3xl font-bold text-gray-900 mb-2">
+        {/* Tarjeta 1: Ventas Totales */}
+        <div className="bg-white border border-gray-100 p-8 rounded-xl shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+          <p className="text-[10px] uppercase tracking-widest text-gray-500 mb-2 font-bold">Ventas Totales</p>
+          <p className="text-3xl sm:text-4xl font-black text-gray-900 mb-2 tracking-tight">
             {STORE_CONFIG.CURRENCY_FORMAT.format(stats.totalSales)}
           </p>
-          <div className="absolute top-0 right-0 w-24 h-24 bg-[#b3131b] opacity-5 rounded-full blur-2xl -mr-10 -mt-10 transition-opacity" />
+          {/* Brillo sutil de fondo */}
+          <div className="absolute top-0 right-0 w-32 h-32 bg-[#FF0000] opacity-[0.03] rounded-full blur-3xl -mr-10 -mt-10 transition-opacity group-hover:opacity-[0.06]" />
         </div>
 
-        <div className="bg-gray-50 border border-gray-200 p-6 rounded-lg hover:border-gray-300 transition-colors">
-          <p className="text-[10px]  uppercase tracking-widest text-gray-600 mb-2">Pedidos Pagados</p>
-          <p className="text-3xl font-bold text-gray-900 mb-2">{stats.ordersCount}</p>
+        {/* Tarjeta 2: Pedidos Pagados */}
+        <div className="bg-white border border-gray-100 p-8 rounded-xl shadow-sm hover:shadow-md transition-shadow">
+          <p className="text-[10px] uppercase tracking-widest text-gray-500 mb-2 font-bold">Pedidos Pagados</p>
+          <p className="text-3xl sm:text-4xl font-black text-gray-900 mb-2 tracking-tight">
+            {stats.ordersCount}
+          </p>
         </div>
 
-        <div className="bg-gray-50 border border-gray-200 p-6 rounded-lg hover:border-gray-300 transition-colors">
-          <p className="text-[10px]  uppercase tracking-widest text-gray-600 mb-2">Ticket Promedio</p>
-          <p className="text-3xl font-bold text-gray-900 mb-2">
+        {/* Tarjeta 3: Ticket Promedio */}
+        <div className="bg-white border border-gray-100 p-8 rounded-xl shadow-sm hover:shadow-md transition-shadow">
+          <p className="text-[10px] uppercase tracking-widest text-gray-500 mb-2 font-bold">Ticket Promedio</p>
+          <p className="text-3xl sm:text-4xl font-black text-gray-900 mb-2 tracking-tight">
             {STORE_CONFIG.CURRENCY_FORMAT.format(stats.averageTicket)}
           </p>
         </div>
+
       </div>
 
       {/* Sección del Gráfico */}
-      <div className="bg-gray-50 border border-gray-200 p-6 rounded-lg">
-        <h3 className="text-xs  uppercase tracking-widest text-gray-600 mb-6">
+      <div className="bg-white border border-gray-100 p-8 rounded-xl shadow-sm">
+        <h3 className="text-xs uppercase tracking-widest text-black mb-8 font-bold border-b border-gray-100 pb-4">
           Flujo de Ingresos
         </h3>
-        <div className="h-80 w-full">
+        
+        <div className="h-[400px] w-full">
           {stats.chartData.length === 0 ? (
-            <div className="w-full h-full flex items-center justify-center text-xs  text-gray-600">
-              Aún no hay ventas para graficar.
+            <div className="w-full h-full flex items-center justify-center text-sm text-gray-500 bg-gray-50 rounded-lg border border-dashed border-gray-200">
+              Aún no hay ventas suficientes para graficar.
             </div>
           ) : (
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={stats.chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                 <defs>
                   <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#b3131b" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="#b3131b" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="#FF0000" stopOpacity={0.15}/>
+                    <stop offset="95%" stopColor="#FF0000" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#333" vertical={false} />
+                
+                {/* Cuadrícula limpia y sutil */}
+                <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" vertical={false} />
+                
                 <XAxis 
                   dataKey="name" 
-                  stroke="#666" 
-                  fontSize={10} 
+                  stroke="#9ca3af" 
+                  fontSize={11} 
                   tickLine={false} 
-                  axisLine={false} 
+                  axisLine={false}
+                  dy={10}
                 />
+                
                 <YAxis 
-                  stroke="#666" 
-                  fontSize={10} 
+                  stroke="#9ca3af" 
+                  fontSize={11} 
                   tickLine={false} 
                   axisLine={false} 
                   tickFormatter={(value) => `$${value.toLocaleString('es-CL')}`}
+                  dx={-10}
                 />
+                
+                {/* Tooltip claro y moderno */}
                 <Tooltip 
-                  contentStyle={{ backgroundColor: '#121212', borderColor: '#333', borderRadius: '8px' }}
-                  itemStyle={{ color: '#b3131b' }}
-                  formatter={(value: any) => [`$${Number(value).toLocaleString('es-CL')}`, 'Ventas']}
+                  contentStyle={{ 
+                    backgroundColor: '#ffffff', 
+                    borderColor: '#f3f4f6', 
+                    borderRadius: '12px',
+                    boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+                    padding: '12px'
+                  }}
+                  itemStyle={{ color: '#FF0000', fontWeight: 'bold' }}
+                  labelStyle={{ color: '#4b5563', marginBottom: '4px', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.05em' }}
+                  formatter={(value: any) => [`$${Number(value).toLocaleString('es-CL')}`, 'Ingresos']}
                 />
+                
                 <Area 
                   type="monotone" 
                   dataKey="total" 
-                  stroke="#b3131b" 
-                  strokeWidth={2}
+                  stroke="#FF0000" 
+                  strokeWidth={3}
                   fillOpacity={1} 
                   fill="url(#colorTotal)" 
+                  activeDot={{ r: 6, fill: '#FF0000', stroke: '#ffffff', strokeWidth: 2 }}
                 />
               </AreaChart>
             </ResponsiveContainer>

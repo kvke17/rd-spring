@@ -38,6 +38,9 @@ export default function CheckoutPage() {
   const [loading, setLoading] = useState(false);
   const [docType, setDocType] = useState('BOLETA');
 
+  // NUEVO ESTADO: Controla si es despacho a domicilio o retiro en tienda
+  const [metodoEntrega, setMetodoEntrega] = useState<'despacho' | 'retiro'>('despacho');
+
   const [tarifasDinamicas, setTarifasDinamicas] = useState<any[]>([]);
   const [cargandoEnvio, setCargandoEnvio] = useState(false);
   const [envioSeleccionado, setEnvioSeleccionado] = useState<any>(null);
@@ -117,7 +120,7 @@ export default function CheckoutPage() {
     }
 
     if (!envioSeleccionado) {
-      alert('Por favor, calcula y selecciona una opción de envío antes de pagar.');
+      alert('Por favor, selecciona una opción de entrega antes de pagar.');
       return;
     }
 
@@ -137,7 +140,7 @@ export default function CheckoutPage() {
           documentType: docType,
           shippingInfo: {
             ...envioSeleccionado,
-            sucursalOficina: 'Envío a domicilio'
+            sucursalOficina: metodoEntrega === 'retiro' ? 'Retiro en Tienda - Av. Las Condes 8550' : 'Envío a domicilio'
           }
         }),
       });
@@ -267,69 +270,127 @@ export default function CheckoutPage() {
               </div>
             </div>
 
-            {/* 03. ENTREGA Y COTIZACIÓN DINÁMICA */}
+            {/* 03. ENTREGA Y DESPACHO */}
             <div className="bg-white border border-gray-200 p-8 shadow-sm">
-              <h2 className="text-sm uppercase tracking-widest text-black mb-6 font-bold border-b border-gray-100 pb-4">03 · Dirección y Despacho</h2>
+              <h2 className="text-sm uppercase tracking-widest text-black mb-6 font-bold border-b border-gray-100 pb-4">03 · Método de Entrega</h2>
               
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-6">
-                <div className="sm:col-span-3">
-                  <label className="block text-[11px] uppercase tracking-widest text-black mb-2 font-bold">Dirección de Despacho *</label>
-                  <input type="text" name="address" required value={formData.address} onChange={handleChange} className="w-full bg-white border border-gray-300 p-3 text-sm text-black focus:border-black outline-none transition-colors" placeholder="Calle y número, Depto / Oficina" />
-                </div>
-                
-                <div>
-                  <label className="block text-[11px] uppercase tracking-widest text-black mb-2 font-bold">Región *</label>
-                  <select name="region" required value={formData.region} onChange={(e) => {
-                      setFormData({ ...formData, region: e.target.value, comuna: '' });
-                      setEnvioSeleccionado(null);
-                      setTarifasDinamicas([]);
-                    }} className="w-full bg-white border border-gray-300 p-3 text-sm focus:border-black outline-none transition-colors cursor-pointer">
-                    <option value="">Selecciona...</option>
-                    {Object.keys(REGIONES_CHILE).map((reg) => (<option key={reg} value={reg}>{reg}</option>))}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-[11px] uppercase tracking-widest text-black mb-2 font-bold">Comuna *</label>
-                  <select name="comuna" required value={formData.comuna} onChange={(e) => {
-                      setFormData({ ...formData, comuna: e.target.value });
-                      setEnvioSeleccionado(null);
-                      setTarifasDinamicas([]);
-                    }} disabled={!formData.region} className="w-full bg-white border border-gray-300 p-3 text-sm focus:border-black outline-none transition-colors cursor-pointer disabled:opacity-50">
-                    <option value="">Selecciona...</option>
-                    {formData.region && REGIONES_CHILE[formData.region].map((com) => (<option key={com} value={com}>{com}</option>))}
-                  </select>
-                </div>
+              {/* SELECTOR DESPACHO VS RETIRO */}
+              <div className="flex flex-col sm:flex-row gap-4 mb-8">
+                <label className={`flex-1 border p-4 cursor-pointer transition-all ${metodoEntrega === 'despacho' ? 'border-black bg-gray-50 ring-1 ring-black' : 'border-gray-200 hover:border-gray-300'}`}>
+                  <div className="flex items-center">
+                    <input 
+                      type="radio" 
+                      name="metodo" 
+                      checked={metodoEntrega === 'despacho'} 
+                      onChange={() => {
+                        setMetodoEntrega('despacho');
+                        setEnvioSeleccionado(null); // Obliga a recotizar
+                      }} 
+                      className="h-4 w-4 text-black focus:ring-black border-gray-300"
+                    />
+                    <span className="ml-3 font-bold text-sm">Envío a Domicilio</span>
+                  </div>
+                </label>
 
-                <div className="flex items-end">
-                  <button type="button" onClick={calcularFlete} disabled={cargandoEnvio || !formData.comuna} className="w-full bg-black text-white font-bold h-[46px] text-xs uppercase tracking-widest hover:bg-gray-800 transition disabled:opacity-50 disabled:cursor-not-allowed">
-                    {cargandoEnvio ? 'Calculando...' : 'Cotizar Envío'}
-                  </button>
-                </div>
+                <label className={`flex-1 border p-4 cursor-pointer transition-all ${metodoEntrega === 'retiro' ? 'border-black bg-gray-50 ring-1 ring-black' : 'border-gray-200 hover:border-gray-300'}`}>
+                  <div className="flex items-center">
+                    <input 
+                      type="radio" 
+                      name="metodo" 
+                      checked={metodoEntrega === 'retiro'} 
+                      onChange={() => {
+                        setMetodoEntrega('retiro');
+                        // Configuramos automáticamente el costo 0 para el retiro
+                        setEnvioSeleccionado({
+                          id: 'retiro-tienda',
+                          carrier: 'RETIRO',
+                          serviceName: 'En Tienda',
+                          label: 'Retiro en Tienda',
+                          cost: 0
+                        });
+                      }} 
+                      className="h-4 w-4 text-black focus:ring-black border-gray-300"
+                    />
+                    <div className="ml-3">
+                      <span className="font-bold text-sm block">Retiro en Tienda (Gratis)</span>
+                      <span className="text-xs text-gray-500">Av. Las Condes 8550</span>
+                    </div>
+                  </div>
+                </label>
               </div>
 
-              {/* LISTA DE TARIFAS DE ENVIA.COM (SOLO DOMICILIO) */}
-              {tarifasDinamicas.length > 0 ? (
-                <div className="space-y-4 animate-in fade-in duration-300 border-t border-gray-100 pt-6">
-                  <p className="text-[11px] uppercase tracking-widest text-gray-500 font-bold mb-4">Selecciona tu Envío a Domicilio</p>
-                  {tarifasDinamicas.map((tarifa) => (
-                    <label 
-                      key={tarifa.id} 
-                      onClick={() => setEnvioSeleccionado(tarifa)} 
-                      className={`flex items-center justify-between p-5 cursor-pointer border transition-colors ${envioSeleccionado?.id === tarifa.id ? 'border-black bg-gray-50 text-black' : 'border-gray-200 bg-white text-black hover:border-gray-400'}`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${envioSeleccionado?.id === tarifa.id ? 'border-black' : 'border-gray-300'}`}>
-                          {envioSeleccionado?.id === tarifa.id && <div className="w-2 h-2 bg-black rounded-full" />}
-                        </div>
-                        <span className="text-sm font-bold">{tarifa.label}</span>
-                      </div>
-                      <span className="text-sm font-bold">{STORE_CONFIG.CURRENCY_FORMAT.format(tarifa.cost)}</span>
-                    </label>
-                  ))}
+              {/* LÓGICA CONDICIONAL: Solo mostrar direcciones si es despacho */}
+              {metodoEntrega === 'despacho' ? (
+                <div className="animate-in fade-in duration-300">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-6">
+                    <div className="sm:col-span-3">
+                      <label className="block text-[11px] uppercase tracking-widest text-black mb-2 font-bold">Dirección de Despacho *</label>
+                      <input type="text" name="address" required={metodoEntrega === 'despacho'} value={formData.address} onChange={handleChange} className="w-full bg-white border border-gray-300 p-3 text-sm text-black focus:border-black outline-none transition-colors" placeholder="Calle y número, Depto / Oficina" />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-[11px] uppercase tracking-widest text-black mb-2 font-bold">Región *</label>
+                      <select name="region" required={metodoEntrega === 'despacho'} value={formData.region} onChange={(e) => {
+                          setFormData({ ...formData, region: e.target.value, comuna: '' });
+                          setEnvioSeleccionado(null);
+                          setTarifasDinamicas([]);
+                        }} className="w-full bg-white border border-gray-300 p-3 text-sm focus:border-black outline-none transition-colors cursor-pointer">
+                        <option value="">Selecciona...</option>
+                        {Object.keys(REGIONES_CHILE).map((reg) => (<option key={reg} value={reg}>{reg}</option>))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-[11px] uppercase tracking-widest text-black mb-2 font-bold">Comuna *</label>
+                      <select name="comuna" required={metodoEntrega === 'despacho'} value={formData.comuna} onChange={(e) => {
+                          setFormData({ ...formData, comuna: e.target.value });
+                          setEnvioSeleccionado(null);
+                          setTarifasDinamicas([]);
+                        }} disabled={!formData.region} className="w-full bg-white border border-gray-300 p-3 text-sm focus:border-black outline-none transition-colors cursor-pointer disabled:opacity-50">
+                        <option value="">Selecciona...</option>
+                        {formData.region && REGIONES_CHILE[formData.region].map((com) => (<option key={com} value={com}>{com}</option>))}
+                      </select>
+                    </div>
+
+                    <div className="flex items-end">
+                      <button type="button" onClick={calcularFlete} disabled={cargandoEnvio || !formData.comuna} className="w-full bg-black text-white font-bold h-[46px] text-xs uppercase tracking-widest hover:bg-gray-800 transition disabled:opacity-50 disabled:cursor-not-allowed">
+                        {cargandoEnvio ? 'Calculando...' : 'Cotizar Envío'}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* LISTA DE TARIFAS DE ENVIA.COM */}
+                  {tarifasDinamicas.length > 0 ? (
+                    <div className="space-y-4 animate-in fade-in duration-300 border-t border-gray-100 pt-6">
+                      <p className="text-[11px] uppercase tracking-widest text-gray-500 font-bold mb-4">Selecciona tu Envío a Domicilio</p>
+                      {tarifasDinamicas.map((tarifa) => (
+                        <label 
+                          key={tarifa.id} 
+                          onClick={() => setEnvioSeleccionado(tarifa)} 
+                          className={`flex items-center justify-between p-5 cursor-pointer border transition-colors ${envioSeleccionado?.id === tarifa.id ? 'border-black bg-gray-50 text-black' : 'border-gray-200 bg-white text-black hover:border-gray-400'}`}
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${envioSeleccionado?.id === tarifa.id ? 'border-black' : 'border-gray-300'}`}>
+                              {envioSeleccionado?.id === tarifa.id && <div className="w-2 h-2 bg-black rounded-full" />}
+                            </div>
+                            <span className="text-sm font-bold">{tarifa.label}</span>
+                          </div>
+                          <span className="text-sm font-bold">{STORE_CONFIG.CURRENCY_FORMAT.format(tarifa.cost)}</span>
+                        </label>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="p-4 bg-gray-50 border border-gray-200 text-sm text-gray-600 text-center mt-6">
+                      {formData.comuna ? 'Presiona "Cotizar Envío" para ver las opciones disponibles.' : 'Selecciona tu región y comuna para calcular el envío.'}
+                    </div>
+                  )}
                 </div>
               ) : (
-                <div className="p-4 bg-gray-50 border border-gray-200 text-sm text-gray-600 text-center mt-6">
-                  {formData.comuna ? 'Presiona "Cotizar Envío" para ver las opciones disponibles.' : 'Selecciona tu región y comuna para calcular el envío.'}
+                <div className="p-5 bg-green-50 border border-green-200 animate-in fade-in duration-300">
+                  <h4 className="text-sm font-bold text-green-900 mb-1">¡Excelente elección!</h4>
+                  <p className="text-sm text-green-800">
+                    Tu pedido estará disponible para retiro en <strong>Av. Las Condes 8550</strong>. 
+                    Te enviaremos un correo apenas el estado cambie a "Listo para retiro".
+                  </p>
                 </div>
               )}
             </div>
@@ -359,7 +420,11 @@ export default function CheckoutPage() {
                 </div>
                 <div className="flex justify-between text-black">
                   <span>Despacho</span>
-                  <span className="font-bold">{envioSeleccionado ? STORE_CONFIG.CURRENCY_FORMAT.format(envioSeleccionado.cost) : 'Por calcular'}</span>
+                  <span className="font-bold">
+                    {metodoEntrega === 'retiro' 
+                      ? 'Gratis' 
+                      : (envioSeleccionado ? STORE_CONFIG.CURRENCY_FORMAT.format(envioSeleccionado.cost) : 'Por calcular')}
+                  </span>
                 </div>
                 <div className="flex justify-between text-lg font-bold text-black pt-6 border-t border-gray-200">
                   <span className="uppercase tracking-wider">Total a Pagar</span>
