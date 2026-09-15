@@ -55,7 +55,7 @@ export default function Footer() {
                 rel="noopener noreferrer"
                 className="inline-block text-gray-800 text-sm font-medium hover:text-[#b3131b] transition underline decoration-gray-300 hover:decoration-[#b3131b] underline-offset-4"
               >
-                Las Condes 8550
+                Av. Las Condes 8550, Las Condes, Región Metropolitana
               </a>
             </div>
           </div>
