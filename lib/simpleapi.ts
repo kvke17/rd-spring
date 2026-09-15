@@ -89,7 +89,8 @@ export async function emitirDTE(order: OrdenParaDTE): Promise<ResultadoDTE> {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Accept': 'application/json'
+      'Accept': 'application/json',
+      'Authorization': process.env.SIMPLE_API_KEY || "" // <-- ESTA ES LA LÍNEA QUE FALTABA
     },
     body: JSON.stringify(body),
   });
