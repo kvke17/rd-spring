@@ -44,6 +44,7 @@ export default function AdminOrdersPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [savingOrder, setSavingOrder] = useState<string | null>(null);
+  const [emittingBoleta, setEmittingBoleta] = useState<string | null>(null);
 
   useEffect(() => {
     loadOrders();
@@ -81,6 +82,28 @@ export default function AdminOrdersPage() {
       alert('No se pudo actualizar el estado. Intenta de nuevo.');
     } finally {
       setSavingOrder(null);
+    }
+  };
+
+  const emitirBoletaManual = async (buyOrder: string) => {
+    if (!confirm(`¿Deseas emitir la boleta electrónica para la orden #${buyOrder}?`)) return;
+
+    setEmittingBoleta(buyOrder);
+    try {
+      const res = await fetch(`/api/admin/orders/${buyOrder}/boleta`, {
+        method: 'POST',
+      });
+      const data = await res.json();
+
+      if (res.ok) {
+        alert(`✅ ${data.message}\n${data.pdf ? `PDF: ${data.pdf}` : ''}`);
+      } else {
+        alert(`❌ Error al emitir boleta: ${data.error}`);
+      }
+    } catch {
+      alert('❌ Error de conexión al intentar emitir la boleta.');
+    } finally {
+      setEmittingBoleta(null);
     }
   };
 
@@ -147,6 +170,24 @@ export default function AdminOrdersPage() {
                       <option key={s.value} value={s.value}>{s.label}</option>
                     ))}
                   </select>
+
+                  {/* Botón para emitir la boleta electrónica manualmente */}
+                  <button
+                    onClick={() => emitirBoletaManual(o.buyOrder)}
+                    disabled={emittingBoleta === o.buyOrder}
+                    className="w-full bg-[#b3131b] hover:bg-[#900f15] text-white rounded-md py-2 px-3 text-xs font-bold uppercase tracking-wider transition-colors disabled:opacity-50 cursor-pointer flex items-center justify-center gap-1.5 shadow-sm"
+                  >
+                    {emittingBoleta === o.buyOrder ? (
+                      'Emitiendo...'
+                    ) : (
+                      <>
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        Emitir Boleta
+                      </>
+                    )}
+                  </button>
                 </div>
               </div>
             ))}
