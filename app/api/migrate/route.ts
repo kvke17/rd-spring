@@ -18,15 +18,16 @@ export async function GET() {
           data: {
             id: item.id || item.sku,
             sku: item.sku,
-            // Agregamos los campos que Prisma exige como obligatorios:
+            // Agregamos todos los campos que Prisma exige como obligatorios:
             name: item.name || `Producto ${item.sku}`,
             slug: item.slug || item.sku.toLowerCase(),
             brand: item.brand || 'Generico',
             category: item.category || 'Sin Categoria',
-            image: item.image || '/images/logo-rd.png'
+            image: item.image || '/images/logo-rd.png',
+            price: item.price || 0 // <-- AQUÍ ESTÁ EL CAMPO FALTANTE
           }
         });
-        count++; // Sumamos 1 al contador solo si realmente se creó
+        count++; 
       }
     }
 
