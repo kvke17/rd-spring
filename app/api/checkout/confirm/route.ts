@@ -66,49 +66,54 @@ async function processPayment(request: Request) {
       let linkPdfBoleta = "Se enviará a la brevedad";
 
       try {
-        const detallesBoleta = items.map((item: any, index: number) => ({
-          NroLinDet: index + 1,
-          NmbItem: item.product.name,
-          QtyItem: item.quantity,
-          PrcItem: item.product.price,
-          MontoItem: item.quantity * item.product.price
-        }));
-
-        const boletaPayload = {
-          Documento: {
-            Encabezado: {
-              IdDoc: {
-                TipoDTE: 39 // 39 es el código del SII para Boleta Electrónica
-              },
-              Receptor: {
-                RUTRecep: customer.rut || "66666666-6", // RUT genérico por si falla
-                RznSocRecep: customer.fullName || "Cliente Web",
-                DirRecep: customer.address || "Sin dirección",
-                CmnaRecep: "Santiago"
-              }
-            },
-            Detalle: detallesBoleta
-          }
-        };
-
-        const boletaResponse = await fetch(process.env.SIMPLE_API_URL as string, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${process.env.SIMPLE_API_KEY}` 
-          },
-          body: JSON.stringify(boletaPayload)
-        });
-
-        if (boletaResponse.ok) {
-          const boletaData = await boletaResponse.json();
-          folioBoleta = boletaData.folio || boletaData.Folio || "Generado";
-          linkPdfBoleta = boletaData.pdf || boletaData.UrlPdf || linkPdfBoleta; 
-          console.log(`Boleta generada con éxito: Folio ${folioBoleta}`);
+        if (!process.env.SIMPLE_API_URL || !process.env.SIMPLE_API_KEY) {
+          console.warn("=== ADVERTENCIA: Faltan las variables de entorno de Simple API ===");
         } else {
-          const errorApiText = await boletaResponse.text();
-          console.error("=== ERROR SIMPLE API (STATUS) ===", boletaResponse.status);
-          console.error("=== ERROR SIMPLE API (DETALLE) ===", errorApiText);
+          const detallesBoleta = items.map((item: any, index: number) => ({
+            NroLinDet: index + 1,
+            NmbItem: item.product.name,
+            QtyItem: item.quantity,
+            PrcItem: item.product.price,
+            MontoItem: item.quantity * item.product.price
+          }));
+
+          const boletaPayload = {
+            Documento: {
+              Encabezado: {
+                IdDoc: {
+                  TipoDTE: 39 // 39 es el código del SII para Boleta Electrónica
+                },
+                Receptor: {
+                  RUTRecep: customer.rut || "66666666-6", // RUT genérico por si falla
+                  RznSocRecep: customer.fullName || "Cliente Web",
+                  DirRecep: customer.address || "Sin dirección",
+                  CmnaRecep: "Santiago"
+                }
+              },
+              Detalle: detallesBoleta
+            }
+          };
+
+          const boletaResponse = await fetch(process.env.SIMPLE_API_URL as string, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+              'Authorization': `Bearer ${process.env.SIMPLE_API_KEY}` 
+            },
+            body: JSON.stringify(boletaPayload)
+          });
+
+          if (boletaResponse.ok) {
+            const boletaData = await boletaResponse.json();
+            folioBoleta = boletaData.folio || boletaData.Folio || "Generado";
+            linkPdfBoleta = boletaData.pdf || boletaData.UrlPdf || linkPdfBoleta; 
+            console.log(`Boleta generada con éxito: Folio ${folioBoleta}`);
+          } else {
+            const errorApiText = await boletaResponse.text();
+            console.error("=== ERROR SIMPLE API (STATUS) ===", boletaResponse.status);
+            console.error("=== ERROR SIMPLE API (DETALLE) ===", errorApiText);
+          }
         }
       } catch (boletaError) {
         console.error("Error de red con Simple API:", boletaError);
