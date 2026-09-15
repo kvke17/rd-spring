@@ -22,7 +22,7 @@ export async function PATCH(
     const body = await request.json();
     const { shippingStatus } = body;
 
-    // 1. Actualizamos el estado del pedido en la base de datos
+    // 1. Actualizamos el estado del pedido
     const updatedOrder = await prisma.order.update({
       where: { buyOrder },
       data: { shippingStatus }
@@ -31,12 +31,17 @@ export async function PATCH(
     // 2. Extraemos los datos del cliente
     const customer = JSON.parse(updatedOrder.customer as string);
 
-    // 3. Envío de correo con Resend a los destinatarios correctos
+    // 3. Generamos un asunto dinámico para el correo
+    const subjectLine = shippingStatus === 'LISTO_PARA_RETIRO' 
+      ? `📍 ¡Tu pedido #${buyOrder} está listo para retiro!` 
+      : `Actualización de envío - Pedido #${buyOrder}`;
+
+    // 4. Envío de correo con Resend
     try {
       const emailResponse = await resend.emails.send({
         from: 'RD Spring <contacto@rdspring.cl>', 
         to: [customer.email, 'contacto@rdspring.cl'], 
-        subject: `Actualización de envío - Pedido #${buyOrder}`,
+        subject: subjectLine,
         react: OrderStatusEmail({
           customerName: customer.fullName || 'Cliente',
           buyOrder: buyOrder,
@@ -47,7 +52,6 @@ export async function PATCH(
       console.log('RESPUESTA EXITOSA DE RESEND:', emailResponse);
 
     } catch (emailError: any) {
-      // ESTO FORZARÁ A IMPRIMIR EL MOTIVO EXACTO EN ROJO EN TU TERMINAL
       console.error('ERROR CRÍTICO AL ENVIAR CORREO:', JSON.stringify(emailError, null, 2));
     }
 
