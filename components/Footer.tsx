@@ -77,7 +77,7 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/politicas" className="text-gray-800 text-sm font-medium hover:text-[#b3131b] transition">
+                <Link href="/garantia" className="text-gray-800 text-sm font-medium hover:text-[#b3131b] transition">
                   Políticas de Garantía
                 </Link>
               </li>
