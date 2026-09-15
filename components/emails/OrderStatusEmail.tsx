@@ -15,9 +15,7 @@ export default function OrderStatusEmail({
   isPickup = false,
 }: OrderStatusEmailProps) {
   
-  // Determinamos si realmente debe usar la línea de tiempo de retiro 
-  // (solo si es pickup Y el estado ya avanzó a listo o entregado, o si prefieres mantenerlo siempre que sea pickup).
-  // Lo ideal: si es pickup, usamos los pasos de retiro.
+  // ETAPAS BLINDADAS: Si es retiro, NUNCA incluye "En camino"
   const STAGES = isPickup 
     ? [
         { value: 'CONFIRMADO', label: 'Pedido confirmado' },
@@ -51,7 +49,7 @@ export default function OrderStatusEmail({
               El estado de tu pedido <strong style={{ color: '#fff', fontFamily: 'monospace' }}>{buyOrder}</strong> ha sido actualizado a <strong style={{ color: '#fff' }}>{STAGES[activeIndex]?.label || shippingStatus}</strong>.
             </Text>
 
-            {/* CORREGIDO: La caja de aviso solo sale SI el estado ES 'LISTO_PARA_RETIRO' */}
+            {/* La caja de aviso solo sale si el estado es exactamente LISTO_PARA_RETIRO */}
             {isPickup && shippingStatus === 'LISTO_PARA_RETIRO' && (
               <Section style={alertBox}>
                 <Text style={alertText}>
@@ -63,7 +61,7 @@ export default function OrderStatusEmail({
 
             <Hr style={divider} />
 
-            {/* LÍNEA DE TIEMPO VERTICAL DINÁMICA */}
+            {/* LÍNEA DE TIEMPO VERTICAL */}
             <Section style={{ marginTop: '32px', marginBottom: '32px' }}>
               <table cellPadding={0} cellSpacing={0} border={0} width="100%">
                 {STAGES.map((stage, index) => {
