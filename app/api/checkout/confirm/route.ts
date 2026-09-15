@@ -51,18 +51,7 @@ async function processPayment(request: Request) {
       const items = JSON.parse(pendingOrder.items);
       const customer = JSON.parse(pendingOrder.customer);
 
-      await prisma.$transaction(async (txPrisma) => {
-        await txPrisma.order.update({
-          where: { token: token_ws as string },
-          data: { status: 'PAGADO', shippingStatus: 'CONFIRMADO' }
-        });
-        for (const item of items) {
-          await txPrisma.product.updateMany({
-            where: { sku: item.product.sku },
-            data: { stock: { decrement: item.quantity } }
-          });
-        }
-      });
+    
 
       // ==========================================
       // GENERACIÓN DE BOLETA ELECTRÓNICA (Simple API)
