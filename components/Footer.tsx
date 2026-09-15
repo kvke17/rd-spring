@@ -42,6 +42,11 @@ export default function Footer() {
                   Aceites y Lubricantes
                 </Link>
               </li>
+              <li>
+                <Link href="/repuestos" className="text-gray-800 text-sm font-medium hover:text-[#b3131b] transition">
+                  Repuestos De Calidad
+                </Link>
+              </li>
             </ul>
 
             {/* NUEVA SECCIÓN: Oficina con enlace a Google Maps */}
