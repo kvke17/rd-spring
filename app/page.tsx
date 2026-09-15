@@ -94,6 +94,9 @@ export default async function HomePage() {
                 <Link href="/catalogo" className="bg-white border border-gray-300 text-gray-900 font-bold px-8 py-4 uppercase text-xs tracking-widest hover:bg-gray-50 transition shadow-md">
                   VER ACEITES
                 </Link>
+                <Link href="/repuestos" className="bg-white border border-gray-300 text-gray-900 font-bold px-8 py-4 uppercase text-xs tracking-widest hover:bg-gray-50 transition shadow-md">
+                  VER REPUESTOS DISPONIBLES
+                </Link>
               </div>
 
               <div className="grid grid-cols-3 gap-8 pt-10 mt-8 border-t border-gray-200">
