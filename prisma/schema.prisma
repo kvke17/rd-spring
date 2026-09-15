@@ -1,15 +1,14 @@
 generator client {
   provider      = "prisma-client-js"
-  previewFeatures = ["driverAdapters"] // <--- AGREGA ESTA LÍNEA
+  previewFeatures = ["driverAdapters"]
   binaryTargets = ["native", "rhel-openssl-3.0.x"]
 }
 
 datasource db {
   provider = "sqlite"
-  url      = env("DATABASE_URL")
+  url      = "file:./dev.db"
 }
-
-// --- 1. NUEVO MODELO DE USUARIOS ---
+// --- 1. MODELO DE USUARIOS ---
 model User {
   id        String   @id @default(cuid())
   name      String
@@ -38,7 +37,7 @@ model Order {
   
   items          String
   
-  // --- NUEVOS CAMPOS PARA BOLETA/FACTURA ---
+  // --- CAMPOS PARA BOLETA/FACTURA ---
   documentType   String   @default("BOLETA")
   razonSocial    String?
   giro           String?
@@ -46,29 +45,18 @@ model Order {
   createdAt      DateTime @default(now())
 }
 
-// --- 3. MODELO DE PRODUCTOS ---
-model Product {
-  id    String @id
-  sku   String @unique
-  stock Int    @default(0)
-  reviews   Review[]
-}
-// Agrega este nuevo modelo al final de tu archivo
 model Review {
   id        String   @id @default(cuid())
-  rating    Int      // Un número del 1 al 5
-  comment   String?  // El texto de la reseña (opcional)
+  rating    Int      
+  comment   String?  
   createdAt DateTime @default(now())
 
-  // Relación con el Producto
   product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
   productId String
 
-  // Relación con el Usuario (quien deja la reseña)
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    String
 }
-
 
 model PasswordResetToken {
   id        String   @id @default(cuid())
@@ -78,4 +66,21 @@ model PasswordResetToken {
   createdAt DateTime @default(now())
 
   @@unique([email, token])
+}
+
+model Product {
+ id          String   @id @default(cuid())
+  name        String
+  slug        String?
+  sku         String?
+  brand       String?
+  category    String?
+  description String?
+  price       Float
+  image       String?
+  type        String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  reviews     Review[]
 }

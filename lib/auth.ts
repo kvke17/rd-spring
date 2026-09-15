@@ -16,6 +16,9 @@ export const authOptions: NextAuthOptions = {
         if (!credentials?.email || !credentials?.password) throw new Error("Faltan datos");
         const user = await prisma.user.findUnique({ where: { email: credentials.email } });
         if (!user) throw new Error("Usuario no encontrado");
+        console.log("Usuario encontrado en Turso:", user.email);
+        console.log("Rol del usuario:", user.role);
+      
         
         const isPasswordValid = await bcrypt.compare(credentials.password, user.password);
         if (!isPasswordValid) throw new Error("Contraseña incorrecta");
@@ -24,6 +27,7 @@ export const authOptions: NextAuthOptions = {
       }
     })
   ],
+  
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
@@ -43,4 +47,6 @@ export const authOptions: NextAuthOptions = {
   pages: { signIn: '/login' },
   session: { strategy: "jwt" },
   secret: process.env.NEXTAUTH_SECRET,
+  
+
 };

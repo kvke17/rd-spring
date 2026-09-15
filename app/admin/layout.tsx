@@ -8,6 +8,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const tabs = [
     { name: 'Resumen', href: '/admin' },
     { name: 'Pedidos', href: '/admin/pedidos' },
+    { name: 'Productos', href: '/admin/productos' }, 
   ];
 
   return (
@@ -23,18 +24,25 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           {/* Navegación interna (Estilo Tabs) */}
           <nav className="flex space-x-8 border-b border-gray-200">
             {tabs.map((tab) => {
-              const isActive = pathname === tab.href;
+              // 👇 AQUÍ ESTÁ LA SOLUCIÓN 👇
+              // Si es la pestaña principal (/admin), exige que sea exacta. 
+              // Si son las otras, permite que incluyan sub-rutas (ej: /admin/productos/nuevo)
+              const isActive = 
+                tab.href === '/admin' 
+                  ? pathname === '/admin' 
+                  : pathname === tab.href || pathname.startsWith(`${tab.href}/`);
+
               return (
                 <Link
                   key={tab.name}
                   href={tab.href}
-                  className={`pb-4 text-xs  uppercase tracking-widest transition-colors relative ${
+                  className={`pb-4 text-xs font-bold uppercase tracking-widest transition-colors relative ${
                     isActive ? 'text-[#b3131b]' : 'text-gray-500 hover:text-gray-700'
                   }`}
                 >
                   {tab.name}
                   {isActive && (
-                    <span className="absolute bottom-0 left-0 w-full h-[2px] bg-[#b3131b] shadow-[0_0_10px_rgba(232,138,92,0.5)]" />
+                    <span className="absolute bottom-0 left-0 w-full h-[2px] bg-[#b3131b] shadow-[0_0_10px_rgba(179,19,27,0.5)]" />
                   )}
                 </Link>
               );
@@ -42,7 +50,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </nav>
         </div>
 
-        {/* Aquí se renderizará dinámicamente la página que elijas (Estadísticas o Pedidos) */}
         <div className="mt-8">
           {children}
         </div>

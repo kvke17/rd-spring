@@ -5,18 +5,19 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'placehold.co',
+        hostname: 'res.cloudinary.com',
       },
       // Cuando tengas fotos reales de producto, agrega aquí el dominio
       // donde las alojes (ej. tu bucket de imágenes o CDN).
     ],
   },
+  
 
   // 2. Las redirecciones para limpiar los enlaces viejos de Google
   async redirects() {
     return [
       {
-        source: '/contact-us',
+        source: '/Contacto',
         destination: '/soporte',
         permanent: true,
       },
@@ -37,6 +38,8 @@ const nextConfig = {
       }
     ]
   }
+  
 };
+
 
 module.exports = nextConfig;

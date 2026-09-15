@@ -59,12 +59,13 @@ export default function Navbar() {
           </Link>
           
           {/* MENÚ CENTRAL DE ESCRITORIO */}
-          <div className="hidden md:flex gap-8 text-[11px] font-bold uppercase tracking-widest">
-            <Link href="/cotizacion" className="text-[#b3131b] hover:text-red-800 transition">COTIZAR REPUESTO</Link>
-            <Link href="/catalogo" className="text-gray-600 hover:text-gray-900 transition">ACEITES</Link>
-            <Link href="/soporte" className="text-gray-600 hover:text-gray-900 transition">SOPORTE</Link>
-            <Link href="/nosotros" className="text-gray-600 hover:text-gray-900 transition">NOSOTROS</Link>
-          </div>
+<div className="hidden md:flex gap-8 text-[11px] font-bold uppercase tracking-widest items-center">
+  <Link href="/cotizacion" className="text-[#b3131b] hover:text-red-800 transition">COTIZAR REPUESTO</Link>
+  <Link href="/catalogo" className="text-gray-600 hover:text-gray-900 transition">ACEITES</Link>
+  <Link href="/repuestos" className="text-gray-600 hover:text-gray-900 transition">REPUESTOS</Link>
+  <Link href="/soporte" className="text-gray-600 hover:text-gray-900 transition">SOPORTE</Link>
+  <Link href="/nosotros" className="text-gray-600 hover:text-gray-900 transition">NOSOTROS</Link>
+</div>
         </div>
         
         {/* Lado Derecho: Autenticación, Carro y Botón Hamburguesa Móvil */}

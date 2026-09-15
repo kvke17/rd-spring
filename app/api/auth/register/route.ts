@@ -22,10 +22,15 @@ export async function POST(req: Request) {
         password: hashedPassword,
         role: 'CUSTOMER' // Por defecto, todos los que se registran son clientes
       }
+      
     });
+    
 
     return NextResponse.json({ message: 'Cuenta creada exitosamente' });
   } catch (error) {
-    return NextResponse.json({ error: 'Error al crear la cuenta' }, { status: 500 });
+    console.error("DETALLE DEL ERROR EN REGISTER:", error);
+    return NextResponse.json({ error: "Error al registrar" }, { status: 500 });
   }
+  
 }
+
