@@ -106,15 +106,26 @@ async function processPayment(request: Request) {
           linkPdfBoleta = boletaData.pdf || boletaData.UrlPdf || linkPdfBoleta; 
           console.log(`Boleta generada con éxito: Folio ${folioBoleta}`);
         } else {
-          const errorApi = await boletaResponse.text();
-          console.error("=== ERROR SIMPLE API ===", errorApi);
+          const errorApiText = await boletaResponse.text();
+          console.error("=== ERROR SIMPLE API (STATUS) ===", boletaResponse.status);
+          console.error("=== ERROR SIMPLE API (DETALLE) ===", errorApiText);
         }
       } catch (boletaError) {
         console.error("Error de red con Simple API:", boletaError);
       }
       // ==========================================
 
+      // Mensaje limpio y elegante para el correo del cliente
+      let summaryText = "";
+      if (folioBoleta !== "Pendiente") {
+        summaryText = `Boleta Electrónica Folio: ${folioBoleta}. Puedes descargarla aquí: ${linkPdfBoleta}`;
+      } else {
+        summaryText = `Tu pago ha sido procesado con éxito. Tu boleta electrónica será emitida y enviada a tu correo a la brevedad.`;
+      }
+
+      // ==========================================
       // ENVÍO DE CORREO AL CLIENTE
+      // ==========================================
       try {
         const dataResend = await resend.emails.send({
           from: 'Ventas RD Spring <contacto@rdspring.cl>', 
@@ -124,7 +135,7 @@ async function processPayment(request: Request) {
             customerName: customer.fullName || 'Cliente', 
             buyOrder: pendingOrder.buyOrder,
             amount: pendingOrder.amount,
-            itemsSummary: `Tu boleta (Folio: ${folioBoleta}) ha sido emitida. Descárgala aquí: ${linkPdfBoleta}` 
+            itemsSummary: summaryText // <-- Texto limpio y profesional
           }),
         });
         console.log("Correo enviado al cliente exitosamente:", dataResend);
