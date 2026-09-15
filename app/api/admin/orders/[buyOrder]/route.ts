@@ -29,12 +29,19 @@ export async function PATCH(
 
     const customer = JSON.parse(updatedOrder.customer as string);
     
-    // Verificamos si la orden es para retiro
-    // Verificamos si la orden es para retiro de forma segura evitando el error de TypeScript
+    // Verificamos si la orden es para retiro de forma segura y amplia
     const orderData = updatedOrder as any;
-    const isPickup = orderData.shippingInfo 
-      ? String(orderData.shippingInfo).toUpperCase().includes('RETIRO') 
-      : false;
+    let isPickup = false;
+    
+    try {
+      const shippingStr = JSON.stringify(orderData.shippingInfo || '').toUpperCase();
+      const customerStr = JSON.stringify(orderData.customer || '').toUpperCase();
+      
+      // Buscamos la palabra RETIRO en la información de envío o en los datos del cliente
+      isPickup = shippingStr.includes('RETIRO') || customerStr.includes('RETIRO');
+    } catch (e) {
+      isPickup = false;
+    }
 
     const subjectLine = shippingStatus === 'LISTO_PARA_RETIRO' 
       ? `📍 ¡Tu pedido #${buyOrder} está listo para retiro!` 
@@ -43,14 +50,13 @@ export async function PATCH(
     try {
       await resend.emails.send({
         from: 'RD Spring <contacto@rdspring.cl>', 
-        // SOLUCIONADO: Ya solo se le envía al cliente, NO a la tienda.
         to: [customer.email], 
         subject: subjectLine,
         react: OrderStatusEmail({
           customerName: customer.fullName || 'Cliente',
           buyOrder: buyOrder,
           shippingStatus: shippingStatus,
-          isPickup: isPickup // Le pasamos el dato al correo
+          isPickup: isPickup // Le pasamos el dato blindado al correo
         }),
       });
     } catch (emailError: any) {
