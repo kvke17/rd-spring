@@ -24,32 +24,56 @@ async function main() {
   for (const product of productsData) {
     if (product.formats && product.formats.length > 0) {
       for (const format of product.formats) {
-        await prisma.product.upsert({
-          where: { sku: format.sku },
-          update: { 
-            stock: format.stock || 15 
-          },
-          create: {
-            id: format.sku,   // 🚨 Pasamos el SKU como ID
-            sku: format.sku,
-            stock: format.stock || 15,
-          },
+        
+        // 1. Verificamos si existe con findFirst
+        const productoExistente = await prisma.product.findFirst({
+          where: { sku: format.sku }
         });
-        console.log(`✅ Upserted SKU: ${format.sku}`);
+
+        // 2. Lo creamos si no existe, pasando todos los campos requeridos
+        if (!productoExistente) {
+          await prisma.product.create({
+            data: {
+              id: format.sku,
+              sku: format.sku,
+              name: product.name ? `${product.name} ${format.size || ''}`.trim() : `Producto ${format.sku}`,
+              slug: product.slug ? `${product.slug}-${format.size || format.sku}`.toLowerCase() : format.sku.toLowerCase(),
+              brand: product.brand || 'Generico',
+              category: product.category || 'Sin Categoria',
+              image: product.image || '/images/logo-rd.png',
+              price: format.price || product.price || 0
+            }
+          });
+          console.log(`✅ Created SKU: ${format.sku}`);
+        } else {
+          console.log(`⏩ Skipped existing SKU: ${format.sku}`);
+        }
       }
     } else if (product.sku) {
-      await prisma.product.upsert({
-        where: { sku: product.sku },
-        update: { 
-          stock: product.stock || 15 
-        },
-        create: {
-          id: product.id || product.sku, // 🚨 Pasamos el ID del JSON o el SKU
-          sku: product.sku,
-          stock: product.stock || 15,
-        },
+      
+      // 1. Verificamos si existe con findFirst
+      const productoExistente = await prisma.product.findFirst({
+        where: { sku: product.sku }
       });
-      console.log(`✅ Upserted SKU: ${product.sku}`);
+
+      // 2. Lo creamos si no existe, pasando todos los campos requeridos
+      if (!productoExistente) {
+        await prisma.product.create({
+          data: {
+            id: product.id || product.sku,
+            sku: product.sku,
+            name: product.name || `Producto ${product.sku}`,
+            slug: product.slug || product.sku.toLowerCase(),
+            brand: product.brand || 'Generico',
+            category: product.category || 'Sin Categoria',
+            image: product.image || '/images/logo-rd.png',
+            price: product.price || 0
+          }
+        });
+        console.log(`✅ Created SKU: ${product.sku}`);
+      } else {
+        console.log(`⏩ Skipped existing SKU: ${product.sku}`);
+      }
     }
   }
 
