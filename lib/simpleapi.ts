@@ -37,13 +37,12 @@ export async function emitirDTE(order: OrdenParaDTE): Promise<ResultadoDTE> {
 
   const rutEmisor = process.env.SIMPLE_RUT_EMISOR || "";
 
-  // 1. Calculamos el Total exacto sumando los detalles
   let mntTotal = 0;
   const detalle = items.map((item, index) => {
     const qty = item.quantity;
     const price = Math.round(item.product.price);
     const monto = qty * price;
-    mntTotal += monto; // Sumamos al total general
+    mntTotal += monto;
     
     return {
       NroLinDet: index + 1,
@@ -54,7 +53,6 @@ export async function emitirDTE(order: OrdenParaDTE): Promise<ResultadoDTE> {
     };
   });
 
-  // 2. Estructura con el nodo "Totales" incluido
   const body = {
     Encabezado: {
       IdDoc: {
@@ -76,7 +74,7 @@ export async function emitirDTE(order: OrdenParaDTE): Promise<ResultadoDTE> {
             RznSocRecep: customer.fullName || "Cliente Web",
           },
       Totales: {
-        MntTotal: mntTotal // ¡Vital para evitar que Simple API se caiga!
+        MntTotal: mntTotal
       }
     },
     Detalle: detalle
@@ -85,11 +83,13 @@ export async function emitirDTE(order: OrdenParaDTE): Promise<ResultadoDTE> {
   const apiKey = process.env.SIMPLE_API_KEY || "";
   const apiUrl = process.env.SIMPLE_API_URL || "https://api.simpleapi.cl/api/v1/dte/generar";
 
-  // 3. Forzamos la palabra Bearer si no la tiene
-  const authHeader = apiKey.startsWith("Bearer") ? apiKey : `Bearer ${apiKey}`;
+  // 🚨 LA MAGIA AQUÍ: Encriptación Basic Auth oficial
+  // Convierte "tu-api-key:" a Base64 como exige Simple API
+  const base64Credentials = Buffer.from(`${apiKey}:`).toString('base64');
+  const authHeader = `Basic ${base64Credentials}`;
 
   console.log("=== ENVIANDO A SIMPLE API ===");
-  console.log("Auth Header:", authHeader.substring(0, 15) + "...");
+  console.log("Auth Header generado:", authHeader.substring(0, 20) + "...");
   console.log("Payload:", JSON.stringify(body));
 
   const res = await fetch(apiUrl, {
