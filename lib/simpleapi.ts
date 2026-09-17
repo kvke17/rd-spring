@@ -29,7 +29,7 @@ export type ResultadoDTE = {
 
 const RUT_GENERICO_BOLETA = '66666666-6';
 
-// Función para asegurar el formato correcto del RUT (12345678-9)
+// 🛡️ Mantiene la función que asegura el guion en el RUT
 function formatearRutAPI(rut: string | undefined | null): string {
   if (!rut) return "";
   const cleanRut = rut.replace(/[^0-9kK]/g, '').toUpperCase();
@@ -47,60 +47,65 @@ export async function emitirDTE(order: OrdenParaDTE): Promise<ResultadoDTE> {
   const receptorRut = customer.rut ? formatearRutAPI(customer.rut) : RUT_GENERICO_BOLETA;
   const fechaHoy = new Date().toISOString().split('T')[0];
 
-  // 1. Calcular el Total
-  let mntTotal = 0;
-  const detalle = items.map((item, index) => {
-    const qty = item.quantity;
-    const price = Math.round(item.product.price);
-    const monto = qty * price;
-    mntTotal += monto;
+  // 1. Calcular Totales
+  let montoTotal = 0;
+  
+  // 🚨 Usamos las etiquetas exactas del JSON oficial
+  const detalles = items.map((item) => {
+    const cantidad = item.quantity;
+    const precio = Math.round(item.product.price);
+    const montoItem = cantidad * precio;
+    montoTotal += montoItem;
     
-    // Mapeo exacto al XML (<NroLinDet>, <NmbItem>, etc.)
     return {
-      NroLinDet: index + 1,
-      NmbItem: item.product.name.substring(0, 80),
-      QtyItem: qty,
-      PrcItem: price,
-      MontoItem: monto
+      IndicadorExento: 0,
+      Nombre: item.product.name.substring(0, 80),
+      Cantidad: cantidad,
+      Precio: precio,
+      MontoItem: montoItem
     };
   });
 
-  // 2. Estructura JSON como espejo exacto del XML
+  const montoNeto = Math.round(montoTotal / 1.19);
+  const iva = montoTotal - montoNeto;
+
+  // 2. Estructura idéntica al JSON de documentacion.simpleapi.cl
   const body = {
-    Encabezado: {
-      IdDoc: {
-        TipoDTE: tipoDte,
-        FchEmis: fechaHoy,
-        FmaPago: 1
+    Documento: {
+      Encabezado: {
+        IdentificacionDTE: {
+          TipoDTE: tipoDte,
+          FechaEmision: fechaHoy,
+          FormaPago: 1
+        },
+        Emisor: {
+          Rut: rutEmisor
+        },
+        Receptor: esFactura
+          ? {
+              Rut: receptorRut,
+              RazonSocial: order.razonSocial || customer.fullName || "Cliente",
+              Giro: order.giro || "Particular",
+              Direccion: customer.address || "Sin dirección",
+              Comuna: customer.comuna || "Santiago"
+            }
+          : {
+              Rut: receptorRut,
+              RazonSocial: customer.fullName || "Cliente Web"
+            },
+        Totales: {
+          MontoNeto: montoNeto,
+          TasaIVA: 19,
+          IVA: iva,
+          MontoTotal: montoTotal
+        }
       },
-      Emisor: {
-        RUTEmisor: rutEmisor
-      },
-      Receptor: esFactura
-        ? {
-            RUTRecep: receptorRut,
-            RznSocRecep: order.razonSocial || customer.fullName || "Cliente",
-            GiroRecep: order.giro || "Particular",
-            DirRecep: customer.address || "Sin dirección",
-            CmnaRecep: customer.comuna || "Santiago",
-          }
-        : {
-            RUTRecep: receptorRut,
-            RznSocRecep: customer.fullName || "Cliente Web",
-          },
-      Totales: {
-        MntTotal: mntTotal // Etiqueta exacta del XML
-      }
-    },
-    Detalle: detalle // Etiqueta exacta del XML (Singular)
+      Detalles: detalles // Ojo: Va en plural como pide la documentación
+    }
   };
 
   const apiKey = process.env.SIMPLE_API_KEY || "";
   const apiUrl = process.env.SIMPLE_API_URL || "https://api.simpleapi.cl/api/v1/dte/generar";
-
-  // Nos aseguramos de enviar la llave tal cual la tienes en Vercel. 
-  // (Si en Vercel la guardaste con la palabra Bearer, pasará con Bearer. Si no, pasará limpia).
-  const authHeader = apiKey;
 
   console.log("=== ENVIANDO A SIMPLE API ===");
   console.log("RUT Emisor:", rutEmisor);
@@ -109,7 +114,7 @@ export async function emitirDTE(order: OrdenParaDTE): Promise<ResultadoDTE> {
   const res = await fetch(apiUrl, {
     method: 'POST',
     headers: {
-      'Authorization': authHeader, 
+      'Authorization': apiKey, // La llave ya demostró que funciona limpia
       'Content-Type': 'application/json'
     },
     body: JSON.stringify(body),
