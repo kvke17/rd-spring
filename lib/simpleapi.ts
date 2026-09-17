@@ -35,59 +35,73 @@ export async function emitirDTE(order: OrdenParaDTE): Promise<ResultadoDTE> {
   const esFactura = order.documentType === 'FACTURA';
   const tipoDte = esFactura ? 33 : 39; 
 
-  // 🚨 OJO: Lee el RUT de tu empresa desde Vercel
   const rutEmisor = process.env.SIMPLE_RUT_EMISOR || "";
 
-  // Estructura oficial y exacta para Simple API
+  // 🚨 FORMATO ESTRICTO SII: Respetando mayúsculas exactas
   const body = {
     Encabezado: {
-      IdentificacionDTE: { // Nombre exacto que pide Simple API
-        TipoDTE: tipoDte 
+      IdDoc: {
+        TipoDTE: tipoDte,
       },
       Emisor: {
-        RutEmisor: rutEmisor // El RUT de RD Spring
+        RUTEmisor: rutEmisor // OJO: Las tres primeras en mayúscula
       },
       Receptor: esFactura
         ? {
-            RutRecep: customer.rut,
-            RznSocRecep: order.razonSocial || customer.fullName,
+            RUTRecep: customer.rut,
+            RznSocRecep: order.razonSocial || customer.fullName || "Cliente",
             GiroRecep: order.giro || "Particular",
             DirRecep: customer.address || "Sin dirección",
             CmnaRecep: customer.comuna || "Santiago",
           }
         : {
-            RutRecep: customer.rut || RUT_GENERICO_BOLETA,
+            RUTRecep: customer.rut || RUT_GENERICO_BOLETA,
             RznSocRecep: customer.fullName || "Cliente Web",
           },
     },
-    Detalle: items.map((item, index) => ({
-      NroLinDet: index + 1,
-      NmbItem: item.product.name.substring(0, 80),
-      QtyItem: item.quantity,
-      PrcItem: item.product.price,
-      MontoItem: item.quantity * item.product.price // Obligatorio: Cantidad x Precio
-    })),
+    Detalle: items.map((item, index) => {
+      const qty = item.quantity;
+      const price = Math.round(item.product.price); // Previene caída por decimales
+      return {
+        NroLinDet: index + 1,
+        NmbItem: item.product.name.substring(0, 80), // Corta nombres muy largos
+        QtyItem: qty,
+        PrcItem: price,
+        MontoItem: qty * price
+      };
+    }),
   };
 
   const apiKey = process.env.SIMPLE_API_KEY || "";
+  const apiUrl = process.env.SIMPLE_API_URL || "https://api.simpleapi.cl/api/v1/dte/generar";
 
-  const res = await fetch(process.env.SIMPLE_API_URL as string, {
+  // LOGS PARA DEBUG: Veremos esto en Vercel si llega a fallar
+  console.log("=== ENVIANDO A SIMPLE API ===");
+  console.log("RUT Emisor detectado:", rutEmisor);
+  console.log("Payload:", JSON.stringify(body));
+
+  const res = await fetch(apiUrl, {
     method: 'POST',
     headers: {
-      'Authorization': apiKey,
+      'Authorization': apiKey, 
       'Content-Type': 'application/json'
     },
     body: JSON.stringify(body),
   });
 
   const rawText = await res.text();
+  console.log("=== RESPUESTA DE SIMPLE API ===");
+  console.log("Status:", res.status);
+  console.log("Body:", rawText);
+
   let data: any = null;
   try {
     data = rawText ? JSON.parse(rawText) : null;
   } catch {}
 
   if (!res.ok) {
-    throw new Error(`Simple API respondió ${res.status}: ${rawText.slice(0, 200)}`);
+    // Esto hará que el panel rojo te muestre EL MOTIVO REAL del error
+    throw new Error(`Código ${res.status}. Detalle: ${rawText.slice(0, 300)}`);
   }
 
   return {
