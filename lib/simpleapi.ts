@@ -35,20 +35,28 @@ export async function emitirDTE(order: OrdenParaDTE): Promise<ResultadoDTE> {
   const esFactura = order.documentType === 'FACTURA';
   const tipoDte = esFactura ? 33 : 39; 
 
-  // Estructura oficial exacta para Simple API (simpleapi.cl)
+  // 🚨 OJO: Lee el RUT de tu empresa desde Vercel
+  const rutEmisor = process.env.SIMPLE_RUT_EMISOR || "";
+
+  // Estructura oficial y exacta para Simple API
   const body = {
     Encabezado: {
-      IdDoc: { TipoDTE: tipoDte },
+      IdentificacionDTE: { // Nombre exacto que pide Simple API
+        TipoDTE: tipoDte 
+      },
+      Emisor: {
+        RutEmisor: rutEmisor // El RUT de RD Spring
+      },
       Receptor: esFactura
         ? {
-            RUTRecep: customer.rut,
+            RutRecep: customer.rut,
             RznSocRecep: order.razonSocial || customer.fullName,
             GiroRecep: order.giro || "Particular",
             DirRecep: customer.address || "Sin dirección",
             CmnaRecep: customer.comuna || "Santiago",
           }
         : {
-            RUTRecep: customer.rut || RUT_GENERICO_BOLETA,
+            RutRecep: customer.rut || RUT_GENERICO_BOLETA,
             RznSocRecep: customer.fullName || "Cliente Web",
           },
     },
@@ -57,20 +65,16 @@ export async function emitirDTE(order: OrdenParaDTE): Promise<ResultadoDTE> {
       NmbItem: item.product.name.substring(0, 80),
       QtyItem: item.quantity,
       PrcItem: item.product.price,
+      MontoItem: item.quantity * item.product.price // Obligatorio: Cantidad x Precio
     })),
   };
 
   const apiKey = process.env.SIMPLE_API_KEY || "";
 
-  // Hay APIs que piden la llave directa y otras con "Bearer". 
-  // Según la FAQ de Simple API, a veces va directo, pero si vuelve a dar 401 
-  // cambiaremos esta línea a: `Bearer ${apiKey}` o Basic Auth.
-  const authHeader = apiKey; 
-
   const res = await fetch(process.env.SIMPLE_API_URL as string, {
     method: 'POST',
     headers: {
-      'Authorization': authHeader,
+      'Authorization': apiKey,
       'Content-Type': 'application/json'
     },
     body: JSON.stringify(body),
@@ -87,7 +91,6 @@ export async function emitirDTE(order: OrdenParaDTE): Promise<ResultadoDTE> {
   }
 
   return {
-    // Simple API suele devolver estos campos, ajustamos por si vienen en mayúscula o minúscula
     folio: data?.folio ?? data?.Folio ?? null,
     pdfUrl: data?.urlPdf ?? data?.UrlPdf ?? data?.pdf ?? null,
     tipoDte,
