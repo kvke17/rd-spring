@@ -37,14 +37,31 @@ export async function emitirDTE(order: OrdenParaDTE): Promise<ResultadoDTE> {
 
   const rutEmisor = process.env.SIMPLE_RUT_EMISOR || "";
 
-  // 🚨 FORMATO ESTRICTO SII: Respetando mayúsculas exactas
+  // 1. Calculamos el Total exacto sumando los detalles
+  let mntTotal = 0;
+  const detalle = items.map((item, index) => {
+    const qty = item.quantity;
+    const price = Math.round(item.product.price);
+    const monto = qty * price;
+    mntTotal += monto; // Sumamos al total general
+    
+    return {
+      NroLinDet: index + 1,
+      NmbItem: item.product.name.substring(0, 80),
+      QtyItem: qty,
+      PrcItem: price,
+      MontoItem: monto
+    };
+  });
+
+  // 2. Estructura con el nodo "Totales" incluido
   const body = {
     Encabezado: {
       IdDoc: {
         TipoDTE: tipoDte,
       },
       Emisor: {
-        RUTEmisor: rutEmisor // OJO: Las tres primeras en mayúscula
+        RUTEmisor: rutEmisor 
       },
       Receptor: esFactura
         ? {
@@ -58,32 +75,27 @@ export async function emitirDTE(order: OrdenParaDTE): Promise<ResultadoDTE> {
             RUTRecep: customer.rut || RUT_GENERICO_BOLETA,
             RznSocRecep: customer.fullName || "Cliente Web",
           },
+      Totales: {
+        MntTotal: mntTotal // ¡Vital para evitar que Simple API se caiga!
+      }
     },
-    Detalle: items.map((item, index) => {
-      const qty = item.quantity;
-      const price = Math.round(item.product.price); // Previene caída por decimales
-      return {
-        NroLinDet: index + 1,
-        NmbItem: item.product.name.substring(0, 80), // Corta nombres muy largos
-        QtyItem: qty,
-        PrcItem: price,
-        MontoItem: qty * price
-      };
-    }),
+    Detalle: detalle
   };
 
   const apiKey = process.env.SIMPLE_API_KEY || "";
   const apiUrl = process.env.SIMPLE_API_URL || "https://api.simpleapi.cl/api/v1/dte/generar";
 
-  // LOGS PARA DEBUG: Veremos esto en Vercel si llega a fallar
+  // 3. Forzamos la palabra Bearer si no la tiene
+  const authHeader = apiKey.startsWith("Bearer") ? apiKey : `Bearer ${apiKey}`;
+
   console.log("=== ENVIANDO A SIMPLE API ===");
-  console.log("RUT Emisor detectado:", rutEmisor);
+  console.log("Auth Header:", authHeader.substring(0, 15) + "...");
   console.log("Payload:", JSON.stringify(body));
 
   const res = await fetch(apiUrl, {
     method: 'POST',
     headers: {
-      'Authorization': apiKey, 
+      'Authorization': authHeader, 
       'Content-Type': 'application/json'
     },
     body: JSON.stringify(body),
@@ -100,7 +112,6 @@ export async function emitirDTE(order: OrdenParaDTE): Promise<ResultadoDTE> {
   } catch {}
 
   if (!res.ok) {
-    // Esto hará que el panel rojo te muestre EL MOTIVO REAL del error
     throw new Error(`Código ${res.status}. Detalle: ${rawText.slice(0, 300)}`);
   }
 
