@@ -37,6 +37,7 @@ export async function emitirDTE(order: OrdenParaDTE): Promise<ResultadoDTE> {
 
   const rutEmisor = process.env.SIMPLE_RUT_EMISOR || "";
 
+  // 1. Calculamos el Total exacto
   let mntTotal = 0;
   const detalle = items.map((item, index) => {
     const qty = item.quantity;
@@ -53,6 +54,7 @@ export async function emitirDTE(order: OrdenParaDTE): Promise<ResultadoDTE> {
     };
   });
 
+  // 2. Estructura con el nodo Totales
   const body = {
     Encabezado: {
       IdDoc: {
@@ -74,22 +76,21 @@ export async function emitirDTE(order: OrdenParaDTE): Promise<ResultadoDTE> {
             RznSocRecep: customer.fullName || "Cliente Web",
           },
       Totales: {
-        MntTotal: mntTotal
+        MntTotal: mntTotal // Esto evita el Error 500
       }
     },
     Detalle: detalle
   };
 
+  // Usamos la llave 6120-R78... de tu Vercel
   const apiKey = process.env.SIMPLE_API_KEY || "";
   const apiUrl = process.env.SIMPLE_API_URL || "https://api.simpleapi.cl/api/v1/dte/generar";
 
-  // 🚨 LA MAGIA AQUÍ: Encriptación Basic Auth oficial
-  // Convierte "tu-api-key:" a Base64 como exige Simple API
-  const base64Credentials = Buffer.from(`${apiKey}:`).toString('base64');
-  const authHeader = `Basic ${base64Credentials}`;
+  // 🚨 AUTENTICACIÓN CORRECTA: Usamos Bearer con la llave original
+  const authHeader = apiKey.startsWith("Bearer") ? apiKey : `Bearer ${apiKey}`;
 
   console.log("=== ENVIANDO A SIMPLE API ===");
-  console.log("Auth Header generado:", authHeader.substring(0, 20) + "...");
+  console.log("Auth Header:", authHeader.substring(0, 20) + "...");
   console.log("Payload:", JSON.stringify(body));
 
   const res = await fetch(apiUrl, {
