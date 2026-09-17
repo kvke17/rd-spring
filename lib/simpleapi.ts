@@ -29,15 +29,25 @@ export type ResultadoDTE = {
 
 const RUT_GENERICO_BOLETA = '66666666-6';
 
+// Función para asegurar el formato correcto del RUT (12345678-9)
+function formatearRutAPI(rut: string | undefined | null): string {
+  if (!rut) return "";
+  const cleanRut = rut.replace(/[^0-9kK]/g, '').toUpperCase();
+  if (cleanRut.length < 2) return cleanRut;
+  return `${cleanRut.slice(0, -1)}-${cleanRut.slice(-1)}`;
+}
+
 export async function emitirDTE(order: OrdenParaDTE): Promise<ResultadoDTE> {
   const customer: ClienteOrden = JSON.parse(order.customer);
   const items: ItemOrden[] = JSON.parse(order.items);
   const esFactura = order.documentType === 'FACTURA';
   const tipoDte = esFactura ? 33 : 39; 
 
-  const rutEmisor = process.env.SIMPLE_RUT_EMISOR || "";
+  const rutEmisor = formatearRutAPI(process.env.SIMPLE_RUT_EMISOR);
+  const receptorRut = customer.rut ? formatearRutAPI(customer.rut) : RUT_GENERICO_BOLETA;
+  const fechaHoy = new Date().toISOString().split('T')[0];
 
-  // 1. Calculamos el Total
+  // 1. Calcular el Total
   let mntTotal = 0;
   const detalle = items.map((item, index) => {
     const qty = item.quantity;
@@ -45,6 +55,7 @@ export async function emitirDTE(order: OrdenParaDTE): Promise<ResultadoDTE> {
     const monto = qty * price;
     mntTotal += monto;
     
+    // Mapeo exacto al XML (<NroLinDet>, <NmbItem>, etc.)
     return {
       NroLinDet: index + 1,
       NmbItem: item.product.name.substring(0, 80),
@@ -54,48 +65,51 @@ export async function emitirDTE(order: OrdenParaDTE): Promise<ResultadoDTE> {
     };
   });
 
-  // 2. Estructura OFICIAL de Simple API (Todo dentro de "Documento")
+  // 2. Estructura JSON como espejo exacto del XML
   const body = {
-    Documento: {
-      Encabezado: {
-        IdentificacionDTE: {
-          TipoDTE: tipoDte,
-        },
-        Emisor: {
-          RutEmisor: rutEmisor 
-        },
-        Receptor: esFactura
-          ? {
-              RutRecep: customer.rut,
-              RznSocRecep: order.razonSocial || customer.fullName || "Cliente",
-              GiroRecep: order.giro || "Particular",
-              DirRecep: customer.address || "Sin dirección",
-              CmnaRecep: customer.comuna || "Santiago",
-            }
-          : {
-              RutRecep: customer.rut || RUT_GENERICO_BOLETA,
-              RznSocRecep: customer.fullName || "Cliente Web",
-            },
-        Totales: {
-          MontoTotal: mntTotal,
-          MntTotal: mntTotal
-        }
+    Encabezado: {
+      IdDoc: {
+        TipoDTE: tipoDte,
+        FchEmis: fechaHoy,
+        FmaPago: 1
       },
-      Detalle: detalle
-    }
+      Emisor: {
+        RUTEmisor: rutEmisor
+      },
+      Receptor: esFactura
+        ? {
+            RUTRecep: receptorRut,
+            RznSocRecep: order.razonSocial || customer.fullName || "Cliente",
+            GiroRecep: order.giro || "Particular",
+            DirRecep: customer.address || "Sin dirección",
+            CmnaRecep: customer.comuna || "Santiago",
+          }
+        : {
+            RUTRecep: receptorRut,
+            RznSocRecep: customer.fullName || "Cliente Web",
+          },
+      Totales: {
+        MntTotal: mntTotal // Etiqueta exacta del XML
+      }
+    },
+    Detalle: detalle // Etiqueta exacta del XML (Singular)
   };
 
   const apiKey = process.env.SIMPLE_API_KEY || "";
   const apiUrl = process.env.SIMPLE_API_URL || "https://api.simpleapi.cl/api/v1/dte/generar";
 
+  // Nos aseguramos de enviar la llave tal cual la tienes en Vercel. 
+  // (Si en Vercel la guardaste con la palabra Bearer, pasará con Bearer. Si no, pasará limpia).
+  const authHeader = apiKey;
+
   console.log("=== ENVIANDO A SIMPLE API ===");
+  console.log("RUT Emisor:", rutEmisor);
   console.log("Payload:", JSON.stringify(body));
 
   const res = await fetch(apiUrl, {
     method: 'POST',
     headers: {
-      // 🚨 AQUÍ ESTÁ LA CORRECCIÓN: La llave limpia, tal como te la dio tu cliente.
-      'Authorization': apiKey, 
+      'Authorization': authHeader, 
       'Content-Type': 'application/json'
     },
     body: JSON.stringify(body),
