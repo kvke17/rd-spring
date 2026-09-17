@@ -37,7 +37,7 @@ export async function emitirDTE(order: OrdenParaDTE): Promise<ResultadoDTE> {
 
   const rutEmisor = process.env.SIMPLE_RUT_EMISOR || "";
 
-  // 1. Calculamos el Total exacto
+  // 1. Calculamos el Total
   let mntTotal = 0;
   const detalle = items.map((item, index) => {
     const qty = item.quantity;
@@ -54,49 +54,48 @@ export async function emitirDTE(order: OrdenParaDTE): Promise<ResultadoDTE> {
     };
   });
 
-  // 2. Estructura con el nodo Totales
+  // 2. Estructura OFICIAL de Simple API (Todo dentro de "Documento")
   const body = {
-    Encabezado: {
-      IdDoc: {
-        TipoDTE: tipoDte,
+    Documento: {
+      Encabezado: {
+        IdentificacionDTE: {
+          TipoDTE: tipoDte,
+        },
+        Emisor: {
+          RutEmisor: rutEmisor 
+        },
+        Receptor: esFactura
+          ? {
+              RutRecep: customer.rut,
+              RznSocRecep: order.razonSocial || customer.fullName || "Cliente",
+              GiroRecep: order.giro || "Particular",
+              DirRecep: customer.address || "Sin dirección",
+              CmnaRecep: customer.comuna || "Santiago",
+            }
+          : {
+              RutRecep: customer.rut || RUT_GENERICO_BOLETA,
+              RznSocRecep: customer.fullName || "Cliente Web",
+            },
+        Totales: {
+          MontoTotal: mntTotal,
+          MntTotal: mntTotal
+        }
       },
-      Emisor: {
-        RUTEmisor: rutEmisor 
-      },
-      Receptor: esFactura
-        ? {
-            RUTRecep: customer.rut,
-            RznSocRecep: order.razonSocial || customer.fullName || "Cliente",
-            GiroRecep: order.giro || "Particular",
-            DirRecep: customer.address || "Sin dirección",
-            CmnaRecep: customer.comuna || "Santiago",
-          }
-        : {
-            RUTRecep: customer.rut || RUT_GENERICO_BOLETA,
-            RznSocRecep: customer.fullName || "Cliente Web",
-          },
-      Totales: {
-        MntTotal: mntTotal // Esto evita el Error 500
-      }
-    },
-    Detalle: detalle
+      Detalle: detalle
+    }
   };
 
-  // Usamos la llave 6120-R78... de tu Vercel
   const apiKey = process.env.SIMPLE_API_KEY || "";
   const apiUrl = process.env.SIMPLE_API_URL || "https://api.simpleapi.cl/api/v1/dte/generar";
 
-  // 🚨 AUTENTICACIÓN CORRECTA: Usamos Bearer con la llave original
-  const authHeader = apiKey.startsWith("Bearer") ? apiKey : `Bearer ${apiKey}`;
-
   console.log("=== ENVIANDO A SIMPLE API ===");
-  console.log("Auth Header:", authHeader.substring(0, 20) + "...");
   console.log("Payload:", JSON.stringify(body));
 
   const res = await fetch(apiUrl, {
     method: 'POST',
     headers: {
-      'Authorization': authHeader, 
+      // 🚨 AQUÍ ESTÁ LA CORRECCIÓN: La llave limpia, tal como te la dio tu cliente.
+      'Authorization': apiKey, 
       'Content-Type': 'application/json'
     },
     body: JSON.stringify(body),
