@@ -13,14 +13,19 @@ export async function GET() {
   }
 
   try {
-    const dbOrders = await prisma.order.findMany({ orderBy: { createdAt: 'desc' } });
+    // Filtrar para traer SOLO los pagados ('PAID')
+    const dbOrders = await prisma.order.findMany({ 
+      where: { status: 'PAID' },
+      orderBy: { createdAt: 'desc' } 
+    });
 
     const orders = dbOrders.map(order => {
       let customerName = "Cliente";
       let customerEmail = "Sin email";
       try {
         const customerData = JSON.parse(order.customer);
-        customerName = customerData.name || "Cliente";
+        // Ajustado para leer 'fullName' que es como lo guarda tu checkout
+        customerName = customerData.fullName || customerData.name || "Cliente"; 
         customerEmail = customerData.email || "Sin email";
       } catch (e) {}
 

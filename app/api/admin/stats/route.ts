@@ -3,6 +3,8 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 
+export const dynamic = 'force-dynamic'; // Evita que Next.js congele los datos
+
 export async function GET() {
   try {
     const session = await getServerSession(authOptions);
@@ -12,9 +14,9 @@ export async function GET() {
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
     }
 
-    // Buscar solo las órdenes que ya fueron pagadas exitosamente
+    // Buscar solo las órdenes que ya fueron pagadas exitosamente ('PAID')
     const paidOrders = await prisma.order.findMany({
-      where: { status: 'PAGADO' },
+      where: { status: 'PAID' },
       orderBy: { createdAt: 'asc' },
     });
 
