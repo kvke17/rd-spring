@@ -1,10 +1,10 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { STORE_CONFIG } from '@/config/constants';
-import { prisma } from '@/lib/prisma'; // <-- Importamos Prisma para conectar con Turso
-import productsData from '@/data/products.json'; // <-- Respaldo para los nombres exactos
+import { prisma } from '@/lib/prisma'; 
+import productsData from '@/data/products.json'; 
 
-// Las marcas para la sección, ahora incluyendo ROWE
+// Las 7 marcas de tu imagen para la nueva sección
 const marcas = [
   { nombre: 'Porsche', logo: '/images/marcas/porsche.png' },
   { nombre: 'Audi', logo: '/images/marcas/audi.png' },
@@ -13,7 +13,6 @@ const marcas = [
   { nombre: 'Volkswagen', logo: '/images/marcas/vw.png' },
   { nombre: 'Mercedes-Benz', logo: '/images/marcas/mercedes.png' },
   { nombre: 'Jaguar', logo: '/images/marcas/jaguar.png' },
-  { nombre: 'ROWE', logo: '/images/marcas/rowe.png' }, 
 ];
 
 export default async function HomePage() {
@@ -133,7 +132,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* 2. NUEVA SECCIÓN DE MARCAS (4 arriba, 4 abajo) */}
+ {/* 2. NUEVA SECCIÓN DE MARCAS (4 arriba, 3 abajo) */}
       <section className="py-24 border-b border-gray-100 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <p className="text-xs uppercase tracking-[0.25em] text-gray-400 font-bold mb-4">ESPECIALISTAS EN ALTA GAMA</p>
@@ -144,7 +143,7 @@ export default async function HomePage() {
             {/* FILA 1: Las primeras 4 marcas */}
             <div className="flex flex-wrap justify-center items-center gap-8 md:gap-16 w-full">
               {marcas.slice(0, 4).map((marca, idx) => (
-                <div key={idx} className="relative w-28 h-12 md:w-40 md:h-20 hover:scale-110 transition-transform duration-300">
+                <div key={idx} className="relative w-28 h-12 md:w-40 h-20 md:w-64 md:h-32 hover:scale-110 transition-transform duration-300">
                   <Image
                     src={marca.logo} 
                     alt={`Logo de ${marca.nombre}`}
@@ -155,10 +154,10 @@ export default async function HomePage() {
               ))}
             </div>
 
-            {/* FILA 2: Las 4 marcas restantes */}
+            {/* FILA 2: Las 3 marcas restantes */}
             <div className="flex flex-wrap justify-center items-center gap-8 md:gap-16 w-full">
               {marcas.slice(4).map((marca, idx) => (
-                <div key={idx + 4} className="relative w-28 h-12 md:w-40 md:h-20 hover:scale-110 transition-transform duration-300">
+                <div key={idx + 4} className="relative w-28 h-12 md:w-40 h-20 md:w-64 md:h-32 hover:scale-110 transition-transform duration-300">
                   <Image
                     src={marca.logo} 
                     alt={`Logo de ${marca.nombre}`}
