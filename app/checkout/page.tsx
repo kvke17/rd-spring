@@ -38,7 +38,6 @@ export default function CheckoutPage() {
   const [loading, setLoading] = useState(false);
   const [docType, setDocType] = useState('BOLETA');
 
-  // NUEVO ESTADO: Controla si es despacho a domicilio o retiro en tienda
   const [metodoEntrega, setMetodoEntrega] = useState<'despacho' | 'retiro'>('despacho');
 
   const [tarifasDinamicas, setTarifasDinamicas] = useState<any[]>([]);
@@ -137,7 +136,7 @@ export default function CheckoutPage() {
           returnUrl: `${window.location.origin}/api/checkout/confirm`,
           customer: formData,
           items,
-          documentType: docType,
+          documentType: docType, // Se envía 'BOLETA' o 'FACTURA' para que tu backend/admin lo guarde y tu clienta lo emita manual
           shippingInfo: {
             ...envioSeleccionado,
             sucursalOficina: metodoEntrega === 'retiro' ? 'Retiro en Tienda - Av. Las Condes 8550' : 'Envío a domicilio'
@@ -194,7 +193,7 @@ export default function CheckoutPage() {
               <h2 className="text-sm uppercase tracking-widest text-black mb-6 font-bold border-b border-gray-100 pb-4">01 · Tipo de Documento</h2>
               <div className="flex gap-4 mb-2">
                 <button type="button" onClick={() => setDocType('BOLETA')} className={`flex-1 py-4 text-xs font-bold tracking-widest border transition-colors ${docType === 'BOLETA' ? 'bg-black text-white border-black' : 'bg-white text-black border-gray-300 hover:bg-gray-50'}`}>BOLETA</button>
-                <button type="button" onClick={() => setDocType('FACTURA')} className={`flex-1 py-4 text-xs font-bold tracking-widest border transition-colors ${docType === 'FACTURA' ? 'bg-black text-white border-black' : 'bg-white text-black border-gray-300 hover:bg-gray-50'}`}>FACTURA</button>
+                <button type="button" onClick={() => setDocType('FACTURA')} className={`flex-1 py-4 text-xs font-bold tracking-widest border transition-colors ${docType === 'FACTURA' ? 'bg-black text-white border-black' : 'bg-white text-black border-gray-300 hover:bg-gray-50'}`}>FACTURA (MANUAL)</button>
               </div>
 
               {docType === 'FACTURA' && (
@@ -274,7 +273,6 @@ export default function CheckoutPage() {
             <div className="bg-white border border-gray-200 p-8 shadow-sm">
               <h2 className="text-sm uppercase tracking-widest text-black mb-6 font-bold border-b border-gray-100 pb-4">03 · Método de Entrega</h2>
               
-              {/* SELECTOR DESPACHO VS RETIRO */}
               <div className="flex flex-col sm:flex-row gap-4 mb-8">
                 <label className={`flex-1 border p-4 cursor-pointer transition-all ${metodoEntrega === 'despacho' ? 'border-black bg-gray-50 ring-1 ring-black' : 'border-gray-200 hover:border-gray-300'}`}>
                   <div className="flex items-center">
@@ -284,7 +282,7 @@ export default function CheckoutPage() {
                       checked={metodoEntrega === 'despacho'} 
                       onChange={() => {
                         setMetodoEntrega('despacho');
-                        setEnvioSeleccionado(null); // Obliga a recotizar
+                        setEnvioSeleccionado(null);
                       }} 
                       className="h-4 w-4 text-black focus:ring-black border-gray-300"
                     />
@@ -300,7 +298,6 @@ export default function CheckoutPage() {
                       checked={metodoEntrega === 'retiro'} 
                       onChange={() => {
                         setMetodoEntrega('retiro');
-                        // Configuramos automáticamente el costo 0 para el retiro
                         setEnvioSeleccionado({
                           id: 'retiro-tienda',
                           carrier: 'RETIRO',
@@ -319,7 +316,6 @@ export default function CheckoutPage() {
                 </label>
               </div>
 
-              {/* LÓGICA CONDICIONAL: Solo mostrar direcciones si es despacho */}
               {metodoEntrega === 'despacho' ? (
                 <div className="animate-in fade-in duration-300">
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-6">
@@ -358,7 +354,6 @@ export default function CheckoutPage() {
                     </div>
                   </div>
 
-                  {/* LISTA DE TARIFAS DE ENVIA.COM */}
                   {tarifasDinamicas.length > 0 ? (
                     <div className="space-y-4 animate-in fade-in duration-300 border-t border-gray-100 pt-6">
                       <p className="text-[11px] uppercase tracking-widest text-gray-500 font-bold mb-4">Selecciona tu Envío a Domicilio</p>
