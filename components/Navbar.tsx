@@ -4,8 +4,10 @@ import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import { useCartStore } from '@/lib/store';
 import AuthButton from '@/components/AuthButton'; 
+import { useSession } from "next-auth/react";
 
 export default function Navbar() {
+  const { data: session } = useSession(); // <-- Llama a la sesión aquí
   const [mounted, setMounted] = useState(false);
   const [isOpen, setIsOpen] = useState(false); // Estado para el menú móvil
   
@@ -59,13 +61,13 @@ export default function Navbar() {
           </Link>
           
           {/* MENÚ CENTRAL DE ESCRITORIO */}
-<div className="hidden md:flex gap-8 text-[11px] font-bold uppercase tracking-widest items-center">
-  <Link href="/cotizacion" className="text-[#b3131b] hover:text-red-800 transition">COTIZAR REPUESTO</Link>
-  <Link href="/catalogo" className="text-gray-600 hover:text-gray-900 transition">ACEITES</Link>
-  <Link href="/repuestos" className="text-gray-600 hover:text-gray-900 transition">REPUESTOS</Link>
-  <Link href="/soporte" className="text-gray-600 hover:text-gray-900 transition">SOPORTE</Link>
-  <Link href="/nosotros" className="text-gray-600 hover:text-gray-900 transition">NOSOTROS</Link>
-</div>
+          <div className="hidden md:flex gap-8 text-[11px] font-bold uppercase tracking-widest items-center">
+            <Link href="/cotizacion" className="text-[#b3131b] hover:text-red-800 transition">COTIZAR REPUESTO</Link>
+            <Link href="/catalogo" className="text-gray-600 hover:text-gray-900 transition">ACEITES</Link>
+            <Link href="/repuestos" className="text-gray-600 hover:text-gray-900 transition">REPUESTOS</Link>
+            <Link href="/soporte" className="text-gray-600 hover:text-gray-900 transition">SOPORTE</Link>
+            <Link href="/nosotros" className="text-gray-600 hover:text-gray-900 transition">NOSOTROS</Link>
+          </div>
         </div>
         
         {/* Lado Derecho: Autenticación, Carro y Botón Hamburguesa Móvil */}
@@ -112,6 +114,13 @@ export default function Navbar() {
             ACEITES
           </Link>
           <Link 
+            href="/repuestos" 
+            onClick={() => setIsOpen(false)}
+            className="text-xs font-bold uppercase tracking-widest text-gray-800 border-b border-gray-100 pb-3"
+          >
+            REPUESTOS
+          </Link>
+          <Link 
             href="/soporte" 
             onClick={() => setIsOpen(false)}
             className="text-xs font-bold uppercase tracking-widest text-gray-800 border-b border-gray-100 pb-3"
@@ -121,10 +130,29 @@ export default function Navbar() {
           <Link 
             href="/nosotros" 
             onClick={() => setIsOpen(false)}
-            className="text-xs font-bold uppercase tracking-widest text-gray-800 pb-2"
+            className="text-xs font-bold uppercase tracking-widest text-gray-800 border-b border-gray-100 pb-3"
           >
             NOSOTROS
           </Link>
+
+          {/* Lógica dinámica para el Perfil en Móvil */}
+          {session ? (
+            <Link 
+              href="/perfil" 
+              onClick={() => setIsOpen(false)}
+              className="text-xs font-bold uppercase tracking-widest text-blue-600 pt-2"
+            >
+              MI PERFIL ({session.user?.name || 'USUARIO'})
+            </Link>
+          ) : (
+            <Link 
+              href="/login" 
+              onClick={() => setIsOpen(false)}
+              className="text-xs font-bold uppercase tracking-widest text-blue-600 pt-2"
+            >
+              INICIAR SESIÓN
+            </Link>
+          )}
         </div>
       )}
     </nav>

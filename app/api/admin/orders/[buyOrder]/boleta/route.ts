@@ -29,22 +29,44 @@ export async function POST(
       return NextResponse.json({ error: "Esta orden ya tiene una boleta o factura emitida exitosamente." }, { status: 400 });
     }
 
-    // Usamos EXACTAMENTE la misma función que el checkout automático
+    // ========================================================================
+    // NUEVA LÓGICA: Calcular el Folio Siguiente Automáticamente
+    // ========================================================================
+    const ultimaOrden = await prisma.order.findFirst({
+      where: {
+        documentType: order.documentType, // Separa contadores de Boleta y Factura
+        dteFolio: { not: null }
+      },
+      orderBy: {
+        dteFolio: 'desc' // Trae el número más alto guardado
+      }
+    });
+
+    // 🚨 Este número cambiará según el rango que diga el XML (CAF) de tu cliente
+    const FOLIO_INICIAL_CAF = 1; 
+
+    const siguienteFolio = ultimaOrden?.dteFolio 
+      ? ultimaOrden.dteFolio + 1 
+      : FOLIO_INICIAL_CAF;
+    // ========================================================================
+
+    // Usamos EXACTAMENTE la misma función, pero ahora le pasamos el folio
     const dteResult = await emitirDTE({
       buyOrder: order.buyOrder,
       documentType: order.documentType,
       razonSocial: order.razonSocial,
       giro: order.giro,
       customer: order.customer,
-      items: order.items
-    });
+      items: order.items,
+      folio: siguienteFolio // <-- Se lo pasamos a lib/simpleapi.ts
+    } as any); // Usamos 'as any' temporalmente hasta que actualicemos los tipos en simpleapi.ts
 
     // Si fue exitoso, actualizamos la orden en la base de datos
     await prisma.order.update({
       where: { id: order.id },
       data: {
         dteEstado: 'EMITIDO',
-        dteFolio: dteResult.folio,
+        dteFolio: siguienteFolio, // Guardamos el folio que acabamos de usar
         dteTipoDte: dteResult.tipoDte,
         dtePdfUrl: dteResult.pdfUrl,
         dteError: null
@@ -53,8 +75,8 @@ export async function POST(
 
     return NextResponse.json({ 
       success: true, 
-      message: `Boleta emitida con éxito en Simple API (Folio: ${dteResult.folio})`,
-      folio: dteResult.folio,
+      message: `Boleta emitida con éxito en Simple API (Folio: ${siguienteFolio})`,
+      folio: siguienteFolio,
       pdf: dteResult.pdfUrl
     });
 
