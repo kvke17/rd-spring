@@ -199,7 +199,10 @@ export default async function HomePage() {
       <section className="py-24 border-b border-gray-100 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center fade-section">
           <p className="text-xs uppercase tracking-[0.25em] text-gray-400 font-bold mb-4">ESPECIALISTAS EN ALTA GAMA</p>
-          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-16 tracking-tight">Marcas con las que trabajamos</h2>
+          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-12 tracking-tight">Repuestos y fluidos compatibles para:</h2>
+<p className="text-sm text-gray-500 mb-16 max-w-2xl mx-auto">
+  Somos especialistas independientes. Proveemos ingeniería de alto rendimiento para las marcas más exigentes del mercado automotriz.
+</p>
           
           <div className="flex flex-col items-center gap-10 md:gap-14">
             
