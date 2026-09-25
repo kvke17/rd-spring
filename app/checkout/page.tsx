@@ -141,7 +141,7 @@ export default function CheckoutPage() {
           returnUrl: `${window.location.origin}/api/checkout/confirm`,
           customer: formData,
           items,
-          documentType: docType,
+          documentType: docType, // Se envía 'BOLETA' o 'FACTURA' para que tu backend/admin lo guarde y tu clienta lo emita manual
           shippingInfo: {
             ...envioSeleccionado,
             sucursalOficina: metodoEntrega === 'retiro' ? 'Retiro en Tienda - Av. Las Condes 8550' : 'Envío a domicilio'
