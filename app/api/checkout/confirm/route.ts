@@ -3,6 +3,10 @@ import { WebpayPlus, Options, Environment, IntegrationCommerceCodes, Integration
 import prisma from '@/lib/prisma';
 import { Resend } from 'resend';
 import ReceiptEmail from '@/components/emails/ReceiptEmail';
+<<<<<<< HEAD
+=======
+
+>>>>>>> 776ca5b486de7fd3d4b017e86ea83317eb202005
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -68,7 +72,11 @@ async function processPayment(request: Request) {
       let summaryText = `Tu pago ha sido procesado con éxito. Tu boleta electrónica será emitida y enviada a tu correo a la brevedad.`;
       const tipoDocumento = pendingOrder.documentType === 'FACTURA' ? 'factura' : 'boleta';
 
+<<<<<<< HEAD
       
+=======
+    
+>>>>>>> 776ca5b486de7fd3d4b017e86ea83317eb202005
 
       // ==========================================
       // ENVÍO DE CORREO AL CLIENTE

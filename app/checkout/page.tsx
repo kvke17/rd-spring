@@ -37,9 +37,9 @@ export default function CheckoutPage() {
   const [errores, setErrores] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
   const [docType, setDocType] = useState('BOLETA');
+  const [acceptTerms, setAcceptTerms] = useState(false);
 
   const [metodoEntrega, setMetodoEntrega] = useState<'despacho' | 'retiro'>('despacho');
-
   const [tarifasDinamicas, setTarifasDinamicas] = useState<any[]>([]);
   const [cargandoEnvio, setCargandoEnvio] = useState(false);
   const [envioSeleccionado, setEnvioSeleccionado] = useState<any>(null);
@@ -113,6 +113,11 @@ export default function CheckoutPage() {
   const handlePayment = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    if (!acceptTerms) {
+      alert("Debes aceptar los Términos y Condiciones y la Política de Privacidad para continuar.");
+      return;
+    }
+
     if (!validarFormulario()) {
       alert("Revisa los campos en rojo antes de continuar.");
       return;
@@ -426,8 +431,38 @@ export default function CheckoutPage() {
                   <span className="text-[#b91c1c]">{STORE_CONFIG.CURRENCY_FORMAT.format(totalFinal)}</span>
                 </div>
               </div>
+
+              {/* CHECKBOX TÉRMINOS Y CONDICIONES */}
+              <div className="mt-8 pt-6 border-t border-gray-200">
+                <label className="flex items-start gap-3 cursor-pointer group">
+                  <div className="flex items-center h-5">
+                    <input
+                      type="checkbox"
+                      required
+                      checked={acceptTerms}
+                      onChange={(e) => setAcceptTerms(e.target.checked)}
+                      className="w-4 h-4 border border-gray-300 rounded-sm bg-white checked:bg-black checked:border-black focus:ring-black transition"
+                    />
+                  </div>
+                  <div className="text-[11px] text-gray-500 leading-snug">
+                    He leído y acepto los{' '}
+                    <Link href="/terminos" target="_blank" className="font-bold text-gray-900 hover:text-[#b91c1c] underline transition">
+                      Términos y Condiciones
+                    </Link>{' '}
+                    y la{' '}
+                    <Link href="/terminos" target="_blank" className="font-bold text-gray-900 hover:text-[#b91c1c] underline transition">
+                      Política de Privacidad
+                    </Link>
+                    . Entiendo que las compras están sujetas a la garantía legal de 6 meses en Chile.
+                  </div>
+                </label>
+              </div>
               
-              <button type="submit" disabled={loading || !envioSeleccionado} className="w-full mt-8 bg-[#b91c1c] text-white font-bold py-5 uppercase tracking-widest hover:bg-red-800 transition shadow-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed">
+              <button 
+                type="submit" 
+                disabled={loading || !envioSeleccionado || !acceptTerms} 
+                className="w-full mt-6 bg-[#b91c1c] text-white font-bold py-5 uppercase tracking-widest hover:bg-red-800 transition shadow-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              >
                 {loading ? 'CONECTANDO...' : 'PAGAR AHORA'}
               </button>
             </div>
