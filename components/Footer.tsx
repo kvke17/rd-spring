@@ -92,6 +92,21 @@ export default function Footer() {
                 </span>
               </li>
             </ul>
+
+            {/* Firma del Desarrollador */}
+            <div className="mt-8 border-t border-gray-200 pt-6 pb-2 flex flex-col items-center">
+              <p className="text-[10px] text-gray-400 uppercase tracking-widest text-center">
+                Diseño y desarrollo por{' '}
+                <a 
+                  href="https://www.instagram.com/kvkestudio/" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="font-bold text-gray-500 hover:text-[#b3131b] transition-colors"
+                >
+                  Kvke Studio
+                </a>
+              </p>
+            </div>
           </div>
 
         </div>

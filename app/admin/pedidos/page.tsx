@@ -134,8 +134,14 @@ export default function AdminOrdersPage() {
             {orders.map((o) => {
               const isFactura = o.documentType === 'FACTURA';
               const isExpanded = expandedOrders.includes(o.buyOrder);
-              const cust = o.customer || {};
-              const shipping = o.shippingInfo || {};
+              
+              let cust = o.customer || {};
+              let shipping = {};
+              try {
+                shipping = typeof o.shippingInfo === 'string' ? JSON.parse(o.shippingInfo) : (o.shippingInfo || {});
+              } catch {
+                shipping = {};
+              }
 
               const clientRut = o.rut || cust.rut || 'No registrado';
               const clientPhone = o.phone || cust.phone || 'No registrado';
@@ -145,7 +151,6 @@ export default function AdminOrdersPage() {
 
               return (
                 <div key={o.buyOrder} className="border border-gray-200 bg-white rounded-lg shadow-sm overflow-hidden p-6 hover:border-gray-300 transition-colors">
-                  
                   <div className="grid grid-cols-1 md:grid-cols-4 gap-6 items-center">
                     <div>
                       <p className="text-[11px] uppercase tracking-widest text-gray-500 mb-1">
@@ -203,8 +208,8 @@ export default function AdminOrdersPage() {
                         <h3 className="text-xs uppercase tracking-widest font-bold text-gray-500 mb-3">Productos Adquiridos</h3>
                         {o.items && o.items.length > 0 ? (
                           <div className="space-y-2 bg-white p-4 border border-gray-200 rounded">
-                            {o.items.map((item) => (
-                              <div key={item.id} className="flex justify-between items-center text-xs pb-2 border-b border-gray-100 last:border-0 last:pb-0">
+                            {o.items.map((item, idx) => (
+                              <div key={item.id || `${o.buyOrder}-${item.productId}-${idx}`} className="flex justify-between items-center text-xs pb-2 border-b border-gray-100 last:border-0 last:pb-0">
                                 <div>
                                   <p className="font-bold text-gray-900">{item.name || item.productId}</p>
                                   <p className="text-gray-500">Cantidad: {item.quantity}</p>
@@ -216,7 +221,7 @@ export default function AdminOrdersPage() {
                             ))}
                           </div>
                         ) : (
-                          <p className="text-xs text-gray-600 bg-white p-3 border border-gray-200 rounded">{o.itemsSummary || 'Sin resumen disponible'}</p>
+                          <p className="text-xs text-gray-600 bg-white p-3 border border-gray-200 rounded">{o.itemsSummary}</p>
                         )}
                       </div>
 
@@ -225,7 +230,7 @@ export default function AdminOrdersPage() {
                         <div className="bg-white p-4 border border-gray-200 rounded text-xs space-y-2">
                           <p><strong>RUT Cliente:</strong> {clientRut}</p>
                           <p><strong>Teléfono:</strong> {clientPhone}</p>
-                          <p><strong>Método de Entrega:</strong> {shipping.label || shipping.sucursalOficina || 'Despacho a domicilio'}</p>
+                          <p><strong>Método de Entrega:</strong> {(shipping as any).label || (shipping as any).sucursalOficina || 'Despacho a domicilio'}</p>
                           <p><strong>Dirección:</strong> {clientAddress}</p>
                           <p><strong>Comuna / Región:</strong> {clientComuna ? `${clientComuna}, ${clientRegion}` : 'N/A'}</p>
                           

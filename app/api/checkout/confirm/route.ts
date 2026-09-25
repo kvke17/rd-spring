@@ -4,7 +4,6 @@ import prisma from '@/lib/prisma';
 import { Resend } from 'resend';
 import ReceiptEmail from '@/components/emails/ReceiptEmail';
 
-
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 const commerceCode = process.env.TBK_COMMERCE_CODE || IntegrationCommerceCodes.WEBPAY_PLUS;
@@ -49,9 +48,6 @@ async function processPayment(request: Request) {
 
     if (response.status === 'AUTHORIZED' && response.amount === pendingOrder.amount) {
       
-      // ==========================================
-      // ACTUALIZAR ESTADO A "PAGADO" EN LA BASE DE DATOS
-      // ==========================================
       await prisma.order.update({
         where: { token: token_ws },
         data: { status: 'PAID' }
@@ -60,20 +56,8 @@ async function processPayment(request: Request) {
       const items = JSON.parse(pendingOrder.items);
       const customer = JSON.parse(pendingOrder.customer);
 
-      // ==========================================
-      // EMISIÓN AUTOMÁTICA DE BOLETA/FACTURA (SimpleAPI)
-      // Si falla, no rompe la confirmación de pago: queda con
-      // dteEstado = "ERROR" para que puedas emitirla manualmente
-      // desde el Admin, igual que antes.
-      // ==========================================
       let summaryText = `Tu pago ha sido procesado con éxito. Tu boleta electrónica será emitida y enviada a tu correo a la brevedad.`;
-      const tipoDocumento = pendingOrder.documentType === 'FACTURA' ? 'factura' : 'boleta';
 
-    
-
-      // ==========================================
-      // ENVÍO DE CORREO AL CLIENTE
-      // ==========================================
       try {
         const dataResend = await resend.emails.send({
           from: 'Ventas RD Spring <contacto@rdspring.cl>', 
@@ -83,7 +67,7 @@ async function processPayment(request: Request) {
             customerName: customer.fullName || 'Cliente', 
             buyOrder: pendingOrder.buyOrder,
             amount: pendingOrder.amount,
-            itemsSummary: summaryText // <-- Texto limpio y profesional
+            itemsSummary: summaryText
           }),
         });
         console.log("Correo enviado al cliente exitosamente:", dataResend);
@@ -91,9 +75,6 @@ async function processPayment(request: Request) {
         console.error('=== ERROR DETALLADO DE RESEND (CLIENTE) ===', JSON.stringify(emailError, null, 2));
       }
 
-      // ==========================================
-      // CORREO INTERNO PARA EL ADMINISTRADOR (NUEVA VENTA)
-      // ==========================================
       try {
         let adminShippingInfo: any = {};
         try {
@@ -136,7 +117,6 @@ async function processPayment(request: Request) {
       } catch (adminEmailError) {
         console.error('Error enviando aviso al admin:', adminEmailError);
       }
-      // ==========================================
 
       return NextResponse.redirect(new URL(`/checkout/success?buyOrder=${pendingOrder.buyOrder}&amount=${pendingOrder.amount}`, request.url), { status: 303 });
       
