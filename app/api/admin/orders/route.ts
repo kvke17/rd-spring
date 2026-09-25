@@ -1,47 +1,56 @@
-export const dynamic = 'force-dynamic'; // Evita que Next.js congele la pantalla
-
 import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from "@/lib/auth";
-import prisma from '@/lib/prisma'; // 🚨 AQUÍ ESTÁ LA MAGIA, USAMOS TURSO
+import { prisma } from '@/lib/prisma';
 
 export async function GET() {
-  const session = await getServerSession(authOptions);
-  
-  if (!session || (session.user as any).role !== "ADMIN") {
-    return NextResponse.json({ error: "ACCESO DENEGADO" }, { status: 401 });
-  }
-
   try {
-    // Filtrar para traer SOLO los pagados ('PAID')
-    const dbOrders = await prisma.order.findMany({ 
-      where: { status: 'PAID' },
-      orderBy: { createdAt: 'desc' } 
+    const orders = await prisma.order.findMany({
+      orderBy: { createdAt: 'desc' },
+      // Quitamos el include porque items se guarda como un string JSON en la tabla
     });
 
-    const orders = dbOrders.map(order => {
-      let customerName = "Cliente";
-      let customerEmail = "Sin email";
+    const formattedOrders = orders.map((order: any) => {
+      let customerData: any = {};
       try {
-        const customerData = JSON.parse(order.customer);
-        // Ajustado para leer 'fullName' que es como lo guarda tu checkout
-        customerName = customerData.fullName || customerData.name || "Cliente"; 
-        customerEmail = customerData.email || "Sin email";
-      } catch (e) {}
+        customerData = typeof order.customer === 'string' ? JSON.parse(order.customer) : (order.customer || {});
+      } catch {
+        customerData = {};
+      }
+
+      let shippingData: any = {};
+      try {
+        shippingData = typeof order.shippingInfo === 'string' ? JSON.parse(order.shippingInfo) : (order.shippingInfo || {});
+      } catch {
+        shippingData = {};
+      }
+
+      let itemsData: any[] = [];
+      try {
+        itemsData = typeof order.items === 'string' ? JSON.parse(order.items) : (order.items || []);
+      } catch {
+        itemsData = [];
+      }
 
       return {
+        id: order.id,
         buyOrder: order.buyOrder,
         amount: order.amount,
         shippingStatus: order.shippingStatus,
         createdAt: order.createdAt,
-        customerName,
-        customerEmail,
-        itemsSummary: "Ver detalle", 
+        documentType: order.documentType,
+        items: itemsData,
+        itemsSummary: itemsData.map((i: any) => `${i.quantity}x ${i.product?.name || i.name || i.productId}`).join(', '),
+        customerName: customerData.fullName || 'Sin nombre',
+        customerEmail: customerData.email || 'Sin email',
+        rut: customerData.rut || 'No registrado',
+        phone: customerData.phone || 'No registrado',
+        customer: customerData,
+        shippingInfo: shippingData,
       };
     });
 
-    return NextResponse.json({ orders });
+    return NextResponse.json({ orders: formattedOrders }, { status: 200 });
   } catch (error) {
-    return NextResponse.json({ error: "Error interno del servidor" }, { status: 500 });
+    console.error('Error al cargar órdenes:', error);
+    return NextResponse.json({ error: 'Error al obtener los pedidos' }, { status: 500 });
   }
 }
