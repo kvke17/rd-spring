@@ -15,8 +15,8 @@ export default function Footer() {
                 src="/images/logo-rd.png" 
                 alt="Logo RD Spring" 
                 width={180} 
-                height={60} 
-                className="mb-4 object-contain"
+                height={26} 
+                className="mb-4 object-contain h-8 w-auto"
               />
             </Link>
             <p className="text-gray-700 text-sm leading-relaxed mt-2">

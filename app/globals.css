@@ -3,18 +3,88 @@
 @tailwind utilities;
 
 :root {
-  background-color: #0a0a0a;
-  color: #121212;
+  --background: #ffffff;
+  --foreground: #0f172a;
+  --brand-crimson: #b3131b;
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --spring-duration: 400ms;
 }
 
 body {
   margin: 0;
+  background-color: var(--background);
+  color: var(--foreground);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
 }
 
 input[type='number']::-webkit-inner-spin-button,
 input[type='number']::-webkit-outer-spin-button {
   -webkit-appearance: none;
   margin: 0;
+}
+
+/* Button & Interactive Shine */
+.btn-shine {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  transition: transform 160ms var(--ease-out), box-shadow 200ms var(--ease-out), background-color 200ms var(--ease-out);
+}
+
+.btn-shine:active {
+  transform: scale(0.97);
+}
+
+.btn-shine::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -75%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+  transform: skewX(-20deg);
+  transition: left 0.6s var(--ease-out);
+  z-index: 1;
+  pointer-events: none;
+}
+
+.btn-shine:hover::before {
+  left: 130%;
+}
+
+/* Luxury Soft Shadows & Borders */
+.luxury-card {
+  border-radius: 1.25rem; /* 20px - rounded-2xl */
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  background: #ffffff;
+  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.04);
+  transition: transform 250ms var(--ease-out), box-shadow 250ms var(--ease-out), border-color 250ms var(--ease-out);
+}
+
+.luxury-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 32px -4px rgba(15, 23, 42, 0.08);
+  border-color: rgba(203, 213, 225, 1);
+}
+
+/* High-end glassmorphism */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+}
+
+/* Accessibility: Respect Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

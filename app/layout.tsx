@@ -6,7 +6,6 @@ import './globals.css';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import AuthProvider from '@/components/AuthProvider';
-import AsistenteIA from '@/components/AsistenteIA';
 
 // Configuramos la nueva fuente
 const fuentePrincipal = Inter({
@@ -28,7 +27,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <Navbar />
           <main className="flex-1">{children}</main>
           <Footer />
-          <AsistenteIA />
         </AuthProvider>
       </body>
     </html>

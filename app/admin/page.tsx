@@ -1,9 +1,11 @@
 'use client';
+
 import { useState, useEffect } from 'react';
 import { STORE_CONFIG } from '@/config/constants';
 import { 
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer 
 } from 'recharts';
+import { DollarSign, ShoppingBag, TrendingUp, ArrowUpRight } from 'lucide-react';
 
 interface StatsData {
   totalSales: number;
@@ -30,7 +32,7 @@ export default function AdminDashboard() {
           setStats(data);
         }
       } catch (error) {
-        console.error("Error cargando estadísticas");
+        console.error("Error cargando estadísticas", error);
       } finally {
         setLoading(false);
       }
@@ -40,9 +42,12 @@ export default function AdminDashboard() {
 
   if (loading) {
     return (
-      <div className="flex h-64 items-center justify-center">
-        <div className="text-xs uppercase tracking-widest text-[#FF0000] font-bold animate-pulse">
-          Cargando métricas...
+      <div className="flex h-72 items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-6 h-6 border-2 border-[#b3131b] border-t-transparent rounded-full animate-spin" />
+          <div className="text-xs uppercase tracking-widest text-[#b3131b] font-bold">
+            Sincronizando métricas en vivo...
+          </div>
         </div>
       </div>
     );
@@ -51,64 +56,98 @@ export default function AdminDashboard() {
   return (
     <div className="space-y-8 font-sans">
       
-      {/* Grid de Tarjetas de Estadísticas */}
+      {/* 3 Metric Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         
-        {/* Tarjeta 1: Ventas Totales */}
-        <div className="bg-white border border-gray-100 p-8 rounded-xl shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
-          <p className="text-[10px] uppercase tracking-widest text-gray-500 mb-2 font-bold">Ventas Totales</p>
-          <p className="text-3xl sm:text-4xl font-black text-gray-900 mb-2 tracking-tight">
+        {/* Card 1: Ventas Totales */}
+        <div className="bg-white border border-slate-200/80 p-7 rounded-2xl shadow-sm hover:shadow-md transition-all duration-200 relative overflow-hidden group">
+          <div className="flex items-center justify-between mb-4">
+            <span className="text-[10px] uppercase tracking-widest text-slate-500 font-bold">
+              Ventas Totales
+            </span>
+            <div className="w-8 h-8 rounded-xl bg-red-50 text-[#b3131b] flex items-center justify-center border border-red-100">
+              <DollarSign className="w-4 h-4" />
+            </div>
+          </div>
+          <p className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
             {STORE_CONFIG.CURRENCY_FORMAT.format(stats.totalSales)}
           </p>
-          {/* Brillo sutil de fondo */}
-          <div className="absolute top-0 right-0 w-32 h-32 bg-[#FF0000] opacity-[0.03] rounded-full blur-3xl -mr-10 -mt-10 transition-opacity group-hover:opacity-[0.06]" />
+          <p className="text-[11px] text-slate-400 mt-2 font-medium">Facturación acumulada neta</p>
+          {/* Subtle decorative glow */}
+          <div className="absolute top-0 right-0 w-32 h-32 bg-[#b3131b] opacity-[0.03] rounded-full blur-3xl -mr-10 -mt-10 transition-opacity group-hover:opacity-[0.07] pointer-events-none" />
         </div>
 
-        {/* Tarjeta 2: Pedidos Pagados */}
-        <div className="bg-white border border-gray-100 p-8 rounded-xl shadow-sm hover:shadow-md transition-shadow">
-          <p className="text-[10px] uppercase tracking-widest text-gray-500 mb-2 font-bold">Pedidos Pagados</p>
-          <p className="text-3xl sm:text-4xl font-black text-gray-900 mb-2 tracking-tight">
+        {/* Card 2: Pedidos Pagados */}
+        <div className="bg-white border border-slate-200/80 p-7 rounded-2xl shadow-sm hover:shadow-md transition-all duration-200 relative overflow-hidden group">
+          <div className="flex items-center justify-between mb-4">
+            <span className="text-[10px] uppercase tracking-widest text-slate-500 font-bold">
+              Pedidos Pagados
+            </span>
+            <div className="w-8 h-8 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center border border-slate-200">
+              <ShoppingBag className="w-4 h-4" />
+            </div>
+          </div>
+          <p className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
             {stats.ordersCount}
           </p>
+          <p className="text-[11px] text-slate-400 mt-2 font-medium">Transacciones procesadas</p>
         </div>
 
-        {/* Tarjeta 3: Ticket Promedio */}
-        <div className="bg-white border border-gray-100 p-8 rounded-xl shadow-sm hover:shadow-md transition-shadow">
-          <p className="text-[10px] uppercase tracking-widest text-gray-500 mb-2 font-bold">Ticket Promedio</p>
-          <p className="text-3xl sm:text-4xl font-black text-gray-900 mb-2 tracking-tight">
+        {/* Card 3: Ticket Promedio */}
+        <div className="bg-white border border-slate-200/80 p-7 rounded-2xl shadow-sm hover:shadow-md transition-all duration-200 relative overflow-hidden group">
+          <div className="flex items-center justify-between mb-4">
+            <span className="text-[10px] uppercase tracking-widest text-slate-500 font-bold">
+              Ticket Promedio
+            </span>
+            <div className="w-8 h-8 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center border border-slate-200">
+              <TrendingUp className="w-4 h-4" />
+            </div>
+          </div>
+          <p className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
             {STORE_CONFIG.CURRENCY_FORMAT.format(stats.averageTicket)}
           </p>
+          <p className="text-[11px] text-slate-400 mt-2 font-medium">Por orden confirmada</p>
         </div>
 
       </div>
 
-      {/* Sección del Gráfico */}
-      <div className="bg-white border border-gray-100 p-8 rounded-xl shadow-sm">
-        <h3 className="text-xs uppercase tracking-widest text-black mb-8 font-bold border-b border-gray-100 pb-4">
-          Flujo de Ingresos
-        </h3>
+      {/* Modernized Recharts Section */}
+      <div className="bg-white border border-slate-200/80 p-7 sm:p-8 rounded-2xl shadow-sm">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-8 pb-5 border-b border-slate-100">
+          <div>
+            <h3 className="text-xs uppercase tracking-widest text-slate-900 font-black">
+              Flujo de Ingresos & Facturación
+            </h3>
+            <p className="text-xs text-slate-400 mt-0.5">Comportamiento cronológico de ventas confirmadas</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="w-2.5 h-2.5 rounded-full bg-[#b3131b]" />
+            <span className="text-[11px] font-mono font-medium text-slate-600">Ingresos CLP</span>
+          </div>
+        </div>
         
-        <div className="h-[400px] w-full">
+        <div className="h-[380px] w-full">
           {stats.chartData.length === 0 ? (
-            <div className="w-full h-full flex items-center justify-center text-sm text-gray-500 bg-gray-50 rounded-lg border border-dashed border-gray-200">
-              Aún no hay ventas suficientes para graficar.
+            <div className="w-full h-full flex flex-col items-center justify-center text-sm text-slate-400 bg-slate-50/50 rounded-2xl border border-dashed border-slate-200">
+              <p className="font-bold text-slate-600">Sin datos registrados</p>
+              <p className="text-xs mt-1">Aún no hay ventas suficientes para graficar el periodo.</p>
             </div>
           ) : (
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={stats.chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+              <AreaChart data={stats.chartData} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
                 <defs>
-                  <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#FF0000" stopOpacity={0.15}/>
-                    <stop offset="95%" stopColor="#FF0000" stopOpacity={0}/>
+                  <linearGradient id="colorTotalCrimson" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#b3131b" stopOpacity={0.25}/>
+                    <stop offset="95%" stopColor="#b3131b" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
                 
-                {/* Cuadrícula limpia y sutil */}
-                <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" vertical={false} />
+                {/* Cuadrícula sutil */}
+                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
                 
                 <XAxis 
                   dataKey="name" 
-                  stroke="#9ca3af" 
+                  stroke="#94a3b8" 
                   fontSize={11} 
                   tickLine={false} 
                   axisLine={false}
@@ -116,7 +155,7 @@ export default function AdminDashboard() {
                 />
                 
                 <YAxis 
-                  stroke="#9ca3af" 
+                  stroke="#94a3b8" 
                   fontSize={11} 
                   tickLine={false} 
                   axisLine={false} 
@@ -124,34 +163,35 @@ export default function AdminDashboard() {
                   dx={-10}
                 />
                 
-                {/* Tooltip claro y moderno */}
+                {/* Luxury Tooltip */}
                 <Tooltip 
                   contentStyle={{ 
-                    backgroundColor: '#ffffff', 
-                    borderColor: '#f3f4f6', 
-                    borderRadius: '12px',
-                    boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
-                    padding: '12px'
+                    backgroundColor: '#0f172a', 
+                    borderColor: '#1e293b', 
+                    borderRadius: '14px',
+                    boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.2)',
+                    padding: '12px 16px',
+                    color: '#ffffff'
                   }}
-                  itemStyle={{ color: '#FF0000', fontWeight: 'bold' }}
-                  labelStyle={{ color: '#4b5563', marginBottom: '4px', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.05em' }}
+                  itemStyle={{ color: '#f87171', fontWeight: 'bold' }}
                   formatter={(value: any) => [`$${Number(value).toLocaleString('es-CL')}`, 'Ingresos']}
                 />
                 
                 <Area 
                   type="monotone" 
                   dataKey="total" 
-                  stroke="#FF0000" 
-                  strokeWidth={3}
+                  stroke="#b3131b" 
+                  strokeWidth={2.5}
                   fillOpacity={1} 
-                  fill="url(#colorTotal)" 
-                  activeDot={{ r: 6, fill: '#FF0000', stroke: '#ffffff', strokeWidth: 2 }}
+                  fill="url(#colorTotalCrimson)" 
+                  activeDot={{ r: 5, fill: '#b3131b', stroke: '#ffffff', strokeWidth: 2 }}
                 />
               </AreaChart>
             </ResponsiveContainer>
           )}
         </div>
       </div>
+
     </div>
   );
 }

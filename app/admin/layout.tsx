@@ -1,32 +1,40 @@
 'use client';
+
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { BarChart3, ShoppingBag, Package, LayoutDashboard } from 'lucide-react';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
   const tabs = [
-    { name: 'Resumen', href: '/admin' },
-    { name: 'Pedidos', href: '/admin/pedidos' },
-    { name: 'Productos', href: '/admin/productos' }, 
+    { name: 'Resumen', href: '/admin', icon: LayoutDashboard },
+    { name: 'Pedidos', href: '/admin/pedidos', icon: ShoppingBag },
+    { name: 'Productos', href: '/admin/productos', icon: Package }, 
   ];
 
   return (
-    <div className="min-h-screen bg-white text-gray-900 pt-24 pb-20">
+    <div className="min-h-screen bg-slate-50/70 text-gray-900 pt-28 pb-24 font-sans">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        {/* Cabecera del Panel */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold uppercase tracking-tight text-gray-900 mb-6">
-            Centro de Control
-          </h1>
-          
-          {/* Navegación interna (Estilo Tabs) */}
-          <nav className="flex space-x-8 border-b border-gray-200">
+        {/* Luxury Header Banner */}
+        <div className="mb-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-200/80 pb-6">
+          <div>
+            <div className="flex items-center gap-2 mb-1.5">
+              <span className="w-2 h-2 rounded-full bg-[#b3131b]" />
+              <p className="text-[10px] font-mono uppercase tracking-[0.25em] text-[#b3131b] font-bold">
+                PANEL DE CONTROL TÉCNICO
+              </p>
+            </div>
+            <h1 className="text-3xl sm:text-4xl font-black uppercase tracking-tight text-gray-900">
+              Centro de Control
+            </h1>
+          </div>
+
+          {/* Internal Navigation: Luxury Rounded Tabs */}
+          <nav className="inline-flex p-1.5 bg-white border border-slate-200/80 rounded-2xl shadow-sm self-start sm:self-auto">
             {tabs.map((tab) => {
-              // 👇 AQUÍ ESTÁ LA SOLUCIÓN 👇
-              // Si es la pestaña principal (/admin), exige que sea exacta. 
-              // Si son las otras, permite que incluyan sub-rutas (ej: /admin/productos/nuevo)
+              const Icon = tab.icon;
               const isActive = 
                 tab.href === '/admin' 
                   ? pathname === '/admin' 
@@ -36,21 +44,22 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 <Link
                   key={tab.name}
                   href={tab.href}
-                  className={`pb-4 text-xs font-bold uppercase tracking-widest transition-colors relative ${
-                    isActive ? 'text-[#b3131b]' : 'text-gray-500 hover:text-gray-700'
+                  className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-200 active:scale-95 ${
+                    isActive 
+                      ? 'bg-slate-900 text-white shadow-md' 
+                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                   }`}
                 >
+                  <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-[#b3131b]' : 'text-slate-400'}`} />
                   {tab.name}
-                  {isActive && (
-                    <span className="absolute bottom-0 left-0 w-full h-[2px] bg-[#b3131b] shadow-[0_0_10px_rgba(179,19,27,0.5)]" />
-                  )}
                 </Link>
               );
             })}
           </nav>
         </div>
 
-        <div className="mt-8">
+        {/* Content Viewport */}
+        <div>
           {children}
         </div>
 

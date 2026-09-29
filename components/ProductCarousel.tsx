@@ -9,11 +9,11 @@ export default function ProductCarousel({ products }: { products: any[] }) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   
   const [isDragging, setIsDragging] = useState(false);
-  const [hasDragged, setHasDragged] = useState(false); // <-- Nuevo: detecta si moviste el mouse
+  const [hasDragged, setHasDragged] = useState(false);
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
 
-  // Mueve la barra el equivalente a todo el ancho visible (4 tarjetas)
+  // Mueve la barra el equivalente a todo el ancho visible
   const scroll = (direction: 'left' | 'right') => {
     if (scrollContainerRef.current) {
       const { current } = scrollContainerRef;
@@ -24,7 +24,7 @@ export default function ProductCarousel({ products }: { products: any[] }) {
   const handleMouseDown = (e: React.MouseEvent) => {
     if (!scrollContainerRef.current) return;
     setIsDragging(true);
-    setHasDragged(false); // Reseteamos el estado al hacer clic
+    setHasDragged(false);
     setStartX(e.pageX - scrollContainerRef.current.offsetLeft);
     setScrollLeft(scrollContainerRef.current.scrollLeft);
   };
@@ -43,7 +43,6 @@ export default function ProductCarousel({ products }: { products: any[] }) {
     const x = e.pageX - scrollContainerRef.current.offsetLeft;
     const walk = (x - startX) * 1.5; 
     
-    // Si el mouse se movió más de 5 píxeles, lo consideramos un "arrastre" y no un clic
     if (Math.abs(walk) > 5) {
       setHasDragged(true);
     }
@@ -56,7 +55,7 @@ export default function ProductCarousel({ products }: { products: any[] }) {
       {/* Botón Izquierda */}
       <button 
         onClick={() => scroll('left')}
-        className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-20 bg-white border border-gray-200 shadow-lg rounded-full p-3 text-gray-800 hover:bg-gray-50 hover:text-[#b3131b] transition opacity-0 group-hover:opacity-100 hidden sm:block"
+        className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-20 bg-white/95 backdrop-blur-md border border-gray-200 shadow-xl rounded-full p-3.5 text-gray-800 hover:bg-white hover:text-[#b3131b] transition-all duration-200 hover:scale-105 active:scale-95 opacity-0 group-hover:opacity-100 hidden sm:flex items-center justify-center cursor-pointer"
         aria-label="Anterior"
       >
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-5 h-5">
@@ -87,22 +86,21 @@ export default function ProductCarousel({ products }: { products: any[] }) {
           return (
             <div 
               key={p.id} 
-              className="flex-none w-[85vw] sm:w-[calc(50%-12px)] lg:w-[calc(25%-18px)] border border-gray-200 bg-white flex flex-col group/card hover:shadow-lg transition"
+              className="flex-none w-[85vw] sm:w-[calc(50%-12px)] lg:w-[calc(25%-18px)] rounded-2xl overflow-hidden border border-gray-200/80 bg-white flex flex-col group/card hover:shadow-xl hover:border-gray-300 hover:-translate-y-1 transition-all duration-300"
             >
               {/* ENVOLVEMOS TODA LA TARJETA EN EL LINK */}
               <Link 
                 href={`/productos/${p.id}`} 
                 draggable={false}
                 onClick={(e) => {
-                  // Si el usuario arrastró el mouse, bloqueamos el clic para que no cambie de página
                   if (hasDragged) {
                     e.preventDefault();
                   }
                 }}
                 className="flex flex-col h-full cursor-pointer"
               >
-                <div className="aspect-square relative bg-white overflow-hidden pointer-events-none">
-                  <span className="absolute top-3 right-3 text-[9px] tracking-wider px-2 py-1 uppercase font-bold z-10 bg-[#b3131b] text-white">
+                <div className="aspect-square relative bg-slate-50/60 overflow-hidden pointer-events-none p-4 flex items-center justify-center">
+                  <span className="absolute top-3 right-3 text-[9px] tracking-wider px-2.5 py-1 uppercase font-bold z-10 bg-[#b3131b] text-white rounded-full shadow-sm">
                     VENTA ONLINE
                   </span>
                   
@@ -112,7 +110,7 @@ export default function ProductCarousel({ products }: { products: any[] }) {
                     fill
                     draggable={false}
                     sizes="(max-width: 768px) 100vw, 25vw"
-                    className={`object-cover transition-all duration-500 ease-in-out ${hoverSrc ? 'group-hover/card:opacity-0' : 'group-hover/card:scale-105'}`} 
+                    className={`object-contain p-4 transition-all duration-500 ease-in-out ${hoverSrc ? 'group-hover/card:opacity-0' : 'group-hover/card:scale-105'}`} 
                   />
 
                   {hoverSrc && (
@@ -122,23 +120,25 @@ export default function ProductCarousel({ products }: { products: any[] }) {
                       fill
                       draggable={false}
                       sizes="(max-width: 768px) 100vw, 25vw"
-                      className="absolute inset-0 object-cover opacity-0 transition-opacity duration-500 ease-in-out group-hover/card:opacity-100" 
+                      className="absolute inset-0 object-contain p-4 opacity-0 transition-opacity duration-500 ease-in-out group-hover/card:opacity-100" 
                     />
                   )}
                 </div>
 
-                <div className="p-5 flex-1 flex flex-col justify-between">
+                <div className="p-6 flex-1 flex flex-col justify-between bg-white">
                   <div>
-                    <p className="text-[10px] uppercase tracking-widest text-[#b3131b] mb-1 font-bold">{p.brand} · {p.category}</p>
-                    <h3 className="text-sm font-bold text-gray-900 line-clamp-2 group-hover/card:text-[#b3131b] transition">{p.name}</h3>
+                    <p className="text-[10px] uppercase tracking-widest text-[#b3131b] mb-1.5 font-bold">{p.brand} · {p.category}</p>
+                    <h3 className="text-sm font-bold text-gray-900 line-clamp-2 group-hover/card:text-[#b3131b] transition-colors">{p.name}</h3>
                   </div>
                   
-                  <div className="mt-4 pt-4 border-t border-gray-200 flex items-center justify-between">
-                    <p className="text-sm font-bold text-gray-900">
-                      <span className="text-[10px] text-gray-500 mr-2 font-normal">DESDE</span>
-                      {STORE_CONFIG.CURRENCY_FORMAT.format(lowestPrice)}
-                    </p>
-                    <span className="text-[10px] text-gray-500">
+                  <div className="mt-5 pt-4 border-t border-gray-100 flex items-center justify-between">
+                    <div>
+                      <span className="text-[10px] text-gray-400 block font-medium uppercase tracking-wider">Precio</span>
+                      <p className="text-base font-black text-gray-900">
+                        {STORE_CONFIG.CURRENCY_FORMAT.format(lowestPrice)}
+                      </p>
+                    </div>
+                    <span className="text-[10px] font-mono font-medium text-gray-400 bg-gray-50 px-2 py-1 rounded-md border border-gray-100">
                       {hasFormats ? p.formats[0].sku : ''}
                     </span>
                   </div>
@@ -152,7 +152,7 @@ export default function ProductCarousel({ products }: { products: any[] }) {
       {/* Botón Derecha */}
       <button 
         onClick={() => scroll('right')}
-        className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-20 bg-white border border-gray-200 shadow-lg rounded-full p-3 text-gray-800 hover:bg-gray-50 hover:text-[#b3131b] transition opacity-0 group-hover:opacity-100 hidden sm:block"
+        className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-20 bg-white/95 backdrop-blur-md border border-gray-200 shadow-xl rounded-full p-3.5 text-gray-800 hover:bg-white hover:text-[#b3131b] transition-all duration-200 hover:scale-105 active:scale-95 opacity-0 group-hover:opacity-100 hidden sm:flex items-center justify-center cursor-pointer"
         aria-label="Siguiente"
       >
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-5 h-5">

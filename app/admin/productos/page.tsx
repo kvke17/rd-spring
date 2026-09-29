@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link"; 
 import Swal from 'sweetalert2';
+import { Plus, Edit2, Trash2, Package } from 'lucide-react';
 
 export default function AdminProductosPage() {
   const [productos, setProductos] = useState<any[]>([]);
@@ -48,7 +49,7 @@ export default function AdminProductosPage() {
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#b3131b',
-      cancelButtonColor: '#6b7280',
+      cancelButtonColor: '#64748b',
       confirmButtonText: 'Sí, eliminar',
       cancelButtonText: 'Cancelar'
     }).then(async (result) => {
@@ -60,7 +61,6 @@ export default function AdminProductosPage() {
 
           if (res.ok) {
             Swal.fire('¡Eliminado!', 'El producto ha sido borrado.', 'success');
-            // Actualizamos el estado para que el producto desaparezca de la tabla inmediatamente
             setProductos((prevProductos) => prevProductos.filter(p => p.id !== id));
           } else {
             Swal.fire('Error', 'No se pudo eliminar el producto.', 'error');
@@ -73,80 +73,111 @@ export default function AdminProductosPage() {
   };
 
   return (
-    <div className="p-8 max-w-7xl mx-auto">
-      <div className="flex justify-between items-center mb-8">
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Productos</h1>
-          <p className="text-gray-500 text-sm mt-1">Administra el catálogo de repuestos y aceites.</p>
+          <h2 className="text-xl font-bold uppercase tracking-tight text-slate-900">
+            Catálogo de Productos & Repuestos
+          </h2>
+          <p className="text-xs text-slate-500 mt-0.5">Gestión de inventario de amortiguadores, aceites ROWE y accesorios</p>
         </div>
         
         <Link 
           href="/admin/productos/nuevo"
-          className="bg-[#b3131b] hover:bg-red-800 text-white font-bold py-2 px-4 rounded shadow transition inline-block"
+          className="btn-shine inline-flex items-center gap-2 bg-[#b3131b] hover:bg-[#8f0f15] text-white font-bold text-xs uppercase tracking-wider py-3 px-5 rounded-xl shadow-md hover:shadow-lg transition-all duration-200 active:scale-95 cursor-pointer self-start sm:self-auto"
         >
-          + Nuevo Producto
+          <Plus className="w-4 h-4" />
+          <span>Nuevo Producto</span>
         </Link>
       </div>
 
-      <div className="bg-white shadow rounded-lg overflow-hidden border border-gray-200">
-        <table className="w-full text-left text-sm text-gray-600">
-          <thead className="bg-gray-50 text-gray-900 uppercase text-xs font-bold border-b border-gray-200">
-            <tr>
-              <th className="px-6 py-4">Imagen</th>
-              <th className="px-6 py-4">Nombre</th>
-              <th className="px-6 py-4">Marca / Categoría</th>
-              <th className="px-6 py-4">Precio</th>
-              <th className="px-6 py-4">Tipo</th>
-              <th className="px-6 py-4 text-right">Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {loading ? (
-              <tr><td colSpan={6} className="text-center py-10">Cargando productos...</td></tr>
-            ) : productos.length === 0 ? (
-              <tr><td colSpan={6} className="text-center py-10 text-gray-500">No hay productos en la base de datos.</td></tr>
-            ) : (
-              productos.map((producto) => (
-                <tr key={producto.id} className="border-b border-gray-100 hover:bg-gray-50">
-                  <td className="px-6 py-4">
-                    <div className="relative w-12 h-12 rounded bg-gray-100 border overflow-hidden">
-                      {producto.image && (
-                        <Image src={producto.image} alt={producto.name} fill className="object-cover" />
-                      )}
+      <div className="bg-white shadow-sm rounded-2xl overflow-hidden border border-slate-200/80">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-xs text-slate-600">
+            <thead className="bg-slate-50/80 text-slate-900 uppercase text-[10px] font-bold tracking-wider border-b border-slate-200">
+              <tr>
+                <th className="px-6 py-4">Imagen</th>
+                <th className="px-6 py-4">Nombre</th>
+                <th className="px-6 py-4">Marca / Categoría</th>
+                <th className="px-6 py-4">Precio</th>
+                <th className="px-6 py-4">Tipo</th>
+                <th className="px-6 py-4 text-right">Acciones</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {loading ? (
+                <tr>
+                  <td colSpan={6} className="text-center py-12">
+                    <div className="flex flex-col items-center gap-2">
+                      <div className="w-5 h-5 border-2 border-[#b3131b] border-t-transparent rounded-full animate-spin" />
+                      <span className="text-xs uppercase tracking-widest text-slate-400 font-bold">Cargando catálogo...</span>
                     </div>
                   </td>
-                  <td className="px-6 py-4 font-bold text-gray-900">{producto.name}</td>
-                  <td className="px-6 py-4">{producto.brand} <br/><span className="text-xs text-gray-400">{producto.category}</span></td>
-                  <td className="px-6 py-4 text-gray-900 font-medium">
-                    {producto.price ? `$${producto.price.toLocaleString('es-CL')}` : 'Cotizar'}
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className={`px-2 py-1 text-[10px] font-bold uppercase rounded ${producto.type === 'venta_online' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
-                      {producto.type}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-right">
-                    {/* Botón EDITAR conectado a la futura página de edición */}
-                    <Link 
-                      href={`/admin/productos/editar/${producto.id}`} 
-                      className="text-blue-600 font-bold text-xs uppercase hover:underline mr-3"
-                    >
-                      Editar
-                    </Link>
-                    
-                    {/* Botón ELIMINAR conectado a la función handleEliminar */}
-                    <button 
-                      onClick={() => handleEliminar(producto.id)} 
-                      className="text-red-600 font-bold text-xs uppercase hover:underline"
-                    >
-                      Eliminar
-                    </button>
+                </tr>
+              ) : productos.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="text-center py-12 text-slate-400 font-medium">
+                    No hay productos en la base de datos actualmente.
                   </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              ) : (
+                productos.map((producto) => (
+                  <tr key={producto.id} className="hover:bg-slate-50/60 transition-colors">
+                    <td className="px-6 py-3.5">
+                      <div className="relative w-12 h-12 rounded-xl bg-slate-50 border border-slate-200/70 overflow-hidden flex items-center justify-center">
+                        {producto.image ? (
+                          <Image src={producto.image} alt={producto.name} fill className="object-cover" />
+                        ) : (
+                          <Package className="w-5 h-5 text-slate-300" />
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-6 py-3.5">
+                      <p className="font-bold text-slate-900 text-sm">{producto.name}</p>
+                      {producto.sku && <p className="text-[10px] font-mono text-slate-400">{producto.sku}</p>}
+                    </td>
+                    <td className="px-6 py-3.5">
+                      <span className="font-bold text-slate-800">{producto.brand}</span>
+                      <br/>
+                      <span className="text-[11px] text-slate-400">{producto.category}</span>
+                    </td>
+                    <td className="px-6 py-3.5 font-bold text-slate-900">
+                      {producto.price ? `$${producto.price.toLocaleString('es-CL')}` : <span className="text-slate-400 font-normal">Cotizar</span>}
+                    </td>
+                    <td className="px-6 py-3.5">
+                      <span className={`inline-block px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-wider rounded-full ${
+                        producto.type === 'venta_online' 
+                          ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/60' 
+                          : 'bg-slate-100 text-slate-700 border border-slate-200/60'
+                      }`}>
+                        {producto.type}
+                      </span>
+                    </td>
+                    <td className="px-6 py-3.5 text-right">
+                      <div className="inline-flex items-center gap-2">
+                        <Link 
+                          href={`/admin/productos/editar/${producto.id}`} 
+                          className="p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+                          title="Editar producto"
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </Link>
+                        
+                        <button 
+                          onClick={() => handleEliminar(producto.id)} 
+                          className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
+                          title="Eliminar producto"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
