@@ -1,3 +1,6 @@
+import Link from 'next/link';
+import { ShieldCheck, RefreshCw, CheckCircle2, ChevronRight, FileText, ArrowRight } from 'lucide-react';
+
 const GARANTIA_SECTIONS = [
   {
     id: 'garantia-limitada',
@@ -72,19 +75,19 @@ function NumberedCard({
   bullets?: string[];
 }) {
   return (
-    <div id={id} className="border border-gray-200 bg-gray-50 p-6 sm:p-8 scroll-mt-28">
+    <div id={id} className="rounded-3xl border border-slate-200/80 bg-white p-7 sm:p-9 shadow-sm hover:shadow-md transition-shadow scroll-mt-32">
       <div className="flex items-start gap-5">
-        <div className="w-10 h-10 border border-[#b3131b] text-[#b3131b]  font-bold text-sm flex items-center justify-center flex-shrink-0">
+        <div className="w-12 h-12 rounded-2xl bg-red-50 border border-red-100 text-[#b3131b] font-mono font-bold text-sm flex items-center justify-center shrink-0 shadow-2xs">
           {number}
         </div>
         <div className="flex-1">
-          <h3 className="text-gray-900 text-base font-bold uppercase tracking-widest mb-3">{title}</h3>
-          <p className="text-sm text-gray-600  leading-relaxed">{body}</p>
+          <h3 className="text-gray-900 text-base sm:text-lg font-bold uppercase tracking-tight mb-2">{title}</h3>
+          <p className="text-sm text-slate-600 leading-relaxed font-normal">{body}</p>
           {bullets && (
-            <ul className="mt-4 space-y-2">
+            <ul className="mt-4 space-y-2.5 pt-2 border-t border-slate-100">
               {bullets.map((b, i) => (
-                <li key={i} className="flex gap-3 text-sm text-gray-600  leading-relaxed">
-                  <span className="text-[#b3131b] flex-shrink-0">—</span>
+                <li key={i} className="flex gap-3 text-sm text-slate-600 leading-relaxed">
+                  <span className="text-[#b3131b] font-bold shrink-0">•</span>
                   <span>{b}</span>
                 </li>
               ))}
@@ -97,72 +100,103 @@ function NumberedCard({
 }
 
 export default function WarrantyPage() {
-  const allIds = [...GARANTIA_SECTIONS, ...CAMBIOS_SECTIONS].map((s) => s.id);
-
   return (
-    <div className="min-h-screen bg-white text-gray-900 pt-28 pb-20">
+    <div className="min-h-screen bg-slate-50/50 text-gray-900 pt-28 sm:pt-32 pb-24 font-sans">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <p className="text-xs uppercase tracking-[0.25em] text-[#b3131b]  mb-2">RESPALDO TÉCNICO</p>
-        <h1 className="text-4xl font-bold uppercase tracking-tight mb-6">Garantía, Cambios y Devoluciones</h1>
-        <p className="text-sm text-gray-600  leading-relaxed mb-10 max-w-2xl">
-          En RD Spring nuestro objetivo es que tu vehículo recupere su rendimiento óptimo. Aquí encuentras el detalle completo de nuestra garantía y de las condiciones para cambios o devoluciones.
-        </p>
+        
+        {/* Encabezado */}
+        <div className="mb-10 text-center sm:text-left">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-50 border border-red-100 text-[#b3131b] text-[10px] font-mono font-bold uppercase tracking-wider mb-3">
+            <ShieldCheck className="w-3.5 h-3.5" />
+            <span>RESPALDO TÉCNICO Y POLÍTICAS OFICIALES</span>
+          </div>
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black uppercase tracking-tight text-gray-900">
+            Garantía y Devoluciones
+          </h1>
+          <p className="text-sm text-slate-500 mt-2 max-w-2xl font-medium leading-relaxed">
+            En RD Spring garantizamos la autenticidad y funcionamiento óptimo de cada pieza importada. Conoce los detalles de cobertura y procedimientos de cambio.
+          </p>
+        </div>
 
         {/* Índice rápido */}
-        <div className="flex flex-wrap gap-x-6 gap-y-2 border-y border-gray-200 py-4 mb-12">
-          {[...GARANTIA_SECTIONS, ...CAMBIOS_SECTIONS].map((s, idx) => (
-            <a
-              key={s.id}
-              href={`#${s.id}`}
-              className="text-[10px]  uppercase tracking-widest text-gray-600 hover:text-[#b3131b] transition"
-            >
-              {String(idx + 1).padStart(2, '0')} · {s.title}
-            </a>
-          ))}
+        <div className="bg-white rounded-2xl border border-slate-200/80 p-4 mb-12 shadow-2xs">
+          <p className="text-[10px] font-mono uppercase tracking-wider text-slate-400 font-bold mb-3 pl-2">Índice de Secciones</p>
+          <div className="flex flex-wrap gap-2">
+            {[...GARANTIA_SECTIONS, ...CAMBIOS_SECTIONS].map((s, idx) => (
+              <a
+                key={s.id}
+                href={`#${s.id}`}
+                className="text-xs font-medium text-slate-600 hover:text-gray-900 bg-slate-50 hover:bg-slate-100 border border-slate-200/80 px-3 py-1.5 rounded-lg transition-colors"
+              >
+                <span className="font-mono text-[#b3131b] font-bold mr-1.5">{String(idx + 1).padStart(2, '0')}</span>
+                {s.title}
+              </a>
+            ))}
+          </div>
         </div>
 
         {/* BLOQUE 1: GARANTÍA */}
-        <p className="text-xs uppercase tracking-[0.25em] text-[#b3131b]  mb-4">01 · POLÍTICA DE GARANTÍA (1 AÑO)</p>
-        <div className="space-y-6 mb-16">
-          {GARANTIA_SECTIONS.map((s, idx) => (
-            <NumberedCard
-              key={s.id}
-              id={s.id}
-              number={String(idx + 1).padStart(2, '0')}
-              title={s.title}
-              body={s.body}
-              bullets={'bullets' in s ? s.bullets : undefined}
-            />
-          ))}
+        <div className="mb-14">
+          <div className="flex items-center gap-2 mb-6">
+            <ShieldCheck className="w-5 h-5 text-[#b3131b]" />
+            <h2 className="text-xs font-mono uppercase tracking-widest text-[#b3131b] font-bold">
+              01 · POLÍTICA DE GARANTÍA (1 AÑO)
+            </h2>
+          </div>
+          <div className="space-y-6">
+            {GARANTIA_SECTIONS.map((s, idx) => (
+              <NumberedCard
+                key={s.id}
+                id={s.id}
+                number={String(idx + 1).padStart(2, '0')}
+                title={s.title}
+                body={s.body}
+                bullets={'bullets' in s ? s.bullets : undefined}
+              />
+            ))}
+          </div>
         </div>
 
         {/* BLOQUE 2: CAMBIOS Y DEVOLUCIONES */}
-        <p className="text-xs uppercase tracking-[0.25em] text-[#b3131b]  mb-2">02 · CAMBIOS Y DEVOLUCIONES</p>
-        <p className="text-sm text-gray-600  leading-relaxed mb-6 max-w-2xl">
-          Si cometiste un error en la selección de tu repuesto, te ofrecemos una ventana de 15 días corridos desde la recepción del producto para solicitar un cambio o la devolución de tu dinero, bajo las siguientes condiciones:
-        </p>
-        <div className="space-y-6">
-          {CAMBIOS_SECTIONS.map((s, idx) => (
-            <NumberedCard
-              key={s.id}
-              id={s.id}
-              number={String(idx + 1).padStart(2, '0')}
-              title={s.title}
-              body={s.body}
-              bullets={'bullets' in s ? s.bullets : undefined}
-            />
-          ))}
+        <div className="mb-14">
+          <div className="flex items-center gap-2 mb-2">
+            <RefreshCw className="w-5 h-5 text-[#b3131b]" />
+            <h2 className="text-xs font-mono uppercase tracking-widest text-[#b3131b] font-bold">
+              02 · CAMBIOS Y DEVOLUCIONES
+            </h2>
+          </div>
+          <p className="text-sm text-slate-500 font-medium mb-6">
+            Si requieres un cambio por compatibilidad, dispones de una ventana de 15 días hábiles desde la recepción física del pedido:
+          </p>
+          <div className="space-y-6">
+            {CAMBIOS_SECTIONS.map((s, idx) => (
+              <NumberedCard
+                key={s.id}
+                id={s.id}
+                number={String(GARANTIA_SECTIONS.length + idx + 1).padStart(2, '0')}
+                title={s.title}
+                body={s.body}
+                bullets={'bullets' in s ? s.bullets : undefined}
+              />
+            ))}
+          </div>
         </div>
 
-        <div className="mt-12 pt-8 border-t border-gray-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <p className="text-xs text-gray-500 ">Última actualización: agosto de 2026.</p>
-          <a
+        {/* Banner CTA inferior */}
+        <div className="bg-white rounded-3xl border border-slate-200/80 p-8 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-6">
+          <div>
+            <h4 className="text-base font-bold text-gray-900">¿Necesitas gestionar una garantía o devolución?</h4>
+            <p className="text-xs text-slate-500 mt-1">Escríbenos a través de nuestro centro de soporte y te guiaremos paso a paso.</p>
+          </div>
+          <Link
             href="/soporte"
-            className="inline-block bg-[#b3131b] text-white font-bold px-6 py-3 uppercase tracking-widest text-xs hover:bg-opacity-90 transition text-center"
+            className="flex items-center gap-2 bg-[#b3131b] hover:bg-[#8f0f15] text-white font-bold px-6 py-3.5 rounded-xl uppercase tracking-wider text-xs transition-colors shadow-xs shrink-0"
           >
-            Solicitar garantía o devolución
-          </a>
+            <span>Ir a Soporte</span>
+            <ArrowRight className="w-4 h-4" />
+          </Link>
         </div>
+
       </div>
     </div>
   );

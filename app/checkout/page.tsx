@@ -1,9 +1,26 @@
 'use client';
+
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useCartStore } from '@/lib/store';
 import { formatRut, validateRut } from '@/lib/rut';
 import { STORE_CONFIG } from '@/config/constants';
+import { 
+  ShieldCheck, 
+  Truck, 
+  MapPin, 
+  CreditCard, 
+  Lock, 
+  Check, 
+  AlertCircle, 
+  Building2, 
+  User, 
+  FileText,
+  ShoppingBag,
+  ArrowRight,
+  ChevronRight
+} from 'lucide-react';
 
 const REGIONES_CHILE: Record<string, string[]> = {
   "Metropolitana de Santiago": ["Cerrillos", "Cerro Navia", "Conchalí", "El Bosque", "Estación Central", "Huechuraba", "Independencia", "La Cisterna", "La Florida", "La Granja", "La Pintana", "La Reina", "Las Condes", "Lo Barnechea", "Lo Espejo", "Lo Prado", "Macul", "Maipú", "Ñuñoa", "Pedro Aguirre Cerda", "Peñalolén", "Providencia", "Pudahuel", "Quilicura", "Quinta Normal", "Recoleta", "Renca", "San Joaquín", "San Miguel", "San Ramón", "Santiago", "Vitacura", "Puente Alto", "Pirque", "San José de Maipo", "Colina", "Lampa", "Tiltil", "San Bernardo", "Buin", "Calera de Tango", "Paine", "Melipilla", "Alhué", "Curacaví", "María Pinto", "San Pedro", "Talagante", "El Monte", "Isla de Maipo", "Padre Hurtado", "Peñaflor"],
@@ -49,18 +66,27 @@ export default function CheckoutPage() {
 
   if (items.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-50 text-black flex flex-col items-center justify-center p-6">
-        <h1 className="text-2xl font-bold uppercase mb-4 tracking-wider">Tu carro está vacío</h1>
-        <Link href="/catalogo" className="bg-black text-white font-bold px-8 py-4 uppercase tracking-widest hover:bg-gray-900 transition shadow-md">
-          Explorar Catálogo
-        </Link>
+      <div className="min-h-screen bg-slate-50/50 flex flex-col items-center justify-center p-6 text-center">
+        <div className="max-w-md bg-white rounded-3xl border border-slate-200/80 p-10 shadow-sm">
+          <div className="w-14 h-14 bg-red-50 text-[#b3131b] rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <ShoppingBag className="w-7 h-7" />
+          </div>
+          <h1 className="text-2xl font-black uppercase mb-2 tracking-tight text-gray-900">Tu carro está vacío</h1>
+          <p className="text-xs text-slate-500 mb-6">No tienes productos en tu carro de compras para procesar el pago.</p>
+          <Link 
+            href="/catalogo" 
+            className="inline-block bg-[#b3131b] hover:bg-[#8f0f15] text-white font-bold px-8 py-3.5 rounded-xl uppercase tracking-wider text-xs transition-colors shadow-xs"
+          >
+            Explorar Catálogo
+          </Link>
+        </div>
       </div>
     );
   }
 
   const calcularFlete = async () => {
     if (!formData.region || !formData.comuna) {
-      alert("Por favor, selecciona tu Región y Comuna primero para calcular el envío.");
+      alert("Por favor selecciona tu Región y Comuna primero para cotizar el envío.");
       return;
     }
     
@@ -85,7 +111,7 @@ export default function CheckoutPage() {
         }));
         setTarifasDinamicas(tarifasAdaptadas);
       } else {
-        alert("No se pudieron obtener las tarifas. Verifica la comuna o intenta de nuevo.");
+        alert("No se pudieron obtener las tarifas en este momento. Verifica la comuna o intenta de nuevo.");
       }
     } catch (error) {
       console.error(error);
@@ -119,12 +145,12 @@ export default function CheckoutPage() {
     }
 
     if (!validarFormulario()) {
-      alert("Revisa los campos en rojo antes de continuar.");
+      alert("Revisa los campos destacados en rojo antes de continuar.");
       return;
     }
 
     if (!envioSeleccionado) {
-      alert('Por favor, selecciona una opción de entrega antes de pagar.');
+      alert('Por favor selecciona una opción de entrega antes de pagar.');
       return;
     }
 
@@ -141,7 +167,7 @@ export default function CheckoutPage() {
           returnUrl: `${window.location.origin}/api/checkout/confirm`,
           customer: formData,
           items,
-          documentType: docType, // Se envía 'BOLETA' o 'FACTURA' para que tu backend/admin lo guarde y tu clienta lo emita manual
+          documentType: docType,
           shippingInfo: {
             ...envioSeleccionado,
             sucursalOficina: metodoEntrega === 'retiro' ? 'Retiro en Tienda - Av. Las Condes 8550' : 'Envío a domicilio'
@@ -181,63 +207,162 @@ export default function CheckoutPage() {
   const totalFinal = getCartSubtotal() + (envioSeleccionado ? envioSeleccionado.cost : 0);
 
   return (
-    <div className="min-h-screen bg-gray-50 text-black pt-28 pb-20 font-sans">
+    <div className="min-h-screen bg-slate-50/50 text-gray-900 pt-28 sm:pt-32 pb-24 font-sans">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        <div className="mb-12 border-b border-gray-300 pb-6">
-          <h1 className="text-3xl md:text-4xl font-bold uppercase tracking-tight text-black">Finalizar compra</h1>
-          <p className="text-gray-600 mt-2 text-sm">Completa tus datos de forma segura para procesar tu pedido.</p>
+        {/* Encabezado Principal */}
+        <div className="mb-10 text-center sm:text-left border-b border-slate-200/80 pb-6">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-50 border border-red-100 text-[#b3131b] text-[10px] font-mono font-bold uppercase tracking-wider mb-3">
+            <Lock className="w-3.5 h-3.5" />
+            <span>CHECKOUT CIFRADO SSL 256-BIT · WEBPAY PLUS</span>
+          </div>
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black uppercase tracking-tight text-gray-900">
+            Finalizar Compra
+          </h1>
+          <p className="text-sm text-slate-500 mt-1 font-medium">
+            Completa tus datos de facturación y despacho para procesar tu orden de forma segura.
+          </p>
         </div>
 
-        <form onSubmit={handlePayment} className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+        <form onSubmit={handlePayment} className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10">
           
-          <div className="lg:col-span-7 space-y-8">
+          <div className="lg:col-span-7 space-y-6">
             
             {/* 01. SECCIÓN DOCUMENTO TRIBUTARIO */}
-            <div className="bg-white border border-gray-200 p-8 shadow-sm">
-              <h2 className="text-sm uppercase tracking-widest text-black mb-6 font-bold border-b border-gray-100 pb-4">01 · Tipo de Documento</h2>
-              <div className="flex gap-4 mb-2">
-                <button type="button" onClick={() => setDocType('BOLETA')} className={`flex-1 py-4 text-xs font-bold tracking-widest border transition-colors ${docType === 'BOLETA' ? 'bg-black text-white border-black' : 'bg-white text-black border-gray-300 hover:bg-gray-50'}`}>BOLETA</button>
-                <button type="button" onClick={() => setDocType('FACTURA')} className={`flex-1 py-4 text-xs font-bold tracking-widest border transition-colors ${docType === 'FACTURA' ? 'bg-black text-white border-black' : 'bg-white text-black border-gray-300 hover:bg-gray-50'}`}>FACTURA (MANUAL)</button>
+            <div className="bg-white rounded-3xl border border-slate-200/80 p-7 sm:p-9 shadow-sm">
+              <div className="flex items-center gap-2 mb-6 pb-4 border-b border-slate-100">
+                <FileText className="w-4 h-4 text-[#b3131b]" />
+                <h2 className="text-xs font-mono uppercase tracking-wider text-gray-900 font-bold">
+                  01 · Tipo de Documento Tributario
+                </h2>
+              </div>
+
+              <div className="flex gap-3 mb-2">
+                <button 
+                  type="button" 
+                  onClick={() => setDocType('BOLETA')} 
+                  className={`flex-1 py-3.5 px-4 text-xs font-bold tracking-wider rounded-xl border transition-all ${
+                    docType === 'BOLETA' 
+                      ? 'bg-slate-900 text-white border-slate-900 shadow-2xs' 
+                      : 'bg-slate-50/70 text-slate-600 border-slate-200 hover:bg-slate-100'
+                  }`}
+                >
+                  BOLETA ELECTRÓNICA
+                </button>
+                <button 
+                  type="button" 
+                  onClick={() => setDocType('FACTURA')} 
+                  className={`flex-1 py-3.5 px-4 text-xs font-bold tracking-wider rounded-xl border transition-all ${
+                    docType === 'FACTURA' 
+                      ? 'bg-slate-900 text-white border-slate-900 shadow-2xs' 
+                      : 'bg-slate-50/70 text-slate-600 border-slate-200 hover:bg-slate-100'
+                  }`}
+                >
+                  FACTURA EMPRESA
+                </button>
               </div>
 
               {docType === 'FACTURA' && (
-                <div className="mt-8 pt-6 border-t border-gray-100 animate-in fade-in duration-300">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div className="mt-6 pt-6 border-t border-slate-100 animate-in fade-in duration-300">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-[11px] uppercase tracking-widest text-black mb-2 font-bold">RUT Empresa *</label>
-                      <input type="text" name="rutFactura" required={docType === 'FACTURA'} value={formData.rutFactura} onChange={(e) => {
-                        const formatted = formatRut(e.target.value);
-                        setFormData({ ...formData, rutFactura: formatted });
-                        if (errores.rutFactura) setErrores({ ...errores, rutFactura: '' });
-                      }} className={`w-full bg-white border p-3 text-sm outline-none transition-colors ${errores.rutFactura ? 'border-red-500 bg-red-50 focus:border-red-500' : 'border-gray-300 focus:border-black'}`} />
+                      <label className="block text-[11px] font-mono uppercase tracking-wider text-slate-700 mb-1.5 font-bold">
+                        RUT Empresa *
+                      </label>
+                      <input 
+                        type="text" 
+                        name="rutFactura" 
+                        required={docType === 'FACTURA'} 
+                        placeholder="76.123.456-7"
+                        value={formData.rutFactura} 
+                        onChange={(e) => {
+                          const formatted = formatRut(e.target.value);
+                          setFormData({ ...formData, rutFactura: formatted });
+                          if (errores.rutFactura) setErrores({ ...errores, rutFactura: '' });
+                        }} 
+                        className={`w-full bg-slate-50/60 border rounded-xl px-4 py-3 text-sm focus:bg-white focus:ring-2 outline-none transition-all text-slate-900 ${
+                          errores.rutFactura ? 'border-red-500 focus:ring-red-100' : 'border-slate-200 focus:border-[#b3131b] focus:ring-red-100'
+                        }`} 
+                      />
                       {errores.rutFactura && <p className="text-xs text-red-500 mt-1">{errores.rutFactura}</p>}
                     </div>
+
                     <div>
-                      <label className="block text-[11px] uppercase tracking-widest text-black mb-2 font-bold">Razón Social *</label>
-                      <input type="text" name="razonSocial" required={docType === 'FACTURA'} value={formData.razonSocial} onChange={handleChange} className="w-full bg-white border border-gray-300 p-3 text-sm focus:border-black outline-none transition-colors" />
+                      <label className="block text-[11px] font-mono uppercase tracking-wider text-slate-700 mb-1.5 font-bold">
+                        Razón Social *
+                      </label>
+                      <input 
+                        type="text" 
+                        name="razonSocial" 
+                        required={docType === 'FACTURA'} 
+                        placeholder="Nombre de la empresa"
+                        value={formData.razonSocial} 
+                        onChange={handleChange} 
+                        className="w-full bg-slate-50/60 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-900 focus:border-[#b3131b] focus:bg-white focus:ring-2 focus:ring-red-100 outline-none transition-all" 
+                      />
                     </div>
+
                     <div className="sm:col-span-2">
-                      <label className="block text-[11px] uppercase tracking-widest text-black mb-2 font-bold">Giro Comercial *</label>
-                      <input type="text" name="giro" required={docType === 'FACTURA'} value={formData.giro} onChange={handleChange} className="w-full bg-white border border-gray-300 p-3 text-sm focus:border-black outline-none transition-colors" />
+                      <label className="block text-[11px] font-mono uppercase tracking-wider text-slate-700 mb-1.5 font-bold">
+                        Giro Comercial *
+                      </label>
+                      <input 
+                        type="text" 
+                        name="giro" 
+                        required={docType === 'FACTURA'} 
+                        placeholder="Ej: Servicios automotrices / Transporte"
+                        value={formData.giro} 
+                        onChange={handleChange} 
+                        className="w-full bg-slate-50/60 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-900 focus:border-[#b3131b] focus:bg-white focus:ring-2 focus:ring-red-100 outline-none transition-all" 
+                      />
                     </div>
+
                     <div>
-                      <label className="block text-[11px] uppercase tracking-widest text-black mb-2 font-bold">Región *</label>
-                      <select name="regionFactura" required={docType === 'FACTURA'} value={formData.regionFactura} onChange={(e) => setFormData({ ...formData, regionFactura: e.target.value, comunaFactura: '' })} className="w-full bg-white border border-gray-300 p-3 text-sm focus:border-black outline-none transition-colors cursor-pointer">
+                      <label className="block text-[11px] font-mono uppercase tracking-wider text-slate-700 mb-1.5 font-bold">
+                        Región Empresa *
+                      </label>
+                      <select 
+                        name="regionFactura" 
+                        required={docType === 'FACTURA'} 
+                        value={formData.regionFactura} 
+                        onChange={(e) => setFormData({ ...formData, regionFactura: e.target.value, comunaFactura: '' })} 
+                        className="w-full bg-slate-50/60 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-900 focus:border-[#b3131b] focus:bg-white focus:ring-2 focus:ring-red-100 outline-none transition-all cursor-pointer"
+                      >
                         <option value="">Selecciona...</option>
                         {Object.keys(REGIONES_CHILE).map((reg) => (<option key={reg} value={reg}>{reg}</option>))}
                       </select>
                     </div>
+
                     <div>
-                      <label className="block text-[11px] uppercase tracking-widest text-black mb-2 font-bold">Comuna *</label>
-                      <select name="comunaFactura" required={docType === 'FACTURA'} value={formData.comunaFactura} onChange={handleChange} disabled={!formData.regionFactura} className="w-full bg-white border border-gray-300 p-3 text-sm focus:border-black outline-none transition-colors cursor-pointer disabled:opacity-50">
+                      <label className="block text-[11px] font-mono uppercase tracking-wider text-slate-700 mb-1.5 font-bold">
+                        Comuna Empresa *
+                      </label>
+                      <select 
+                        name="comunaFactura" 
+                        required={docType === 'FACTURA'} 
+                        value={formData.comunaFactura} 
+                        onChange={handleChange} 
+                        disabled={!formData.regionFactura} 
+                        className="w-full bg-slate-50/60 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-900 focus:border-[#b3131b] focus:bg-white focus:ring-2 focus:ring-red-100 outline-none transition-all cursor-pointer disabled:opacity-50"
+                      >
                         <option value="">Selecciona...</option>
                         {formData.regionFactura && REGIONES_CHILE[formData.regionFactura].map((com) => (<option key={com} value={com}>{com}</option>))}
                       </select>
                     </div>
+
                     <div className="sm:col-span-2">
-                      <label className="block text-[11px] uppercase tracking-widest text-black mb-2 font-bold">Dirección Exacta *</label>
-                      <input type="text" name="direccionFactura" required={docType === 'FACTURA'} value={formData.direccionFactura} onChange={handleChange} className="w-full bg-white border border-gray-300 p-3 text-sm focus:border-black outline-none transition-colors" />
+                      <label className="block text-[11px] font-mono uppercase tracking-wider text-slate-700 mb-1.5 font-bold">
+                        Dirección Tributaria *
+                      </label>
+                      <input 
+                        type="text" 
+                        name="direccionFactura" 
+                        required={docType === 'FACTURA'} 
+                        placeholder="Calle, número, oficina"
+                        value={formData.direccionFactura} 
+                        onChange={handleChange} 
+                        className="w-full bg-slate-50/60 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-900 focus:border-[#b3131b] focus:bg-white focus:ring-2 focus:ring-red-100 outline-none transition-all" 
+                      />
                     </div>
                   </div>
                 </div>
@@ -245,151 +370,270 @@ export default function CheckoutPage() {
             </div>
 
             {/* 02. DATOS DEL CLIENTE */}
-            <div className="bg-white border border-gray-200 p-8 shadow-sm">
-              <h2 className="text-sm uppercase tracking-widest text-black mb-6 font-bold border-b border-gray-100 pb-4">02 · Datos de Contacto</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div className="bg-white rounded-3xl border border-slate-200/80 p-7 sm:p-9 shadow-sm">
+              <div className="flex items-center gap-2 mb-6 pb-4 border-b border-slate-100">
+                <User className="w-4 h-4 text-[#b3131b]" />
+                <h2 className="text-xs font-mono uppercase tracking-wider text-gray-900 font-bold">
+                  02 · Datos de Contacto y Receptor
+                </h2>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[11px] uppercase tracking-widest text-black mb-2 font-bold">Nombre Completo *</label>
-                  <input type="text" name="fullName" required value={formData.fullName} onChange={handleChange} className="w-full bg-white border border-gray-300 p-3 text-sm focus:border-black outline-none transition-colors" />
+                  <label className="block text-[11px] font-mono uppercase tracking-wider text-slate-700 mb-1.5 font-bold">
+                    Nombre Completo *
+                  </label>
+                  <input 
+                    type="text" 
+                    name="fullName" 
+                    required 
+                    placeholder="Quien recibe la encomienda"
+                    value={formData.fullName} 
+                    onChange={handleChange} 
+                    className="w-full bg-slate-50/60 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-900 focus:border-[#b3131b] focus:bg-white focus:ring-2 focus:ring-red-100 outline-none transition-all" 
+                  />
                 </div>
+
                 <div>
-                  <label className="block text-[11px] uppercase tracking-widest text-black mb-2 font-bold">RUT (Quien recibe) *</label>
-                  <input type="text" name="rut" required value={formData.rut} onChange={(e) => {
-                    const formatted = formatRut(e.target.value);
-                    setFormData({ ...formData, rut: formatted });
-                    if (errores.rut) setErrores({ ...errores, rut: '' });
-                  }} className={`w-full bg-white border p-3 text-sm outline-none transition-colors ${errores.rut ? 'border-red-500 bg-red-50 focus:border-red-500' : 'border-gray-300 focus:border-black'}`} />
+                  <label className="block text-[11px] font-mono uppercase tracking-wider text-slate-700 mb-1.5 font-bold">
+                    RUT del Receptor *
+                  </label>
+                  <input 
+                    type="text" 
+                    name="rut" 
+                    required 
+                    placeholder="12.345.678-9"
+                    value={formData.rut} 
+                    onChange={(e) => {
+                      const formatted = formatRut(e.target.value);
+                      setFormData({ ...formData, rut: formatted });
+                      if (errores.rut) setErrores({ ...errores, rut: '' });
+                    }} 
+                    className={`w-full bg-slate-50/60 border rounded-xl px-4 py-3 text-sm focus:bg-white focus:ring-2 outline-none transition-all text-slate-900 ${
+                      errores.rut ? 'border-red-500 focus:ring-red-100' : 'border-slate-200 focus:border-[#b3131b] focus:ring-red-100'
+                    }`} 
+                  />
                   {errores.rut && <p className="text-xs text-red-500 mt-1">{errores.rut}</p>}
                 </div>
+
                 <div>
-                  <label className="block text-[11px] uppercase tracking-widest text-black mb-2 font-bold">Email *</label>
-                  <input type="email" name="email" required value={formData.email} onChange={handleChange} className={`w-full bg-white border p-3 text-sm outline-none transition-colors ${errores.email ? 'border-red-500 bg-red-50 focus:border-red-500' : 'border-gray-300 focus:border-black'}`} />
+                  <label className="block text-[11px] font-mono uppercase tracking-wider text-slate-700 mb-1.5 font-bold">
+                    Correo Electrónico *
+                  </label>
+                  <input 
+                    type="email" 
+                    name="email" 
+                    required 
+                    placeholder="tu@correo.com"
+                    value={formData.email} 
+                    onChange={handleChange} 
+                    className={`w-full bg-slate-50/60 border rounded-xl px-4 py-3 text-sm focus:bg-white focus:ring-2 outline-none transition-all text-slate-900 ${
+                      errores.email ? 'border-red-500 focus:ring-red-100' : 'border-slate-200 focus:border-[#b3131b] focus:ring-red-100'
+                    }`} 
+                  />
                   {errores.email && <p className="text-xs text-red-500 mt-1">{errores.email}</p>}
                 </div>
+
                 <div>
-                  <label className="block text-[11px] uppercase tracking-widest text-black mb-2 font-bold">Teléfono *</label>
-                  <input type="tel" name="phone" required placeholder="Ej: +56912345678" value={formData.phone} onChange={handleChange} className={`w-full bg-white border p-3 text-sm outline-none transition-colors ${errores.phone ? 'border-red-500 bg-red-50 focus:border-red-500' : 'border-gray-300 focus:border-black'}`} />
+                  <label className="block text-[11px] font-mono uppercase tracking-wider text-slate-700 mb-1.5 font-bold">
+                    Teléfono Móvil *
+                  </label>
+                  <input 
+                    type="tel" 
+                    name="phone" 
+                    required 
+                    placeholder="+56 9 1234 5678" 
+                    value={formData.phone} 
+                    onChange={handleChange} 
+                    className={`w-full bg-slate-50/60 border rounded-xl px-4 py-3 text-sm focus:bg-white focus:ring-2 outline-none transition-all text-slate-900 ${
+                      errores.phone ? 'border-red-500 focus:ring-red-100' : 'border-slate-200 focus:border-[#b3131b] focus:ring-red-100'
+                    }`} 
+                  />
                   {errores.phone && <p className="text-xs text-red-500 mt-1">{errores.phone}</p>}
                 </div>
               </div>
             </div>
 
             {/* 03. ENTREGA Y DESPACHO */}
-            <div className="bg-white border border-gray-200 p-8 shadow-sm">
-              <h2 className="text-sm uppercase tracking-widest text-black mb-6 font-bold border-b border-gray-100 pb-4">03 · Método de Entrega</h2>
+            <div className="bg-white rounded-3xl border border-slate-200/80 p-7 sm:p-9 shadow-sm">
+              <div className="flex items-center gap-2 mb-6 pb-4 border-b border-slate-100">
+                <Truck className="w-4 h-4 text-[#b3131b]" />
+                <h2 className="text-xs font-mono uppercase tracking-wider text-gray-900 font-bold">
+                  03 · Método de Entrega
+                </h2>
+              </div>
               
-              <div className="flex flex-col sm:flex-row gap-4 mb-8">
-                <label className={`flex-1 border p-4 cursor-pointer transition-all ${metodoEntrega === 'despacho' ? 'border-black bg-gray-50 ring-1 ring-black' : 'border-gray-200 hover:border-gray-300'}`}>
-                  <div className="flex items-center">
-                    <input 
-                      type="radio" 
-                      name="metodo" 
-                      checked={metodoEntrega === 'despacho'} 
-                      onChange={() => {
-                        setMetodoEntrega('despacho');
-                        setEnvioSeleccionado(null);
-                      }} 
-                      className="h-4 w-4 text-black focus:ring-black border-gray-300"
-                    />
-                    <span className="ml-3 font-bold text-sm">Envío a Domicilio</span>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+                {/* Despacho */}
+                <label 
+                  onClick={() => {
+                    setMetodoEntrega('despacho');
+                    setEnvioSeleccionado(null);
+                  }}
+                  className={`p-5 rounded-2xl border-2 cursor-pointer transition-all flex items-start gap-4 ${
+                    metodoEntrega === 'despacho' 
+                      ? 'border-[#b3131b] bg-red-50/20 shadow-xs' 
+                      : 'border-slate-200 hover:border-slate-300 bg-white'
+                  }`}
+                >
+                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center mt-0.5 ${
+                    metodoEntrega === 'despacho' ? 'border-[#b3131b]' : 'border-slate-300'
+                  }`}>
+                    {metodoEntrega === 'despacho' && <div className="w-2.5 h-2.5 bg-[#b3131b] rounded-full" />}
+                  </div>
+                  <div>
+                    <span className="font-bold text-sm block text-gray-900">Envío a Domicilio</span>
+                    <span className="text-xs text-slate-500">Starken, BlueExpress o Chilexpress</span>
                   </div>
                 </label>
 
-                <label className={`flex-1 border p-4 cursor-pointer transition-all ${metodoEntrega === 'retiro' ? 'border-black bg-gray-50 ring-1 ring-black' : 'border-gray-200 hover:border-gray-300'}`}>
-                  <div className="flex items-center">
-                    <input 
-                      type="radio" 
-                      name="metodo" 
-                      checked={metodoEntrega === 'retiro'} 
-                      onChange={() => {
-                        setMetodoEntrega('retiro');
-                        setEnvioSeleccionado({
-                          id: 'retiro-tienda',
-                          carrier: 'RETIRO',
-                          serviceName: 'En Tienda',
-                          label: 'Retiro en Tienda',
-                          cost: 0
-                        });
-                      }} 
-                      className="h-4 w-4 text-black focus:ring-black border-gray-300"
-                    />
-                    <div className="ml-3">
-                      <span className="font-bold text-sm block">Retiro en Tienda (Gratis)</span>
-                      <span className="text-xs text-gray-500">Av. Las Condes 8550</span>
+                {/* Retiro en Tienda */}
+                <label 
+                  onClick={() => {
+                    setMetodoEntrega('retiro');
+                    setEnvioSeleccionado({
+                      id: 'retiro-tienda',
+                      carrier: 'RETIRO',
+                      serviceName: 'En Tienda',
+                      label: 'Retiro en Tienda Las Condes',
+                      cost: 0
+                    });
+                  }}
+                  className={`p-5 rounded-2xl border-2 cursor-pointer transition-all flex items-start gap-4 ${
+                    metodoEntrega === 'retiro' 
+                      ? 'border-[#b3131b] bg-red-50/20 shadow-xs' 
+                      : 'border-slate-200 hover:border-slate-300 bg-white'
+                  }`}
+                >
+                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center mt-0.5 ${
+                    metodoEntrega === 'retiro' ? 'border-[#b3131b]' : 'border-slate-300'
+                  }`}>
+                    {metodoEntrega === 'retiro' && <div className="w-2.5 h-2.5 bg-[#b3131b] rounded-full" />}
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="font-bold text-sm text-gray-900">Retiro en Tienda</span>
+                      <span className="text-[10px] font-mono uppercase bg-emerald-100 text-emerald-800 font-bold px-1.5 py-0.5 rounded">Gratis</span>
                     </div>
+                    <span className="text-xs text-slate-500">Av. Las Condes 8550</span>
                   </div>
                 </label>
               </div>
 
               {metodoEntrega === 'despacho' ? (
                 <div className="animate-in fade-in duration-300">
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
                     <div className="sm:col-span-3">
-                      <label className="block text-[11px] uppercase tracking-widest text-black mb-2 font-bold">Dirección de Despacho *</label>
-                      <input type="text" name="address" required={metodoEntrega === 'despacho'} value={formData.address} onChange={handleChange} className="w-full bg-white border border-gray-300 p-3 text-sm text-black focus:border-black outline-none transition-colors" placeholder="Calle y número, Depto / Oficina" />
+                      <label className="block text-[11px] font-mono uppercase tracking-wider text-slate-700 mb-1.5 font-bold">
+                        Dirección de Despacho *
+                      </label>
+                      <input 
+                        type="text" 
+                        name="address" 
+                        required={metodoEntrega === 'despacho'} 
+                        value={formData.address} 
+                        onChange={handleChange} 
+                        className="w-full bg-slate-50/60 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-900 focus:border-[#b3131b] focus:bg-white focus:ring-2 focus:ring-red-100 outline-none transition-all" 
+                        placeholder="Calle, número, departamento u oficina" 
+                      />
                     </div>
                     
                     <div>
-                      <label className="block text-[11px] uppercase tracking-widest text-black mb-2 font-bold">Región *</label>
-                      <select name="region" required={metodoEntrega === 'despacho'} value={formData.region} onChange={(e) => {
+                      <label className="block text-[11px] font-mono uppercase tracking-wider text-slate-700 mb-1.5 font-bold">
+                        Región *
+                      </label>
+                      <select 
+                        name="region" 
+                        required={metodoEntrega === 'despacho'} 
+                        value={formData.region} 
+                        onChange={(e) => {
                           setFormData({ ...formData, region: e.target.value, comuna: '' });
                           setEnvioSeleccionado(null);
                           setTarifasDinamicas([]);
-                        }} className="w-full bg-white border border-gray-300 p-3 text-sm focus:border-black outline-none transition-colors cursor-pointer">
+                        }} 
+                        className="w-full bg-slate-50/60 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-900 focus:border-[#b3131b] focus:bg-white focus:ring-2 focus:ring-red-100 outline-none transition-all cursor-pointer"
+                      >
                         <option value="">Selecciona...</option>
                         {Object.keys(REGIONES_CHILE).map((reg) => (<option key={reg} value={reg}>{reg}</option>))}
                       </select>
                     </div>
+
                     <div>
-                      <label className="block text-[11px] uppercase tracking-widest text-black mb-2 font-bold">Comuna *</label>
-                      <select name="comuna" required={metodoEntrega === 'despacho'} value={formData.comuna} onChange={(e) => {
+                      <label className="block text-[11px] font-mono uppercase tracking-wider text-slate-700 mb-1.5 font-bold">
+                        Comuna *
+                      </label>
+                      <select 
+                        name="comuna" 
+                        required={metodoEntrega === 'despacho'} 
+                        value={formData.comuna} 
+                        onChange={(e) => {
                           setFormData({ ...formData, comuna: e.target.value });
                           setEnvioSeleccionado(null);
                           setTarifasDinamicas([]);
-                        }} disabled={!formData.region} className="w-full bg-white border border-gray-300 p-3 text-sm focus:border-black outline-none transition-colors cursor-pointer disabled:opacity-50">
+                        }} 
+                        disabled={!formData.region} 
+                        className="w-full bg-slate-50/60 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-900 focus:border-[#b3131b] focus:bg-white focus:ring-2 focus:ring-red-100 outline-none transition-all cursor-pointer disabled:opacity-50"
+                      >
                         <option value="">Selecciona...</option>
                         {formData.region && REGIONES_CHILE[formData.region].map((com) => (<option key={com} value={com}>{com}</option>))}
                       </select>
                     </div>
 
                     <div className="flex items-end">
-                      <button type="button" onClick={calcularFlete} disabled={cargandoEnvio || !formData.comuna} className="w-full bg-black text-white font-bold h-[46px] text-xs uppercase tracking-widest hover:bg-gray-800 transition disabled:opacity-50 disabled:cursor-not-allowed">
+                      <button 
+                        type="button" 
+                        onClick={calcularFlete} 
+                        disabled={cargandoEnvio || !formData.comuna} 
+                        className="w-full bg-slate-900 hover:bg-black text-white font-bold h-[48px] rounded-xl text-xs uppercase tracking-wider transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-2xs"
+                      >
                         {cargandoEnvio ? 'Calculando...' : 'Cotizar Envío'}
                       </button>
                     </div>
                   </div>
 
                   {tarifasDinamicas.length > 0 ? (
-                    <div className="space-y-4 animate-in fade-in duration-300 border-t border-gray-100 pt-6">
-                      <p className="text-[11px] uppercase tracking-widest text-gray-500 font-bold mb-4">Selecciona tu Envío a Domicilio</p>
+                    <div className="space-y-3 animate-in fade-in duration-300 border-t border-slate-100 pt-6">
+                      <p className="text-[11px] font-mono uppercase tracking-wider text-slate-500 font-bold mb-3">
+                        Selecciona el courier de tu preferencia
+                      </p>
                       {tarifasDinamicas.map((tarifa) => (
                         <label 
                           key={tarifa.id} 
                           onClick={() => setEnvioSeleccionado(tarifa)} 
-                          className={`flex items-center justify-between p-5 cursor-pointer border transition-colors ${envioSeleccionado?.id === tarifa.id ? 'border-black bg-gray-50 text-black' : 'border-gray-200 bg-white text-black hover:border-gray-400'}`}
+                          className={`flex items-center justify-between p-4 rounded-xl cursor-pointer border-2 transition-all ${
+                            envioSeleccionado?.id === tarifa.id 
+                              ? 'border-[#b3131b] bg-red-50/20' 
+                              : 'border-slate-200 hover:border-slate-300 bg-white'
+                          }`}
                         >
                           <div className="flex items-center gap-3">
-                            <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${envioSeleccionado?.id === tarifa.id ? 'border-black' : 'border-gray-300'}`}>
-                              {envioSeleccionado?.id === tarifa.id && <div className="w-2 h-2 bg-black rounded-full" />}
+                            <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
+                              envioSeleccionado?.id === tarifa.id ? 'border-[#b3131b]' : 'border-slate-300'
+                            }`}>
+                              {envioSeleccionado?.id === tarifa.id && <div className="w-2 h-2 bg-[#b3131b] rounded-full" />}
                             </div>
-                            <span className="text-sm font-bold">{tarifa.label}</span>
+                            <span className="text-xs font-bold text-gray-900">{tarifa.label}</span>
                           </div>
-                          <span className="text-sm font-bold">{STORE_CONFIG.CURRENCY_FORMAT.format(tarifa.cost)}</span>
+                          <span className="text-sm font-black text-gray-900 font-mono">
+                            {STORE_CONFIG.CURRENCY_FORMAT.format(tarifa.cost)}
+                          </span>
                         </label>
                       ))}
                     </div>
                   ) : (
-                    <div className="p-4 bg-gray-50 border border-gray-200 text-sm text-gray-600 text-center mt-6">
-                      {formData.comuna ? 'Presiona "Cotizar Envío" para ver las opciones disponibles.' : 'Selecciona tu región y comuna para calcular el envío.'}
+                    <div className="p-4 bg-slate-50/80 rounded-xl border border-slate-200 text-xs text-slate-500 text-center">
+                      {formData.comuna ? 'Presiona "Cotizar Envío" para consultar las tarifas de courier disponibles.' : 'Selecciona tu región y comuna para calcular el costo del envío.'}
                     </div>
                   )}
                 </div>
               ) : (
-                <div className="p-5 bg-green-50 border border-green-200 animate-in fade-in duration-300">
-                  <h4 className="text-sm font-bold text-green-900 mb-1">¡Excelente elección!</h4>
-                  <p className="text-sm text-green-800">
-                    Tu pedido estará disponible para retiro en <strong>Av. Las Condes 8550</strong>. 
-                    Te enviaremos un correo apenas el estado cambie a "Listo para retiro".
+                <div className="p-5 bg-emerald-50 rounded-2xl border border-emerald-200 animate-in fade-in duration-300">
+                  <div className="flex items-center gap-2 mb-1">
+                    <Check className="w-4 h-4 text-emerald-700" />
+                    <h4 className="text-xs font-bold text-emerald-900 uppercase tracking-wide">Retiro Sin Costo</h4>
+                  </div>
+                  <p className="text-xs text-emerald-800 leading-relaxed">
+                    Tu pedido estará listo para retiro en <strong className="font-semibold">Av. Las Condes 8550</strong>. Te avisaremos por correo una vez que tu compra se encuentre preparada.
                   </p>
                 </div>
               )}
@@ -398,42 +642,49 @@ export default function CheckoutPage() {
 
           {/* RESUMEN DEL PEDIDO */}
           <div className="lg:col-span-5">
-            <div className="bg-white border border-gray-200 p-8 shadow-sm sticky top-28">
-              <h2 className="text-sm uppercase tracking-widest text-black mb-6 font-bold border-b border-gray-100 pb-4">Resumen de tu Pedido</h2>
+            <div className="bg-white rounded-3xl border border-slate-200/80 p-7 sm:p-9 shadow-sm sticky top-28">
+              <div className="flex items-center gap-2 pb-4 border-b border-slate-100 mb-6">
+                <ShoppingBag className="w-4 h-4 text-[#b3131b]" />
+                <h2 className="text-xs font-mono uppercase tracking-wider text-gray-900 font-bold">
+                  Resumen de tu Orden
+                </h2>
+              </div>
               
-              <div className="divide-y divide-gray-100 mb-6 max-h-[40vh] overflow-y-auto pr-2">
+              <div className="divide-y divide-slate-100 mb-6 max-h-[35vh] overflow-y-auto pr-2">
                 {items.map(({ product, quantity }) => (
-                  <div key={product.id} className="py-4 flex gap-4 items-center">
+                  <div key={product.id} className="py-3.5 flex gap-4 items-center">
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-bold text-black leading-snug truncate">{product.name}</p>
-                      <p className="text-xs text-gray-500 mt-1 uppercase tracking-wider">Cant: {quantity}</p>
+                      <p className="text-xs font-bold text-gray-900 leading-snug truncate">{product.name}</p>
+                      <p className="text-[10px] font-mono text-slate-400 mt-0.5">Cant: {quantity}</p>
                     </div>
-                    <span className="text-sm font-bold text-black">{STORE_CONFIG.CURRENCY_FORMAT.format(product.price * quantity)}</span>
+                    <span className="text-xs font-black text-gray-900 font-mono">
+                      {STORE_CONFIG.CURRENCY_FORMAT.format(product.price * quantity)}
+                    </span>
                   </div>
                 ))}
               </div>
               
-              <div className="space-y-4 pt-6 border-t border-gray-200 text-sm">
-                <div className="flex justify-between text-black">
-                  <span>Subtotal Repuestos</span>
-                  <span className="font-bold">{STORE_CONFIG.CURRENCY_FORMAT.format(getCartSubtotal())}</span>
+              <div className="space-y-3 pt-4 border-t border-slate-100 text-xs">
+                <div className="flex justify-between text-slate-600">
+                  <span>Subtotal Productos</span>
+                  <span className="font-mono font-bold text-gray-900">{STORE_CONFIG.CURRENCY_FORMAT.format(getCartSubtotal())}</span>
                 </div>
-                <div className="flex justify-between text-black">
-                  <span>Despacho</span>
-                  <span className="font-bold">
+                <div className="flex justify-between text-slate-600">
+                  <span>Costo de Despacho</span>
+                  <span className="font-mono font-bold text-gray-900">
                     {metodoEntrega === 'retiro' 
                       ? 'Gratis' 
-                      : (envioSeleccionado ? STORE_CONFIG.CURRENCY_FORMAT.format(envioSeleccionado.cost) : 'Por calcular')}
+                      : (envioSeleccionado ? STORE_CONFIG.CURRENCY_FORMAT.format(envioSeleccionado.cost) : 'Por cotizar')}
                   </span>
                 </div>
-                <div className="flex justify-between text-lg font-bold text-black pt-6 border-t border-gray-200">
+                <div className="flex justify-between text-base font-black text-gray-900 pt-4 border-t border-slate-100">
                   <span className="uppercase tracking-wider">Total a Pagar</span>
-                  <span className="text-[#b91c1c]">{STORE_CONFIG.CURRENCY_FORMAT.format(totalFinal)}</span>
+                  <span className="text-xl text-[#b3131b] font-mono">{STORE_CONFIG.CURRENCY_FORMAT.format(totalFinal)}</span>
                 </div>
               </div>
 
               {/* CHECKBOX TÉRMINOS Y CONDICIONES */}
-              <div className="mt-8 pt-6 border-t border-gray-200">
+              <div className="mt-6 pt-4 border-t border-slate-100">
                 <label className="flex items-start gap-3 cursor-pointer group">
                   <div className="flex items-center h-5">
                     <input
@@ -441,19 +692,19 @@ export default function CheckoutPage() {
                       required
                       checked={acceptTerms}
                       onChange={(e) => setAcceptTerms(e.target.checked)}
-                      className="w-4 h-4 border border-gray-300 rounded-sm bg-white checked:bg-black checked:border-black focus:ring-black transition"
+                      className="w-4 h-4 border border-slate-300 rounded text-[#b3131b] focus:ring-[#b3131b] cursor-pointer"
                     />
                   </div>
-                  <div className="text-[11px] text-gray-500 leading-snug">
+                  <div className="text-[11px] text-slate-500 leading-snug">
                     He leído y acepto los{' '}
-                    <Link href="/terminos" target="_blank" className="font-bold text-gray-900 hover:text-[#b91c1c] underline transition">
+                    <Link href="/terminos" target="_blank" className="font-bold text-gray-900 hover:text-[#b3131b] underline transition-colors">
                       Términos y Condiciones
                     </Link>{' '}
                     y la{' '}
-                    <Link href="/terminos" target="_blank" className="font-bold text-gray-900 hover:text-[#b91c1c] underline transition">
+                    <Link href="/terminos" target="_blank" className="font-bold text-gray-900 hover:text-[#b3131b] underline transition-colors">
                       Política de Privacidad
                     </Link>
-                    . Entiendo que las compras están sujetas a la garantía legal de 6 meses en Chile.
+                    .
                   </div>
                 </label>
               </div>
@@ -461,10 +712,16 @@ export default function CheckoutPage() {
               <button 
                 type="submit" 
                 disabled={loading || !envioSeleccionado || !acceptTerms} 
-                className="w-full mt-6 bg-[#b91c1c] text-white font-bold py-5 uppercase tracking-widest hover:bg-red-800 transition shadow-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full mt-6 bg-[#b3131b] hover:bg-[#8f0f15] text-white font-bold py-4 rounded-2xl uppercase tracking-wider text-xs transition-all shadow-md flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]"
               >
-                {loading ? 'CONECTANDO...' : 'PAGAR AHORA'}
+                <Lock className="w-4 h-4" />
+                <span>{loading ? 'CONECTANDO CON WEBPAY...' : 'PAGAR CON WEBPAY PLUS'}</span>
               </button>
+
+              <div className="mt-4 flex items-center justify-center gap-2 text-[10px] text-slate-400 font-mono">
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                <span>Transacción segura y encriptada por Transbank</span>
+              </div>
             </div>
           </div>
         </form>

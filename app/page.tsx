@@ -81,7 +81,7 @@ export default async function HomePage() {
               {marcas.slice(0, 4).map((marca, idx) => (
                 <div 
                   key={idx} 
-                  className="relative w-32 h-14 sm:w-44 sm:h-20 md:w-60 md:h-28 grayscale opacity-60 hover:grayscale-0 hover:opacity-100 hover:scale-[1.16] hover:-translate-y-2 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] transform-gpu cursor-pointer"
+                  className="relative w-32 h-14 sm:w-44 sm:h-20 md:w-60 md:h-28 opacity-100 hover:scale-[1.16] hover:-translate-y-2 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] transform-gpu cursor-pointer"
                 >
                   <Image
                     src={marca.logo} 
@@ -98,7 +98,7 @@ export default async function HomePage() {
               {marcas.slice(4).map((marca, idx) => (
                 <div 
                   key={idx + 4} 
-                  className="relative w-32 h-14 sm:w-44 sm:h-20 md:w-60 md:h-28 grayscale opacity-60 hover:grayscale-0 hover:opacity-100 hover:scale-[1.16] hover:-translate-y-2 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] transform-gpu cursor-pointer"
+                  className="relative w-32 h-14 sm:w-44 sm:h-20 md:w-60 md:h-28 opacity-100 hover:scale-[1.16] hover:-translate-y-2 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] transform-gpu cursor-pointer"
                 >
                   <Image
                     src={marca.logo} 

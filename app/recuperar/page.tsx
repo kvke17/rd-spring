@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
+import { Mail, CheckCircle2, ArrowRight, ShieldCheck, ChevronLeft } from 'lucide-react';
 
 export default function RecuperarPage() {
   const [email, setEmail] = useState('');
@@ -11,83 +13,98 @@ export default function RecuperarPage() {
     e.preventDefault();
     setStatus('loading');
     
-    // Aquí iría tu lógica real de recuperación
-    // Simulamos una espera para el diseño
+    // Simulación de envío seguro
     setTimeout(() => {
       setStatus('success');
-    }, 1500);
+    }, 1200);
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8 pt-32 pb-20">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900">
-          Recuperar Contraseña
-        </h2>
-        <p className="mt-2 text-center text-sm text-gray-500">
-          Ingresa tu correo electrónico y te enviaremos un enlace seguro para restablecer tu acceso.
-        </p>
-      </div>
+    <div className="min-h-screen bg-slate-50/50 flex items-center justify-center p-4 pt-32 pb-20 font-sans">
+      <div className="max-w-md w-full bg-white rounded-3xl border border-slate-200/80 p-8 sm:p-10 shadow-xl shadow-slate-200/50">
+        
+        {/* Logo / Emblema */}
+        <div className="text-center mb-8">
+          <Link href="/" className="inline-block relative w-32 h-10 mb-4">
+            <Image 
+              src="/images/logo-rd.png" 
+              alt="RD Spring" 
+              fill 
+              className="object-contain"
+              priority
+            />
+          </Link>
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-50 border border-red-100 text-[#b3131b] text-[10px] font-mono font-bold uppercase tracking-wider">
+            <ShieldCheck className="w-3 h-3" />
+            <span>RECUPERACIÓN SEGURA</span>
+          </div>
+          <h1 className="text-2xl font-black text-gray-900 mt-2 tracking-tight">
+            Restablecer Clave
+          </h1>
+          <p className="text-xs text-slate-500 mt-1 font-medium">
+            Ingresa tu correo y te enviaremos un enlace protegido para renovar tu contraseña.
+          </p>
+        </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-10 px-4 shadow-xl sm:rounded-xl sm:px-10 border border-gray-100">
-          
-          {status === 'success' ? (
-            <div className="rounded-md bg-green-50 p-4 border border-green-200">
-              <div className="flex">
-                <div className="ml-3">
-                  <h3 className="text-sm font-medium text-green-800">Correo enviado</h3>
-                  <div className="mt-2 text-sm text-green-700">
-                    <p>
-                      Si el correo está registrado en nuestra plataforma, recibirás un enlace de recuperación en los próximos minutos.
-                    </p>
-                  </div>
-                </div>
+        {status === 'success' ? (
+          <div className="text-center py-6">
+            <div className="w-14 h-14 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-emerald-100">
+              <CheckCircle2 className="w-8 h-8" />
+            </div>
+            <h3 className="text-lg font-bold text-gray-900 mb-2">Correo de Recuperación Enviado</h3>
+            <p className="text-xs text-slate-600 mb-6 leading-relaxed">
+              Si el correo <strong>{email}</strong> está registrado, recibirás un enlace seguro para crear tu nueva contraseña en los próximos minutos.
+            </p>
+            <Link 
+              href="/login" 
+              className="inline-flex items-center justify-center gap-2 w-full bg-slate-900 hover:bg-black text-white font-bold py-3.5 px-4 rounded-xl text-xs uppercase tracking-wider transition-colors shadow-2xs"
+            >
+              <ChevronLeft className="w-4 h-4" />
+              <span>Volver a Iniciar Sesión</span>
+            </Link>
+          </div>
+        ) : (
+          <form className="space-y-4" onSubmit={handleSubmit}>
+            <div>
+              <label htmlFor="email" className="block text-[11px] font-mono uppercase tracking-wider text-slate-700 mb-1.5 font-bold">
+                Correo Electrónico Registrado
+              </label>
+              <div className="relative">
+                <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full bg-slate-50/60 border border-slate-200 rounded-xl pl-10 pr-4 py-3 text-sm text-slate-900 focus:outline-none focus:border-[#b3131b] focus:bg-white focus:ring-2 focus:ring-red-100 transition-all"
+                  placeholder="tu@correo.com"
+                />
               </div>
             </div>
-          ) : (
-            <form className="space-y-6" onSubmit={handleSubmit}>
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                  Correo Electrónico
-                </label>
-                <div className="mt-1">
-                  <input
-                    id="email"
-                    name="email"
-                    type="email"
-                    autoComplete="email"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="appearance-none block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-[#FF0000] focus:border-[#FF0000] sm:text-sm transition-colors"
-                    placeholder="tu@correo.com"
-                  />
-                </div>
-              </div>
 
-              <div>
-                <button
-                  type="submit"
-                  disabled={status === 'loading'}
-                  className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-bold text-white bg-black hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black transition-all disabled:opacity-70"
-                >
-                  {status === 'loading' ? 'Procesando...' : 'Enviar enlace de recuperación'}
-                </button>
-              </div>
-            </form>
-          )}
+            <button
+              type="submit"
+              disabled={status === 'loading'}
+              className="w-full bg-[#b3131b] hover:bg-[#8f0f15] text-white font-bold py-3.5 px-4 rounded-xl text-xs uppercase tracking-wider transition-all shadow-sm flex items-center justify-center gap-2 mt-6 disabled:opacity-50"
+            >
+              <span>{status === 'loading' ? 'ENVIANDO ENLACE...' : 'ENVIAR ENLACE DE RECUPERACIÓN'}</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </form>
+        )}
 
-          <div className="mt-8 text-center">
-            <p className="text-sm text-gray-600">
-              ¿Recordaste tu contraseña?{' '}
-              <Link href="/login" className="font-bold text-[#FF0000] hover:text-red-700 transition-colors">
-                Inicia sesión aquí
-              </Link>
-            </p>
-          </div>
-
+        <div className="mt-8 pt-6 border-t border-slate-100 text-center">
+          <Link 
+            href="/login" 
+            className="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-gray-900 font-medium transition-colors"
+          >
+            <ChevronLeft className="w-4 h-4" />
+            <span>¿Recordaste tu contraseña? Inicia sesión aquí</span>
+          </Link>
         </div>
+
       </div>
     </div>
   );
