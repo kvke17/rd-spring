@@ -6,6 +6,7 @@ import './globals.css';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import AuthProvider from '@/components/AuthProvider';
+import CookieConsent from '@/components/CookieConsent';
 
 // Configuramos la nueva fuente
 const fuentePrincipal = Inter({
@@ -27,6 +28,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <Navbar />
           <main className="flex-1">{children}</main>
           <Footer />
+          <CookieConsent />
         </AuthProvider>
       </body>
     </html>
