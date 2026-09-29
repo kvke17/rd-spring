@@ -1,160 +1,111 @@
 'use client';
+
+import { useState } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
-import { useEffect, useState } from 'react';
-import { useCartStore } from '@/lib/store';
-import AuthButton from '@/components/AuthButton'; 
-import { useSession } from "next-auth/react";
+import { motion, AnimatePresence } from 'framer-motion';
+import { ShoppingCart, User, Menu, X, ShieldCheck, Wrench, PhoneCall } from 'lucide-react';
 
 export default function Navbar() {
-  const { data: session } = useSession(); // <-- Llama a la sesión aquí
-  const [mounted, setMounted] = useState(false);
-  const [isOpen, setIsOpen] = useState(false); // Estado para el menú móvil
-  
-  // --- Estados para el Smart Navbar ---
-  const [isVisible, setIsVisible] = useState(true);
-  const [lastScrollY, setLastScrollY] = useState(0);
-
-  const cartCount = useCartStore((state) => state.getCartCount());
-
-  useEffect(() => {
-    setMounted(true);
-
-    // --- Lógica para detectar el scroll ---
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-
-      if (currentScrollY > lastScrollY && currentScrollY > 80) {
-        setIsVisible(false);
-        setIsOpen(false); // Cierra el menú móvil si hace scroll hacia abajo
-      } else {
-        setIsVisible(true);
-      }
-      
-      setLastScrollY(currentScrollY);
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, [lastScrollY]);
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <nav 
-      className={`fixed top-0 w-full z-50 bg-white/90 backdrop-blur-md border-b border-gray-200 transition-transform duration-300 ease-in-out ${
-        isVisible ? 'translate-y-0' : '-translate-y-full'
-      }`}
-    >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-        <div className="flex items-center gap-12">
-          <Link href="/" className="flex items-center">
-            <Image 
-              src="/images/logo-rd.png" 
-              alt="RD Spring Logo" 
-              width={150} 
-              height={50} 
-              className="object-contain"
-              priority
-            />
-          </Link>
+    <>
+      <header className="fixed top-0 left-0 w-full z-50 bg-black/60 backdrop-blur-xl border-b border-white/10">
+        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           
-          {/* MENÚ CENTRAL DE ESCRITORIO */}
-          <div className="hidden md:flex gap-8 text-[11px] font-bold uppercase tracking-widest items-center">
-            <Link href="/cotizacion" className="text-[#b3131b] hover:text-red-800 transition">COTIZAR REPUESTO</Link>
-            <Link href="/catalogo" className="text-gray-600 hover:text-gray-900 transition">ACEITES</Link>
-            <Link href="/repuestos" className="text-gray-600 hover:text-gray-900 transition">REPUESTOS</Link>
-            <Link href="/soporte" className="text-gray-600 hover:text-gray-900 transition">SOPORTE</Link>
-            <Link href="/nosotros" className="text-gray-600 hover:text-gray-900 transition">NOSOTROS</Link>
+          {/* Logo */}
+          <Link href="/" className="flex items-center gap-2">
+            <span className="text-xl font-black tracking-widest text-white">
+              RD<span className="text-[#b3131b]">SPRING</span>
+            </span>
+          </Link>
+
+          {/* Enlaces de navegación centrales (Desktop) */}
+          <nav className="hidden md:flex items-center gap-8 text-xs font-semibold uppercase tracking-widest text-gray-300">
+            <Link href="#catalogo" className="hover:text-white transition">Catálogo</Link>
+            <Link href="#tecnologia" className="hover:text-white transition">Ingeniería</Link>
+            <Link href="#compatibilidad" className="hover:text-white transition">Vehículos</Link>
+            <Link href="#contacto" className="hover:text-white transition">Contacto</Link>
+          </nav>
+
+          {/* Iconos limpios (Sin textos de Carrito / Perfil) */}
+          <div className="flex items-center gap-4">
+            <Link 
+              href="/carrito" 
+              className="p-3 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 text-white transition shadow-lg"
+              title="Carrito"
+            >
+              <ShoppingCart className="w-4 h-4" />
+            </Link>
+            
+            <Link 
+              href="/admin" 
+              className="p-3 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 text-white transition shadow-lg"
+              title="Mi Perfil / Admin"
+            >
+              <User className="w-4 h-4" />
+            </Link>
+
+            {/* Botón menú lateral (Sidebar) */}
+            <button 
+              onClick={() => setIsOpen(true)}
+              className="p-3 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 text-white transition md:hidden"
+            >
+              <Menu className="w-4 h-4" />
+            </button>
           </div>
         </div>
-        
-        {/* Lado Derecho: Autenticación, Carro y Botón Hamburguesa Móvil */}
-        <div className="flex items-center gap-4 sm:gap-6">
-          <AuthButton />
-          
-          <Link href="/carro" className="flex items-center gap-2 border border-gray-300 px-4 py-2 text-[11px] font-bold uppercase tracking-widest hover:bg-gray-50 text-gray-900 transition">
-            <span>Carro</span>
-            {mounted && cartCount > 0 && <span className="text-[#b3131b]">[{cartCount}]</span>}
-          </Link>
+      </header>
 
-          {/* BOTÓN HAMBURGUESA (Solo visible en celular) */}
-          <button 
-            onClick={() => setIsOpen(!isOpen)}
-            className="md:hidden text-gray-900 focus:outline-none p-2"
-            aria-label="Abrir menú"
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              {isOpen ? (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              ) : (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              )}
-            </svg>
-          </button>
-        </div>
-      </div>
-
-      {/* MENÚ LATERAL / DESPLEGABLE MÓVIL */}
-      {isOpen && (
-        <div className="absolute top-20 left-0 w-full bg-white border-b border-gray-200 shadow-xl md:hidden flex flex-col p-6 space-y-4 animate-in fade-in slide-in-from-top duration-200">
-          <Link 
-            href="/cotizacion" 
-            onClick={() => setIsOpen(false)}
-            className="text-xs font-bold uppercase tracking-widest text-[#b3131b] border-b border-gray-100 pb-3"
-          >
-            COTIZAR REPUESTO
-          </Link>
-          <Link 
-            href="/catalogo" 
-            onClick={() => setIsOpen(false)}
-            className="text-xs font-bold uppercase tracking-widest text-gray-800 border-b border-gray-100 pb-3"
-          >
-            ACEITES
-          </Link>
-          <Link 
-            href="/repuestos" 
-            onClick={() => setIsOpen(false)}
-            className="text-xs font-bold uppercase tracking-widest text-gray-800 border-b border-gray-100 pb-3"
-          >
-            REPUESTOS
-          </Link>
-          <Link 
-            href="/soporte" 
-            onClick={() => setIsOpen(false)}
-            className="text-xs font-bold uppercase tracking-widest text-gray-800 border-b border-gray-100 pb-3"
-          >
-            SOPORTE
-          </Link>
-          <Link 
-            href="/nosotros" 
-            onClick={() => setIsOpen(false)}
-            className="text-xs font-bold uppercase tracking-widest text-gray-800 border-b border-gray-100 pb-3"
-          >
-            NOSOTROS
-          </Link>
-
-          {/* Lógica dinámica para el Perfil en Móvil */}
-          {session ? (
-            <Link 
-              href="/perfil" 
+      {/* Barra Lateral / Menú Desplegable (Sidebar) */}
+      <AnimatePresence>
+        {isOpen && (
+          <>
+            {/* Fondo oscuro difuminado */}
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
               onClick={() => setIsOpen(false)}
-              className="text-xs font-bold uppercase tracking-widest text-blue-600 pt-2"
+              className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50"
+            />
+
+            {/* Contenedor del Drawer */}
+            <motion.div 
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+              className="fixed top-0 right-0 h-full w-80 bg-neutral-950 border-l border-white/10 z-50 p-8 flex flex-col justify-between shadow-2xl rounded-l-3xl"
             >
-              MI PERFIL ({session.user?.name || 'USUARIO'})
-            </Link>
-          ) : (
-            <Link 
-              href="/login" 
-              onClick={() => setIsOpen(false)}
-              className="text-xs font-bold uppercase tracking-widest text-blue-600 pt-2"
-            >
-              INICIAR SESIÓN
-            </Link>
-          )}
-        </div>
-      )}
-    </nav>
+              <div className="space-y-8">
+                <div className="flex items-center justify-between">
+                  <span className="text-lg font-black tracking-widest text-white">
+                    RD<span className="text-[#b3131b]">SPRING</span>
+                  </span>
+                  <button 
+                    onClick={() => setIsOpen(false)}
+                    className="p-2 rounded-full bg-white/5 text-white hover:bg-white/10 transition"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+
+                <nav className="flex flex-col gap-6 text-sm font-bold uppercase tracking-widest text-gray-300">
+                  <Link href="#catalogo" onClick={() => setIsOpen(false)} className="hover:text-white transition">Catálogo</Link>
+                  <Link href="#tecnologia" onClick={() => setIsOpen(false)} className="hover:text-white transition">Ingeniería</Link>
+                  <Link href="#compatibilidad" onClick={() => setIsOpen(false)} className="hover:text-white transition">Vehículos</Link>
+                  <Link href="#contacto" onClick={() => setIsOpen(false)} className="hover:text-white transition">Contacto</Link>
+                </nav>
+              </div>
+
+              <div className="border-t border-white/10 pt-6 text-xs text-gray-500">
+                <p>Ingeniería que sostiene el lujo en movimiento.</p>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+    </>
   );
 }

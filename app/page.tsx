@@ -17,6 +17,8 @@ const marcas = [
 ];
 
 export default async function HomePage() {
+
+  
   
   // 1. OBTENEMOS LOS PRODUCTOS DIRECTAMENTE DESDE LA BASE DE DATOS DE TURSO
   const dbProducts = await prisma.product.findMany({
