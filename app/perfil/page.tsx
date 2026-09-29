@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { STORE_CONFIG } from "@/config/constants";
 import ChangePasswordForm from "@/components/ChangePasswordForm";
+import TwoFactorManager from "@/components/TwoFactorManager";
 import { User, Package, Calendar, ChevronRight, ShoppingBag, ShieldCheck, ArrowRight } from "lucide-react";
 
 export default async function PerfilPage() {
@@ -96,6 +97,9 @@ export default async function PerfilPage() {
 
               {/* Formulario de cambio de contraseña */}
               <ChangePasswordForm email={user.email} />
+
+              {/* Gestión de Autenticación de Dos Factores (2FA) */}
+              <TwoFactorManager initialEnabled={!!user.twoFactorEnabled} userEmail={user.email} />
             </div>
           </div>
 

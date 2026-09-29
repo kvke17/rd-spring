@@ -14,11 +14,14 @@ model User {
   name      String
   email     String   @unique
   password  String   
-  role      String   @default("CUSTOMER") 
-  createdAt DateTime @default(now())
+  role                  String   @default("CUSTOMER") 
+  twoFactorEnabled      Boolean  @default(false)
+  twoFactorSecret       String?
+  twoFactorBackupCodes  String?
+  createdAt             DateTime @default(now())
   
-  orders    Order[]  
-  reviews   Review[]
+  orders                Order[]  
+  reviews               Review[]
 }
 
 // --- 2. MODELO DE ÓRDENES ACTUALIZADO ---

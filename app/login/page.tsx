@@ -5,7 +5,17 @@ import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Lock, Mail, User, AlertCircle, ArrowRight, ShieldCheck } from 'lucide-react';
+import { 
+  Lock, 
+  Mail, 
+  User, 
+  AlertCircle, 
+  ArrowRight, 
+  ShieldCheck, 
+  Smartphone, 
+  KeyRound, 
+  ArrowLeft 
+} from 'lucide-react';
 
 export default function AuthPage() {
   const router = useRouter();
@@ -16,6 +26,10 @@ export default function AuthPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
+  // Estados específicos para el flujo de 2FA
+  const [requires2FA, setRequires2FA] = useState(false);
+  const [totpCode, setTotpCode] = useState('');
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -23,10 +37,31 @@ export default function AuthPage() {
 
     try {
       if (isLogin) {
-        // Flujo de Iniciar Sesión
-        const res = await signIn('credentials', { email, password, redirect: false });
+        // Si ya estamos en el paso de 2FA, enviamos el código
+        const payload: Record<string, string> = { 
+          email: email.toLowerCase().trim(), 
+          password 
+        };
+        
+        if (requires2FA) {
+          payload.totpCode = totpCode.trim();
+        }
+
+        const res = await signIn('credentials', { 
+          ...payload, 
+          redirect: false 
+        });
+
         if (res?.error) {
-          setError(res.error);
+          if (res.error === '2FA_REQUIRED') {
+            // El usuario tiene 2FA activado: pasamos al paso 2
+            setRequires2FA(true);
+            setError('');
+          } else if (res.error === 'CODIGO_2FA_INVALIDO') {
+            setError('El código 2FA o de respaldo ingresado es incorrecto o expiró.');
+          } else {
+            setError(res.error);
+          }
         } else {
           router.push('/perfil');
           router.refresh();
@@ -55,6 +90,12 @@ export default function AuthPage() {
     }
   };
 
+  const handleBackFrom2FA = () => {
+    setRequires2FA(false);
+    setTotpCode('');
+    setError('');
+  };
+
   return (
     <div className="min-h-screen bg-slate-50/50 flex items-center justify-center p-4 pt-32 pb-20 font-sans">
       <div className="max-w-md w-full bg-white rounded-3xl border border-slate-200/80 p-8 sm:p-10 shadow-xl shadow-slate-200/50">
@@ -71,138 +112,206 @@ export default function AuthPage() {
             />
           </Link>
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-50 border border-red-100 text-[#b3131b] text-[10px] font-mono font-bold uppercase tracking-wider">
-            <ShieldCheck className="w-3 h-3" />
-            <span>PORTAL DE CLIENTES</span>
+            {requires2FA ? <Smartphone className="w-3 h-3" /> : <ShieldCheck className="w-3 h-3" />}
+            <span>{requires2FA ? 'VERIFICACIÓN DE SEGURIDAD' : 'PORTAL DE CLIENTES'}</span>
           </div>
           <h1 className="text-2xl font-black text-gray-900 mt-2 tracking-tight">
-            {isLogin ? 'Acceso Seguro' : 'Crear Cuenta'}
+            {requires2FA 
+              ? 'Código 2FA' 
+              : isLogin 
+              ? 'Acceso Seguro' 
+              : 'Crear Cuenta'}
           </h1>
           <p className="text-xs text-slate-500 mt-1 font-medium">
-            {isLogin ? 'Ingresa tus credenciales para administrar tus pedidos' : 'Regístrate para comprar más rápido y seguir tus envíos'}
+            {requires2FA
+              ? `Ingresa el código de 6 dígitos de tu app de autenticación para ${email}`
+              : isLogin 
+              ? 'Ingresa tus credenciales para administrar tus pedidos' 
+              : 'Regístrate para comprar más rápido y seguir tus envíos'}
           </p>
         </div>
 
-        {/* Switcher Login / Registro */}
-        <div className="flex bg-slate-100 p-1 rounded-2xl mb-6">
-          <button
-            type="button"
-            onClick={() => { setIsLogin(true); setError(''); }}
-            className={`flex-1 py-2 text-xs font-bold uppercase tracking-wider rounded-xl transition-all ${
-              isLogin 
-                ? 'bg-white text-gray-900 shadow-sm' 
-                : 'text-slate-500 hover:text-gray-900'
-            }`}
-          >
-            Iniciar Sesión
-          </button>
-          <button
-            type="button"
-            onClick={() => { setIsLogin(false); setError(''); }}
-            className={`flex-1 py-2 text-xs font-bold uppercase tracking-wider rounded-xl transition-all ${
-              !isLogin 
-                ? 'bg-white text-gray-900 shadow-sm' 
-                : 'text-slate-500 hover:text-gray-900'
-            }`}
-          >
-            Registrarme
-          </button>
-        </div>
+        {/* Switcher Login / Registro (Solo si no estamos en el paso de 2FA) */}
+        {!requires2FA && (
+          <div className="flex bg-slate-100 p-1 rounded-2xl mb-6">
+            <button
+              type="button"
+              onClick={() => { setIsLogin(true); setError(''); }}
+              className={`flex-1 py-2 text-xs font-bold uppercase tracking-wider rounded-xl transition-all ${
+                isLogin 
+                  ? 'bg-white text-gray-900 shadow-sm' 
+                  : 'text-slate-500 hover:text-gray-900'
+              }`}
+            >
+              Iniciar Sesión
+            </button>
+            <button
+              type="button"
+              onClick={() => { setIsLogin(false); setError(''); }}
+              className={`flex-1 py-2 text-xs font-bold uppercase tracking-wider rounded-xl transition-all ${
+                !isLogin 
+                  ? 'bg-white text-gray-900 shadow-sm' 
+                  : 'text-slate-500 hover:text-gray-900'
+              }`}
+            >
+              Registrarme
+            </button>
+          </div>
+        )}
 
-        {/* Formulario */}
+        {/* FORMULARIO */}
         <form onSubmit={handleSubmit} className="space-y-4">
-          {!isLogin && (
-            <div>
-              <label className="block text-[11px] font-mono uppercase tracking-wider text-slate-700 mb-1.5 font-bold">
-                Nombre Completo
-              </label>
-              <div className="relative">
-                <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                <input 
-                  type="text" 
-                  value={name} 
-                  onChange={(e) => setName(e.target.value)} 
-                  placeholder="Tu nombre y apellido"
-                  className="w-full bg-slate-50/60 border border-slate-200 rounded-xl pl-10 pr-4 py-3 text-sm text-slate-900 focus:outline-none focus:border-[#b3131b] focus:bg-white focus:ring-2 focus:ring-red-100 transition-all" 
-                  required={!isLogin} 
-                />
-              </div>
-            </div>
-          )}
-
-          <div>
-            <label className="block text-[11px] font-mono uppercase tracking-wider text-slate-700 mb-1.5 font-bold">
-              Correo Electrónico
-            </label>
-            <div className="relative">
-              <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-              <input 
-                type="email" 
-                value={email} 
-                onChange={(e) => setEmail(e.target.value)} 
-                placeholder="tu@correo.com"
-                className="w-full bg-slate-50/60 border border-slate-200 rounded-xl pl-10 pr-4 py-3 text-sm text-slate-900 focus:outline-none focus:border-[#b3131b] focus:bg-white focus:ring-2 focus:ring-red-100 transition-all" 
-                required 
-              />
-            </div>
-          </div>
           
-          <div>
-            <div className="flex justify-between items-center mb-1.5">
-              <label className="block text-[11px] font-mono uppercase tracking-wider text-slate-700 font-bold">
-                Contraseña
-              </label>
-              {isLogin && (
-                <Link 
-                  href="/recuperar" 
-                  className="text-[10px] font-mono uppercase tracking-wider text-slate-400 hover:text-[#b3131b] transition-colors"
-                >
-                  ¿Olvidaste tu clave?
-                </Link>
-              )}
-            </div>
-            <div className="relative">
-              <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-              <input 
-                type="password" 
-                value={password} 
-                onChange={(e) => setPassword(e.target.value)} 
-                placeholder="••••••••"
-                className="w-full bg-slate-50/60 border border-slate-200 rounded-xl pl-10 pr-4 py-3 text-sm text-slate-900 focus:outline-none focus:border-[#b3131b] focus:bg-white focus:ring-2 focus:ring-red-100 transition-all" 
-                required 
-              />
-            </div>
-          </div>
+          {/* PASO 2FA ACTIVADO */}
+          {requires2FA ? (
+            <div className="space-y-4 animate-in fade-in zoom-in-95 duration-200">
+              <div>
+                <label className="block text-[11px] font-mono uppercase tracking-wider text-slate-700 mb-1.5 font-bold text-center">
+                  Código de Autenticación (o código de respaldo)
+                </label>
+                <div className="relative">
+                  <KeyRound className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    required
+                    autoFocus
+                    placeholder="123456"
+                    value={totpCode}
+                    onChange={(e) => setTotpCode(e.target.value)}
+                    className="w-full bg-slate-50/60 border border-slate-200 rounded-xl pl-10 pr-4 py-3.5 text-center text-xl font-mono tracking-widest text-slate-900 font-bold focus:outline-none focus:border-[#b3131b] focus:bg-white focus:ring-2 focus:ring-red-100 transition-all"
+                  />
+                </div>
+                <p className="text-[10px] text-slate-400 text-center mt-2">
+                  Abre Google Authenticator, Microsoft Authenticator o tu app TOTP.
+                </p>
+              </div>
 
-          {error && (
-            <div className="flex items-center gap-2 text-xs text-red-600 bg-red-50 border border-red-200 p-3 rounded-xl mt-3">
-              <AlertCircle className="w-4 h-4 shrink-0" />
-              <span>{error}</span>
+              {error && (
+                <div className="flex items-center gap-2 text-xs text-red-600 bg-red-50 border border-red-200 p-3 rounded-xl mt-3">
+                  <AlertCircle className="w-4 h-4 shrink-0" />
+                  <span>{error}</span>
+                </div>
+              )}
+
+              <button 
+                type="submit" 
+                disabled={loading || !totpCode.trim()}
+                className="w-full bg-[#b3131b] hover:bg-[#8f0f15] text-white font-bold py-3.5 px-4 rounded-xl text-xs uppercase tracking-wider transition-all shadow-sm flex items-center justify-center gap-2 mt-4 disabled:opacity-50"
+              >
+                <span>{loading ? 'VERIFICANDO...' : 'VERIFICAR Y ACCEDER'}</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+
+              <button
+                type="button"
+                onClick={handleBackFrom2FA}
+                className="w-full text-center text-xs text-slate-500 hover:text-gray-900 transition-colors py-2 flex items-center justify-center gap-1 font-medium"
+              >
+                <ArrowLeft className="w-3.5 h-3.5" />
+                <span>Volver a ingresar contraseña</span>
+              </button>
             </div>
+          ) : (
+            <>
+              {/* PASO NORMAL (EMAIL + PASSWORD) */}
+              {!isLogin && (
+                <div>
+                  <label className="block text-[11px] font-mono uppercase tracking-wider text-slate-700 mb-1.5 font-bold">
+                    Nombre Completo
+                  </label>
+                  <div className="relative">
+                    <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                    <input 
+                      type="text" 
+                      value={name} 
+                      onChange={(e) => setName(e.target.value)} 
+                      placeholder="Tu nombre y apellido"
+                      className="w-full bg-slate-50/60 border border-slate-200 rounded-xl pl-10 pr-4 py-3 text-sm text-slate-900 focus:outline-none focus:border-[#b3131b] focus:bg-white focus:ring-2 focus:ring-red-100 transition-all" 
+                      required={!isLogin} 
+                    />
+                  </div>
+                </div>
+              )}
+
+              <div>
+                <label className="block text-[11px] font-mono uppercase tracking-wider text-slate-700 mb-1.5 font-bold">
+                  Correo Electrónico
+                </label>
+                <div className="relative">
+                  <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <input 
+                    type="email" 
+                    value={email} 
+                    onChange={(e) => setEmail(e.target.value)} 
+                    placeholder="tu@correo.com"
+                    className="w-full bg-slate-50/60 border border-slate-200 rounded-xl pl-10 pr-4 py-3 text-sm text-slate-900 focus:outline-none focus:border-[#b3131b] focus:bg-white focus:ring-2 focus:ring-red-100 transition-all" 
+                    required 
+                  />
+                </div>
+              </div>
+              
+              <div>
+                <div className="flex justify-between items-center mb-1.5">
+                  <label className="block text-[11px] font-mono uppercase tracking-wider text-slate-700 font-bold">
+                    Contraseña
+                  </label>
+                  {isLogin && (
+                    <Link 
+                      href="/recuperar" 
+                      className="text-[10px] font-mono uppercase tracking-wider text-slate-400 hover:text-[#b3131b] transition-colors"
+                    >
+                      ¿Olvidaste tu clave?
+                    </Link>
+                  )}
+                </div>
+                <div className="relative">
+                  <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <input 
+                    type="password" 
+                    value={password} 
+                    onChange={(e) => setPassword(e.target.value)} 
+                    placeholder="••••••••"
+                    className="w-full bg-slate-50/60 border border-slate-200 rounded-xl pl-10 pr-4 py-3 text-sm text-slate-900 focus:outline-none focus:border-[#b3131b] focus:bg-white focus:ring-2 focus:ring-red-100 transition-all" 
+                    required 
+                  />
+                </div>
+              </div>
+
+              {error && (
+                <div className="flex items-center gap-2 text-xs text-red-600 bg-red-50 border border-red-200 p-3 rounded-xl mt-3">
+                  <AlertCircle className="w-4 h-4 shrink-0" />
+                  <span>{error}</span>
+                </div>
+              )}
+
+              <button 
+                type="submit" 
+                disabled={loading} 
+                className="w-full bg-[#b3131b] hover:bg-[#8f0f15] text-white font-bold py-3.5 px-4 rounded-xl text-xs uppercase tracking-wider transition-all shadow-sm flex items-center justify-center gap-2 mt-6 disabled:opacity-50"
+              >
+                <span>{loading ? 'PROCESANDO...' : isLogin ? 'INICIAR SESIÓN' : 'CREAR MI CUENTA'}</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </>
           )}
 
-          <button 
-            type="submit" 
-            disabled={loading}
-            className="w-full bg-[#b3131b] hover:bg-[#8f0f15] text-white font-bold py-3.5 px-4 rounded-xl text-xs uppercase tracking-wider transition-all shadow-sm flex items-center justify-center gap-2 mt-6 disabled:opacity-50"
-          >
-            <span>{loading ? 'PROCESANDO...' : isLogin ? 'INICIAR SESIÓN' : 'CREAR MI CUENTA'}</span>
-            <ArrowRight className="w-4 h-4" />
-          </button>
         </form>
 
-        <div className="mt-8 pt-6 border-t border-slate-100 text-center">
-          <p className="text-xs text-slate-500 font-medium">
-            {isLogin ? '¿Aún no tienes cuenta?' : '¿Ya tienes una cuenta creada?'}
-            {' '}
-            <button 
-              type="button" 
-              onClick={() => { setIsLogin(!isLogin); setError(''); }} 
-              className="text-[#b3131b] font-bold hover:underline ml-1"
-            >
-              {isLogin ? 'Regístrate aquí' : 'Inicia sesión'}
-            </button>
-          </p>
-        </div>
+        {!requires2FA && (
+          <div className="mt-8 pt-6 border-t border-slate-100 text-center">
+            <p className="text-xs text-slate-500 font-medium">
+              {isLogin ? '¿Aún no tienes cuenta?' : '¿Ya tienes una cuenta creada?'}
+              {' '}
+              <button 
+                type="button" 
+                onClick={() => { setIsLogin(!isLogin); setError(''); }} 
+                className="text-[#b3131b] font-bold hover:underline ml-1"
+              >
+                {isLogin ? 'Regístrate aquí' : 'Inicia sesión'}
+              </button>
+            </p>
+          </div>
+        )}
 
       </div>
     </div>
