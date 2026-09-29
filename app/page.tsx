@@ -3,7 +3,7 @@ import Image from 'next/image';
 import { prisma } from '@/lib/prisma'; 
 import productsData from '@/data/products.json'; 
 import ProductCarousel from '@/components/ProductCarousel';
-import MotionVideoHero from '@/components/MotionVideoHero';
+import EditorialHero from '@/components/EditorialHero';
 
 // Las 7 marcas de alta gama
 const marcas = [
@@ -66,8 +66,8 @@ export default async function HomePage() {
 
   return (
     <div className="bg-white text-gray-900 min-h-screen">
-      {/* 1. SECCIÓN HERO CON VIDEO DE FONDO MOTION DE ALTA GAMA (PORSCHE EN LOOP CINEMÁTICO) */}
-      <MotionVideoHero />
+      {/* 1. SECCIÓN HERO EDITORIAL DE ALTA GAMA (INSPIRACIÓN PORSCHE DESIGN) */}
+      <EditorialHero />
 
       {/* 2. SECCIÓN DE MARCAS */}
     <section className="py-24 border-b border-gray-100 bg-white relative z-10">
