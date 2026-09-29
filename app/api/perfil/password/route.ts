@@ -1,42 +1,64 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import bcrypt from 'bcrypt'; // Si usas bcryptjs, cambia esto a 'bcryptjs'
+import bcrypt from 'bcrypt';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
+import { checkRateLimit } from '@/lib/rateLimit';
 
 export async function POST(request: Request) {
-  try {
-    const { email, currentPassword, newPassword } = await request.json();
+  // 1. Rate limiting defensivo (máximo 5 intentos por minuto por IP)
+  const rateLimit = checkRateLimit(request, {
+    keyPrefix: 'pwd-change',
+    maxRequests: 5,
+    windowSeconds: 60,
+  });
+  if (!rateLimit.allowed) {
+    return rateLimit.errorResponse!;
+  }
 
-    if (!email || !currentPassword || !newPassword) {
-      return NextResponse.json({ error: 'Faltan datos obligatorios' }, { status: 400 });
+  try {
+    // 2. Control de Acceso: Exigir sesión válida del servidor (Anti-IDOR)
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user?.email) {
+      return NextResponse.json({ error: 'Debes iniciar sesión para realizar esta acción.' }, { status: 401 });
     }
 
-    // 1. Buscamos al usuario en la base de datos
+    const { currentPassword, newPassword } = await request.json();
+
+    if (!currentPassword || !newPassword) {
+      return NextResponse.json({ error: 'Faltan datos obligatorios.' }, { status: 400 });
+    }
+
+    if (typeof newPassword !== 'string' || newPassword.length < 8) {
+      return NextResponse.json({ error: 'La nueva contraseña debe tener al menos 8 caracteres.' }, { status: 400 });
+    }
+
+    // 3. El correo SIEMPRE se obtiene de la sesión autenticada, nunca del body del cliente
+    const authenticatedEmail = session.user.email.toLowerCase().trim();
+
     const user = await prisma.user.findUnique({
-      where: { email },
+      where: { email: authenticatedEmail },
     });
 
     if (!user || !user.password) {
       return NextResponse.json({ error: 'Usuario no encontrado.' }, { status: 404 });
     }
 
-    // 2. Verificamos que la contraseña actual ingresada sea correcta
+    // 4. Verificamos la contraseña actual
     const isPasswordValid = await bcrypt.compare(currentPassword, user.password);
-
     if (!isPasswordValid) {
       return NextResponse.json({ error: 'La contraseña actual es incorrecta.' }, { status: 401 });
     }
 
-    // 3. Encriptamos la nueva contraseña
+    // 5. Encriptamos la nueva contraseña con salt de costo 10
     const hashedNewPassword = await bcrypt.hash(newPassword, 10);
 
-    // 4. Actualizamos el registro en Prisma
     await prisma.user.update({
-      where: { email },
+      where: { id: user.id },
       data: { password: hashedNewPassword },
     });
 
     return NextResponse.json({ message: 'Contraseña actualizada con éxito.' });
-
   } catch (error) {
     console.error('Error al cambiar contraseña:', error);
     return NextResponse.json({ error: 'Ocurrió un error en el servidor.' }, { status: 500 });

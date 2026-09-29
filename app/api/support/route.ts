@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
 import { STORE_CONFIG } from '@/config/constants';
+import { checkRateLimit } from '@/lib/rateLimit';
+import { escapeHtml, sanitizeString, isValidEmail } from '@/lib/sanitize';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -13,11 +15,27 @@ const MOTIVO_LABELS: Record<string, string> = {
 };
 
 export async function POST(request: Request) {
+  // 0. Mitigación contra spam y bombardeo de correos (5 solicitudes / 10 min)
+  const rateLimit = checkRateLimit(request, {
+    keyPrefix: 'support-contact',
+    maxRequests: 5,
+    windowSeconds: 600,
+  });
+
+  if (!rateLimit.allowed && rateLimit.errorResponse) {
+    return rateLimit.errorResponse;
+  }
+
   try {
-    const { name, email, motivo, vehicle, message } = await request.json();
+    const body = await request.json();
+    const { name, email, motivo, vehicle, message } = body || {};
 
     if (!name || !email || !message) {
       return NextResponse.json({ error: 'Faltan campos obligatorios' }, { status: 400 });
+    }
+
+    if (!isValidEmail(email)) {
+      return NextResponse.json({ error: 'Formato de correo electrónico inválido' }, { status: 400 });
     }
 
     if (!process.env.RESEND_API_KEY) {
@@ -25,7 +43,14 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'El servicio de correo no está configurado' }, { status: 503 });
     }
 
-    const motivoLabel = MOTIVO_LABELS[motivo] || 'Consulta general';
+    // Sanitización y escape HTML defensivo para evitar inyecciones en el correo
+    const safeName = escapeHtml(sanitizeString(name, 100));
+    const safeEmail = escapeHtml(sanitizeString(email, 120));
+    const safeVehicle = vehicle ? escapeHtml(sanitizeString(vehicle, 100)) : '';
+    const safeMessage = escapeHtml(sanitizeString(message, 3000)).replace(/\n/g, '<br/>');
+
+    const motivoKey = typeof motivo === 'string' ? motivo.toLowerCase().trim() : 'general';
+    const motivoLabel = MOTIVO_LABELS[motivoKey] || 'Consulta general';
 
     await resend.emails.send({
       from: 'RD Spring Soporte <contacto@rdspring.cl>',
@@ -33,10 +58,10 @@ export async function POST(request: Request) {
       subject: `Nueva consulta de Soporte: ${motivoLabel}`,
       html: `
         <h2>Nueva consulta de Soporte</h2>
-        <p><strong>Motivo:</strong> ${motivoLabel}</p>
-        <p><strong>Nombre:</strong> ${name}<br/><strong>Email:</strong> ${email}</p>
-        ${vehicle ? `<p><strong>Vehículo / Chasis:</strong> ${vehicle}</p>` : ''}
-        <p><strong>Mensaje:</strong><br/>${message}</p>
+        <p><strong>Motivo:</strong> ${escapeHtml(motivoLabel)}</p>
+        <p><strong>Nombre:</strong> ${safeName}<br/><strong>Email:</strong> ${safeEmail}</p>
+        ${safeVehicle ? `<p><strong>Vehículo / Chasis:</strong> ${safeVehicle}</p>` : ''}
+        <p><strong>Mensaje:</strong><br/>${safeMessage}</p>
       `,
     });
 

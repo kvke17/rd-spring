@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
-import prisma from '@/lib/prisma'; // 🚨 AQUÍ ESTÁ LA MAGIA: Conexión a Turso
+import prisma from '@/lib/prisma';
+import { checkRateLimit } from '@/lib/rateLimit';
+import { sanitizeString, isValidEmail } from '@/lib/sanitize';
 
 // Agregamos PAGADO a las etiquetas para que lo reconozca
 const PAYMENT_STATUS_LABELS: Record<string, string> = {
@@ -18,12 +20,26 @@ const SHIPPING_STAGES = [
 ];
 
 export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const buyOrder = searchParams.get('buyOrder')?.trim();
-  const email = searchParams.get('email')?.trim().toLowerCase();
+  // 0. Mitigación contra fuerza bruta en rastreo de pedidos (20 consultas / 10 min)
+  const rateLimit = checkRateLimit(request, {
+    keyPrefix: 'order-track',
+    maxRequests: 20,
+    windowSeconds: 600,
+  });
 
-  if (!buyOrder || !email) {
-    return NextResponse.json({ error: 'Debes indicar el número de orden y el email.' }, { status: 400 });
+  if (!rateLimit.allowed && rateLimit.errorResponse) {
+    return rateLimit.errorResponse;
+  }
+
+  const { searchParams } = new URL(request.url);
+  const rawBuyOrder = searchParams.get('buyOrder');
+  const rawEmail = searchParams.get('email');
+
+  const buyOrder = rawBuyOrder ? sanitizeString(rawBuyOrder, 50).toUpperCase() : '';
+  const email = rawEmail ? sanitizeString(rawEmail, 120).toLowerCase() : '';
+
+  if (!buyOrder || !email || !isValidEmail(email)) {
+    return NextResponse.json({ error: 'Debes indicar un número de orden y un correo electrónico válido.' }, { status: 400 });
   }
 
   try {

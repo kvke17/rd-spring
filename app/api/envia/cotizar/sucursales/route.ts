@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { checkRateLimit } from '@/lib/rateLimit';
 
 const CODIGOS_REGION: Record<string, string> = {
   "Metropolitana de Santiago": "RM",
@@ -8,6 +9,17 @@ const CODIGOS_REGION: Record<string, string> = {
 };
 
 export async function POST(req: Request) {
+  // 0. Mitigación contra abuso en búsqueda de sucursales (30 consultas / 10 min)
+  const rateLimit = checkRateLimit(req, {
+    keyPrefix: 'envia-sucursales',
+    maxRequests: 30,
+    windowSeconds: 600,
+  });
+
+  if (!rateLimit.allowed && rateLimit.errorResponse) {
+    return rateLimit.errorResponse;
+  }
+
   try {
     const body = await req.json();
     const { carrier, comuna, region } = body;

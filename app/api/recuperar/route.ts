@@ -2,19 +2,40 @@ import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { Resend } from 'resend';
 import crypto from 'crypto';
+import { checkRateLimit } from '@/lib/rateLimit';
+import { isValidEmail, sanitizeString } from '@/lib/sanitize';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(request: Request) {
+  // 0. Mitigación de abuso y denegación de servicio (Rate Limiting: 5 solicitudes / 15 min)
+  const rateLimit = checkRateLimit(request, {
+    keyPrefix: 'recuperar-password',
+    maxRequests: 5,
+    windowSeconds: 900,
+  });
+
+  if (!rateLimit.allowed && rateLimit.errorResponse) {
+    return rateLimit.errorResponse;
+  }
+
   try {
-    const { email } = await request.json();
+    const body = await request.json();
+    const rawEmail = body?.email;
+
+    if (!rawEmail || !isValidEmail(rawEmail)) {
+      // Devolvemos mensaje genérico para evitar enumeración de usuarios
+      return NextResponse.json({ message: 'Si el correo está registrado, te enviamos un enlace de recuperación.' });
+    }
+
+    const email = sanitizeString(rawEmail, 120).toLowerCase();
 
     // 1. Verificamos si el usuario existe en tu tabla (ajusta 'user' si tu tabla se llama distinto)
     const user = await prisma.user.findUnique({ where: { email } });
     
     if (!user) {
       // Truco de seguridad: Siempre devolvemos un mensaje de éxito aunque el correo no exista,
-      // así los hackers no pueden usar este formulario para adivinar qué correos están registrados.
+      // así los atacantes no pueden usar este formulario para adivinar qué correos están registrados.
       return NextResponse.json({ message: 'Si el correo está registrado, te enviamos un enlace de recuperación.' });
     }
 

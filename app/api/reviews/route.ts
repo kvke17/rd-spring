@@ -1,37 +1,59 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
-// Importa tus opciones de NextAuth si es necesario, ej: import { authOptions } from '../auth/[...nextauth]/route';
+import { authOptions } from '@/lib/auth';
+import { checkRateLimit } from '@/lib/rateLimit';
+import { sanitizeString } from '@/lib/sanitize';
 
 export async function POST(request: Request) {
+  // 0. Mitigación contra spam de reseñas (10 reseñas / 10 min)
+  const rateLimit = checkRateLimit(request, {
+    keyPrefix: 'reviews-post',
+    maxRequests: 10,
+    windowSeconds: 600,
+  });
+
+  if (!rateLimit.allowed && rateLimit.errorResponse) {
+    return rateLimit.errorResponse;
+  }
+
   try {
-    // Verificar que el usuario esté logueado
-    const session = await getServerSession(); 
+    // Verificar que el usuario esté logueado con sesión válida
+    const session = await getServerSession(authOptions); 
     if (!session || !session.user?.email) {
       return NextResponse.json({ error: 'Debes iniciar sesión para dejar una reseña' }, { status: 401 });
     }
 
     const body = await request.json();
-    const { productId, rating, comment } = body;
+    const { productId, rating, comment } = body || {};
 
-    // Validación básica
-    if (!productId || !rating || rating < 1 || rating > 5) {
-      return NextResponse.json({ error: 'Datos inválidos' }, { status: 400 });
+    const cleanProductId = sanitizeString(productId, 100);
+    const numRating = Number(rating);
+
+    // Validación rigurosa de rating y productId
+    if (!cleanProductId || isNaN(numRating) || numRating < 1 || numRating > 5) {
+      return NextResponse.json({ error: 'Calificación inválida o producto no especificado (debe ser entre 1 y 5 estrellas).' }, { status: 400 });
     }
 
-    // Buscar el ID del usuario en base a su email
-    const user = await prisma.user.findUnique({ where: { email: session.user.email } });
+    const intRating = Math.round(numRating);
+    const cleanComment = comment ? sanitizeString(comment, 1000) : null;
+
+    // Verificar existencia del producto
+    const product = await prisma.product.findUnique({ where: { id: cleanProductId } });
+    if (!product) {
+      return NextResponse.json({ error: 'El producto especificado no existe.' }, { status: 404 });
+    }
+
+    // Buscar el ID del usuario en base a su email autenticado en sesión
+    const user = await prisma.user.findUnique({ where: { email: session.user.email.toLowerCase().trim() } });
     if (!user) return NextResponse.json({ error: 'Usuario no encontrado' }, { status: 404 });
 
-    // 🌟 Opcional pero recomendado: Verificar si el usuario ya compró el producto antes de dejar reseña
-    // (Puedes implementar esa lógica aquí consultando la tabla Order)
-
-    // Crear la reseña
+    // Crear la reseña sanitizada
     const review = await prisma.review.create({
       data: {
-        rating,
-        comment,
-        productId,
+        rating: intRating,
+        comment: cleanComment,
+        productId: product.id,
         userId: user.id,
       }
     });
@@ -39,10 +61,8 @@ export async function POST(request: Request) {
     return NextResponse.json(review, { status: 201 });
   } catch (error) {
     console.error('Error creando reseña:', error);
-    return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 });
+    return NextResponse.json({ error: 'Error interno del servidor al procesar la reseña.' }, { status: 500 });
   }
-
-  
 }
 
 // (Mantén la función export async function POST que ya tenías arriba)
@@ -50,7 +70,8 @@ export async function POST(request: Request) {
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const productId = searchParams.get('productId');
+    const rawProductId = searchParams.get('productId');
+    const productId = rawProductId ? sanitizeString(rawProductId, 100) : '';
 
     if (!productId) {
       return NextResponse.json({ error: 'Falta el ID del producto' }, { status: 400 });

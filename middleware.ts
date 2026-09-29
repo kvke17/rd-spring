@@ -3,26 +3,77 @@ import { NextResponse } from "next/server";
 
 export default withAuth(
   function middleware(req) {
-    // Esta función se ejecuta si el usuario ya pasó la primera barrera (estar logueado)
     const token = req.nextauth.token;
     const path = req.nextUrl.pathname;
+    const method = req.method;
 
-    // Si intenta entrar a /admin y su rol no es ADMIN, lo devolvemos a la página principal (o a un 403 No Autorizado)
-    if (path.startsWith("/admin") && token?.role !== "ADMIN") {
-      return NextResponse.redirect(new URL("/", req.url));
+    // 1. Protección de API Administrativa (/api/admin/*)
+    if (path.startsWith("/api/admin")) {
+      // Excepción: GET en /api/admin/products es consumido por el catálogo público de repuestos y aceites
+      if (path === "/api/admin/products" && method === "GET") {
+        return NextResponse.next();
+      }
+
+      if (!token) {
+        return NextResponse.json(
+          { error: "Autenticación requerida para acceder a la API administrativa." },
+          { status: 401 }
+        );
+      }
+
+      if (token.role !== "ADMIN") {
+        return NextResponse.json(
+          { error: "Acceso denegado: se requieren privilegios de Administrador." },
+          { status: 403 }
+        );
+      }
+
+      return NextResponse.next();
     }
+
+    // 2. Protección de Vistas Administrativas (/admin/*)
+    if (path.startsWith("/admin")) {
+      if (!token) {
+        return NextResponse.redirect(new URL("/login?callbackUrl=" + encodeURIComponent(path), req.url));
+      }
+      if (token.role !== "ADMIN") {
+        return NextResponse.redirect(new URL("/", req.url));
+      }
+      return NextResponse.next();
+    }
+
+    // 3. Protección de Perfil de Usuario (/perfil/*)
+    if (path.startsWith("/perfil")) {
+      if (!token) {
+        return NextResponse.redirect(new URL("/login?callbackUrl=/perfil", req.url));
+      }
+      return NextResponse.next();
+    }
+
+    return NextResponse.next();
   },
   {
     callbacks: {
-      // La primera barrera: ¿Tiene un token válido?
-      authorized: ({ token }) => !!token, 
+      authorized: ({ req, token }) => {
+        const path = req.nextUrl.pathname;
+        const method = req.method;
+
+        // Permitir el catálogo público GET /api/admin/products sin sesión previa
+        if (path === "/api/admin/products" && method === "GET") {
+          return true;
+        }
+
+        // Para todas las demás rutas protegidas por matcher, se requiere token
+        return !!token;
+      },
     },
   }
 );
 
-// Aquí le decimos al "guardia" en qué puertas debe pararse
 export const config = {
   matcher: [
-    "/admin/:path*", // Protege absolutamente todo lo que esté dentro de /admin
+    "/admin/:path*",
+    "/api/admin/:path*",
+    "/perfil/:path*",
   ],
 };

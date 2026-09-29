@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { checkRateLimit } from '@/lib/rateLimit';
 
 const CODIGOS_REGION: Record<string, string> = {
   "Arica y Parinacota": "AP",
@@ -20,6 +21,17 @@ const CODIGOS_REGION: Record<string, string> = {
 };
 
 export async function POST(req: Request) {
+  // 0. Mitigación contra abuso de cotizaciones en API externa (30 consultas / 10 min)
+  const rateLimit = checkRateLimit(req, {
+    keyPrefix: 'envia-cotizar',
+    maxRequests: 30,
+    windowSeconds: 600,
+  });
+
+  if (!rateLimit.allowed && rateLimit.errorResponse) {
+    return rateLimit.errorResponse;
+  }
+
   try {
     const body = await req.json();
     const { comuna, region, items } = body;

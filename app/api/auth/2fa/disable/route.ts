@@ -3,8 +3,20 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 import bcrypt from 'bcrypt';
+import { checkRateLimit } from '@/lib/rateLimit';
 
 export async function POST(req: Request) {
+  // 0. Mitigación contra fuerza bruta en contraseña para desactivación (5 intentos / 15 min)
+  const rateLimit = checkRateLimit(req, {
+    keyPrefix: '2fa-disable',
+    maxRequests: 5,
+    windowSeconds: 900,
+  });
+
+  if (!rateLimit.allowed && rateLimit.errorResponse) {
+    return rateLimit.errorResponse;
+  }
+
   try {
     const session = await getServerSession(authOptions);
 

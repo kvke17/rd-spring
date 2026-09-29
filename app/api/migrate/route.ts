@@ -1,8 +1,14 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import productsData from '@/data/products.json'; // Tu catálogo real
+import productsData from '@/data/products.json';
+import { requireAdminSession } from '@/lib/adminAuth';
 
 export async function GET() {
+  const adminAuth = await requireAdminSession();
+  if (!adminAuth.authorized && adminAuth.errorResponse) {
+    return adminAuth.errorResponse;
+  }
+
   try {
     let count = 0;
 

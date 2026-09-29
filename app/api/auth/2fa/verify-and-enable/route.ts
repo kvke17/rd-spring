@@ -3,8 +3,21 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 import { verifyTwoFactorEmailOrBackupCode } from '@/lib/twoFactor';
+import { checkRateLimit } from '@/lib/rateLimit';
+import { sanitizeString } from '@/lib/sanitize';
 
 export async function POST(req: Request) {
+  // 0. Mitigación contra fuerza bruta en códigos OTP (5 intentos / 10 min)
+  const rateLimit = checkRateLimit(req, {
+    keyPrefix: '2fa-verify-enable',
+    maxRequests: 5,
+    windowSeconds: 600,
+  });
+
+  if (!rateLimit.allowed && rateLimit.errorResponse) {
+    return rateLimit.errorResponse;
+  }
+
   try {
     const session = await getServerSession(authOptions);
 
@@ -14,12 +27,14 @@ export async function POST(req: Request) {
 
     const { code, backupCodes } = await req.json();
 
-    if (!code) {
+    if (!code || typeof code !== 'string') {
       return NextResponse.json({ error: 'Debes ingresar el código de 6 dígitos enviado a tu correo' }, { status: 400 });
     }
 
+    const cleanCode = sanitizeString(code, 30).trim();
+
     // Validar el código recibido por correo
-    const verification = await verifyTwoFactorEmailOrBackupCode(session.user.email, code);
+    const verification = await verifyTwoFactorEmailOrBackupCode(session.user.email, cleanCode);
 
     if (!verification.isValid) {
       return NextResponse.json({ 

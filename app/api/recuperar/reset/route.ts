@@ -1,13 +1,36 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import bcrypt from 'bcrypt'; // Usa 'bcryptjs' si fue la que instalaste
+import bcrypt from 'bcrypt';
+import { checkRateLimit } from '@/lib/rateLimit';
+import { sanitizeString } from '@/lib/sanitize';
 
 export async function POST(request: Request) {
+  // 0. Mitigación contra fuerza bruta sobre tokens de reseteo (10 intentos / 15 min)
+  const rateLimit = checkRateLimit(request, {
+    keyPrefix: 'reset-password',
+    maxRequests: 10,
+    windowSeconds: 900,
+  });
+
+  if (!rateLimit.allowed && rateLimit.errorResponse) {
+    return rateLimit.errorResponse;
+  }
+
   try {
-    const { token, newPassword } = await request.json();
+    const body = await request.json();
+    const token = typeof body?.token === 'string' ? sanitizeString(body.token, 128) : '';
+    const newPassword = body?.newPassword;
 
     if (!token || !newPassword) {
       return NextResponse.json({ error: 'Faltan datos obligatorios.' }, { status: 400 });
+    }
+
+    if (typeof newPassword !== 'string' || newPassword.length < 8) {
+      return NextResponse.json({ error: 'La nueva contraseña debe tener al menos 8 caracteres.' }, { status: 400 });
+    }
+
+    if (newPassword.length > 128) {
+      return NextResponse.json({ error: 'La nueva contraseña no debe exceder 128 caracteres.' }, { status: 400 });
     }
 
     // 1. Buscamos el token en la base de datos

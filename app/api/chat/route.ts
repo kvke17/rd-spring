@@ -1,16 +1,32 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { NextResponse } from 'next/server';
+import { checkRateLimit } from '@/lib/rateLimit';
+import { sanitizeString } from '@/lib/sanitize';
 
 // Inicializamos el SDK con tu llave
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY as string);
 
 export async function POST(request: Request) {
-  try {
-    const { mensaje } = await request.json();
+  // 0. Mitigación contra abuso de cuota de IA y DoS (15 mensajes / 10 min)
+  const rateLimit = checkRateLimit(request, {
+    keyPrefix: 'ai-chat',
+    maxRequests: 15,
+    windowSeconds: 600,
+  });
 
-    if (!mensaje) {
+  if (!rateLimit.allowed && rateLimit.errorResponse) {
+    return rateLimit.errorResponse;
+  }
+
+  try {
+    const body = await request.json();
+    const rawMensaje = body?.mensaje;
+
+    if (!rawMensaje || typeof rawMensaje !== 'string' || !rawMensaje.trim()) {
       return NextResponse.json({ error: 'Mensaje vacío' }, { status: 400 });
     }
+
+    const mensaje = sanitizeString(rawMensaje, 500);
 
     const promptContexto = `
       Eres el asistente de ventas experto de 'RD Spring', distribuidor oficial de aceites de motor ROWE en Chile y especialistas en suspensión de alto rendimiento.
