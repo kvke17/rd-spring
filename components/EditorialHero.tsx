@@ -168,23 +168,23 @@ export default function EditorialHero() {
                 variants={lineVariants}
                 className="flex flex-wrap items-center gap-4"
               >
-                {/* Primary Button: Deep solid black with crimson red accent hover detail */}
+                {/* Button 1: Pure solid black with white text & crimson accent arrow */}
                 <Link
                   href="/cotizacion"
-                  className="group relative inline-flex items-center justify-center gap-3 px-8 py-4 rounded-full bg-[#0f172a] hover:bg-black text-white text-xs sm:text-sm font-semibold uppercase tracking-wider shadow-xl shadow-slate-900/15 hover:shadow-2xl hover:shadow-slate-900/25 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 cursor-pointer"
+                  className="group relative inline-flex items-center justify-center gap-3 px-8 py-4 rounded-full bg-black hover:bg-neutral-900 text-white text-xs sm:text-sm font-semibold uppercase tracking-wider shadow-xl shadow-black/15 hover:shadow-2xl hover:shadow-black/25 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 cursor-pointer"
                 >
-                  <span>Cotizar Repuesto</span>
+                  <span>COTIZAR REPUESTO</span>
                   <span className="w-6 h-6 rounded-full bg-white/10 group-hover:bg-[#b3131b] flex items-center justify-center transition-colors duration-300">
                     <ArrowUpRight className="w-3.5 h-3.5 text-white transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                   </span>
                 </Link>
 
-                {/* Secondary Button: Dark translucent glassmorphic outline */}
+                {/* Button 2: Solid black with crisp white text and subtle border hover shift */}
                 <Link
                   href="/catalogo"
-                  className="inline-flex items-center justify-center px-8 py-4 rounded-full bg-slate-900/[0.04] hover:bg-slate-900/[0.08] backdrop-blur-md border border-slate-900/15 hover:border-slate-900/30 text-slate-900 text-xs sm:text-sm font-semibold uppercase tracking-wider shadow-sm hover:shadow hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 cursor-pointer"
+                  className="inline-flex items-center justify-center px-8 py-4 rounded-full bg-black hover:bg-neutral-800 border border-neutral-800 hover:border-neutral-600 text-white text-xs sm:text-sm font-semibold uppercase tracking-wider shadow-xl shadow-black/10 hover:shadow-2xl hover:shadow-black/20 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 cursor-pointer"
                 >
-                  <span>Ver Aceites ROWE</span>
+                  <span>VER ACEITES ROWE</span>
                 </Link>
               </motion.div>
             </div>
