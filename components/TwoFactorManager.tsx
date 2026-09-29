@@ -1,20 +1,17 @@
 'use client';
 
-import { useState } from 'react';
-import Image from 'next/image';
+import { useState, useEffect } from 'react';
 import { 
   ShieldCheck, 
   ShieldAlert, 
-  Smartphone, 
-  Key, 
+  Mail, 
   Copy, 
   Check, 
   AlertCircle, 
   Lock, 
-  ChevronRight, 
   X,
-  QrCode,
-  Download
+  RotateCcw,
+  KeyRound
 } from 'lucide-react';
 
 interface TwoFactorManagerProps {
@@ -22,35 +19,55 @@ interface TwoFactorManagerProps {
   userEmail: string;
 }
 
-export default function TwoFactorManager({ initialEnabled }: TwoFactorManagerProps) {
+export default function TwoFactorManager({ initialEnabled, userEmail }: TwoFactorManagerProps) {
   const [enabled, setEnabled] = useState(initialEnabled);
   const [modalMode, setModalMode] = useState<'idle' | 'setup' | 'disable'>('idle');
 
-  // Estados de Setup
-  const [setupData, setSetupData] = useState<{
-    secret: string;
-    qrCodeUrl: string;
-    backupCodes: string[];
-  } | null>(null);
+  // Estados de Configuración
+  const [backupCodes, setBackupCodes] = useState<string[]>([]);
   const [verificationCode, setVerificationCode] = useState('');
   const [setupLoading, setSetupLoading] = useState(false);
   const [setupError, setSetupError] = useState('');
-  const [secretCopied, setSecretCopied] = useState(false);
   const [backupCopied, setBackupCopied] = useState(false);
+  const [resending, setResending] = useState(false);
+  const [resendMessage, setResendMessage] = useState('');
 
   // Estados de Desactivación
   const [disablePassword, setDisablePassword] = useState('');
   const [disableLoading, setDisableLoading] = useState(false);
   const [disableError, setDisableError] = useState('');
 
+  // Escuchar tecla Escape para cerrar modales de inmediato
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setModalMode('idle');
+      }
+    };
+    if (modalMode !== 'idle') {
+      window.addEventListener('keydown', handleKeyDown);
+    }
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [modalMode]);
+
+  const closeModal = () => {
+    setModalMode('idle');
+    setSetupError('');
+    setDisableError('');
+    setVerificationCode('');
+    setDisablePassword('');
+    setResendMessage('');
+  };
+
   const handleStartSetup = async () => {
     setSetupLoading(true);
     setSetupError('');
+    setResendMessage('');
     try {
       const res = await fetch('/api/auth/2fa/setup', { method: 'POST' });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Error al iniciar configuración');
-      setSetupData(data);
+      setBackupCodes(data.backupCodes || []);
       setModalMode('setup');
     } catch (err: any) {
       setSetupError(err.message || 'Error de conexión');
@@ -59,9 +76,28 @@ export default function TwoFactorManager({ initialEnabled }: TwoFactorManagerPro
     }
   };
 
+  const handleResendCode = async () => {
+    setResending(true);
+    setSetupError('');
+    setResendMessage('');
+    try {
+      const res = await fetch('/api/auth/2fa/resend', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: userEmail }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Error al reenviar');
+      setResendMessage('Nuevo código enviado a tu correo.');
+    } catch (err: any) {
+      setSetupError(err.message || 'Error al reenviar');
+    } finally {
+      setResending(false);
+    }
+  };
+
   const handleConfirmEnable = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!setupData) return;
     setSetupLoading(true);
     setSetupError('');
 
@@ -70,9 +106,8 @@ export default function TwoFactorManager({ initialEnabled }: TwoFactorManagerPro
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          code: verificationCode,
-          secret: setupData.secret,
-          backupCodes: setupData.backupCodes,
+          code: verificationCode.trim(),
+          backupCodes,
         }),
       });
 
@@ -80,9 +115,7 @@ export default function TwoFactorManager({ initialEnabled }: TwoFactorManagerPro
       if (!res.ok) throw new Error(data.error || 'Código incorrecto');
 
       setEnabled(true);
-      setModalMode('idle');
-      setSetupData(null);
-      setVerificationCode('');
+      closeModal();
     } catch (err: any) {
       setSetupError(err.message || 'Error al verificar código');
     } finally {
@@ -106,8 +139,7 @@ export default function TwoFactorManager({ initialEnabled }: TwoFactorManagerPro
       if (!res.ok) throw new Error(data.error || 'Contraseña incorrecta');
 
       setEnabled(false);
-      setModalMode('idle');
-      setDisablePassword('');
+      closeModal();
     } catch (err: any) {
       setDisableError(err.message || 'Error al desactivar 2FA');
     } finally {
@@ -115,24 +147,21 @@ export default function TwoFactorManager({ initialEnabled }: TwoFactorManagerPro
     }
   };
 
-  const copyToClipboard = (text: string, type: 'secret' | 'backup') => {
-    navigator.clipboard.writeText(text);
-    if (type === 'secret') {
-      setSecretCopied(true);
-      setTimeout(() => setSecretCopied(false), 2000);
-    } else {
-      setBackupCopied(true);
-      setTimeout(() => setBackupCopied(false), 2000);
-    }
+  const copyBackupCodes = () => {
+    navigator.clipboard.writeText(backupCodes.join('\n'));
+    setBackupCopied(true);
+    setTimeout(() => setBackupCopied(false), 2000);
   };
 
   return (
     <div className="mt-8 border-t border-slate-100 pt-6">
+      
+      {/* Encabezado de la Tarjeta */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-1.5">
-          <Smartphone className="w-3.5 h-3.5 text-[#b3131b]" />
+          <Mail className="w-3.5 h-3.5 text-[#b3131b]" />
           <p className="text-[11px] font-mono uppercase tracking-wider text-slate-800 font-bold">
-            Autenticación en Dos Pasos (2FA)
+            Verificación 2FA por Correo
           </p>
         </div>
 
@@ -147,8 +176,8 @@ export default function TwoFactorManager({ initialEnabled }: TwoFactorManagerPro
 
       <p className="text-xs text-slate-500 mb-4 leading-relaxed font-normal">
         {enabled
-          ? 'Tu cuenta está protegida con código de seguridad temporal (TOTP). Al iniciar sesión se te pedirá el código de 6 dígitos.'
-          : 'Añade una capa extra de protección utilizando Google Authenticator, Microsoft Authenticator o Apple Passwords.'}
+          ? `Tu cuenta está protegida. Al iniciar sesión se enviará automáticamente un código de 6 dígitos a tu correo ${userEmail}.`
+          : 'Protege tu cuenta con verificación de seguridad. Al iniciar sesión, recibirás un código de 6 dígitos en tu correo para confirmar tu identidad.'}
       </p>
 
       {setupError && modalMode === 'idle' && (
@@ -160,127 +189,138 @@ export default function TwoFactorManager({ initialEnabled }: TwoFactorManagerPro
 
       {enabled ? (
         <button
+          type="button"
           onClick={() => { setModalMode('disable'); setDisableError(''); setDisablePassword(''); }}
-          className="w-full bg-slate-100 hover:bg-red-50 hover:text-red-700 text-slate-700 font-bold py-2.5 rounded-xl text-xs uppercase tracking-wider transition-colors border border-slate-200"
+          className="w-full bg-slate-100 hover:bg-red-50 hover:text-red-700 text-slate-700 font-bold py-2.5 rounded-xl text-xs uppercase tracking-wider transition-colors border border-slate-200 cursor-pointer"
         >
           Desactivar 2FA
         </button>
       ) : (
         <button
+          type="button"
           onClick={handleStartSetup}
           disabled={setupLoading}
-          className="w-full bg-[#b3131b] hover:bg-[#8f0f15] text-white font-bold py-2.5 rounded-xl text-xs uppercase tracking-wider transition-all shadow-2xs flex items-center justify-center gap-2 disabled:opacity-50"
+          className="w-full bg-[#b3131b] hover:bg-[#8f0f15] text-white font-bold py-2.5 rounded-xl text-xs uppercase tracking-wider transition-all shadow-2xs flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
         >
           <ShieldCheck className="w-4 h-4" />
-          <span>{setupLoading ? 'Preparando...' : 'Activar 2FA'}</span>
+          <span>{setupLoading ? 'Enviando código...' : 'Activar 2FA por Correo'}</span>
         </button>
       )}
 
-      {/* MODAL / OVERLAY DE CONFIGURACIÓN 2FA */}
-      {modalMode === 'setup' && setupData && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl border border-slate-200 max-w-lg w-full p-6 sm:p-8 shadow-2xl max-h-[90vh] overflow-y-auto animate-in fade-in zoom-in-95 duration-200">
+      {/* MODAL DE ACTIVACIÓN 2FA POR CORREO */}
+      {modalMode === 'setup' && (
+        <div 
+          onClick={(e) => { if (e.target === e.currentTarget) closeModal(); }}
+          className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-150"
+        >
+          <div 
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white rounded-3xl border border-slate-200 max-w-lg w-full p-6 sm:p-8 shadow-2xl max-h-[90vh] overflow-y-auto relative animate-in zoom-in-95 duration-200"
+          >
             
+            {/* Header del Modal */}
             <div className="flex items-center justify-between pb-4 border-b border-slate-100 mb-6">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-xl bg-red-50 text-[#b3131b] flex items-center justify-center">
-                  <ShieldCheck className="w-5 h-5" />
+                <div className="w-9 h-9 rounded-xl bg-red-50 text-[#b3131b] flex items-center justify-center">
+                  <Mail className="w-5 h-5" />
                 </div>
-                <h3 className="font-bold text-gray-900 text-base">Activar Autenticación 2FA</h3>
+                <div>
+                  <h3 className="font-bold text-gray-900 text-base leading-tight">Activar 2FA por Correo</h3>
+                  <p className="text-[11px] text-slate-500 font-medium">{userEmail}</p>
+                </div>
               </div>
               <button 
-                onClick={() => setModalMode('idle')}
-                className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 transition-colors"
+                type="button"
+                onClick={closeModal}
+                className="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-600 hover:text-gray-900 transition-colors cursor-pointer"
+                title="Cerrar ventana"
               >
-                <X className="w-4 h-4" />
+                <X className="w-5 h-5" />
               </button>
             </div>
 
             <div className="space-y-6">
-              {/* Paso 1: Escanear QR */}
-              <div>
-                <span className="text-[11px] font-mono uppercase tracking-wider text-[#b3131b] font-bold block mb-1">
-                  Paso 1 · Escanea el código QR
-                </span>
-                <p className="text-xs text-slate-600 mb-4">
-                  Abre tu aplicación de autenticación (Google Authenticator, Authy, etc.) y escanea el siguiente código:
-                </p>
-
-                <div className="flex flex-col sm:flex-row items-center gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-200">
-                  <div className="relative w-36 h-36 bg-white p-2 rounded-xl shadow-xs border border-slate-200 shrink-0">
-                    <Image 
-                      src={setupData.qrCodeUrl} 
-                      alt="Código QR 2FA" 
-                      fill 
-                      className="object-contain" 
-                    />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <span className="text-[10px] font-mono uppercase text-slate-400 block mb-1">¿No puedes escanear?</span>
-                    <p className="text-xs text-slate-600 mb-2 font-medium">Ingresa esta clave manualmente:</p>
-                    <div className="flex items-center gap-2 bg-white px-3 py-1.5 rounded-lg border border-slate-200">
-                      <code className="text-xs font-mono font-bold text-gray-900 truncate">
-                        {setupData.secret}
-                      </code>
-                      <button
-                        type="button"
-                        onClick={() => copyToClipboard(setupData.secret, 'secret')}
-                        className="text-slate-500 hover:text-[#b3131b] shrink-0"
-                        title="Copiar clave"
-                      >
-                        {secretCopied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
-                      </button>
-                    </div>
-                  </div>
+              
+              {/* Paso 1: Notificación de Correo Enviado */}
+              <div className="bg-slate-50/80 p-4 rounded-2xl border border-slate-200/80 flex items-start gap-3">
+                <div className="w-8 h-8 rounded-xl bg-red-50 text-[#b3131b] flex items-center justify-center shrink-0 mt-0.5">
+                  <Mail className="w-4 h-4" />
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-gray-900 mb-0.5">
+                    Revisa tu bandeja de entrada
+                  </p>
+                  <p className="text-xs text-slate-600 leading-relaxed">
+                    Hemos enviado un código de seguridad de 6 dígitos a <strong className="text-gray-900">{userEmail}</strong>. Escríbelo abajo para confirmar la activación.
+                  </p>
                 </div>
               </div>
 
               {/* Paso 2: Códigos de Respaldo */}
-              <div>
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-[11px] font-mono uppercase tracking-wider text-[#b3131b] font-bold">
-                    Paso 2 · Códigos de Respaldo
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => copyToClipboard(setupData.backupCodes.join('\n'), 'backup')}
-                    className="inline-flex items-center gap-1 text-[10px] font-bold text-slate-600 hover:text-gray-900 bg-slate-100 hover:bg-slate-200 px-2.5 py-1 rounded-md transition-colors"
-                  >
-                    {backupCopied ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
-                    <span>{backupCopied ? 'Copiados' : 'Copiar Códigos'}</span>
-                  </button>
-                </div>
-                <p className="text-xs text-slate-500 mb-3">
-                  Guarda estos códigos en un lugar seguro. Si pierdes acceso a tu teléfono, podrás usarlos para entrar a tu cuenta:
-                </p>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 bg-slate-50 p-3 rounded-xl border border-slate-200 font-mono text-[11px] text-center font-bold text-slate-800">
-                  {setupData.backupCodes.map((code, idx) => (
-                    <span key={idx} className="bg-white py-1 px-2 rounded border border-slate-200">
-                      {code}
+              {backupCodes.length > 0 && (
+                <div>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="text-[11px] font-mono uppercase tracking-wider text-[#b3131b] font-bold">
+                      Códigos de Respaldo (8 Códigos)
                     </span>
-                  ))}
+                    <button
+                      type="button"
+                      onClick={copyBackupCodes}
+                      className="inline-flex items-center gap-1.5 text-[10px] font-bold text-slate-700 hover:text-gray-900 bg-slate-100 hover:bg-slate-200 px-3 py-1 rounded-lg transition-colors cursor-pointer"
+                    >
+                      {backupCopied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                      <span>{backupCopied ? '¡Copiados!' : 'Copiar Códigos'}</span>
+                    </button>
+                  </div>
+                  <p className="text-xs text-slate-500 mb-3 font-normal">
+                    Guarda estos códigos en un lugar seguro. Si no tienes acceso a tu correo, podrás usarlos para entrar a tu cuenta:
+                  </p>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 bg-slate-50 p-3.5 rounded-xl border border-slate-200 font-mono text-xs text-center font-bold text-slate-800">
+                    {backupCodes.map((code, idx) => (
+                      <span key={idx} className="bg-white py-1.5 px-2 rounded-lg border border-slate-200 shadow-2xs">
+                        {code}
+                      </span>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
 
-              {/* Paso 3: Verificar Código */}
+              {/* Paso 3: Input de 6 dígitos */}
               <form onSubmit={handleConfirmEnable} className="space-y-4 pt-2 border-t border-slate-100">
                 <div>
-                  <span className="text-[11px] font-mono uppercase tracking-wider text-[#b3131b] font-bold block mb-1">
-                    Paso 3 · Confirmar con código de 6 dígitos
-                  </span>
-                  <p className="text-xs text-slate-600 mb-2">
-                    Escribe el código de 6 dígitos que muestra tu app de autenticación:
-                  </p>
+                  <label className="block text-[11px] font-mono uppercase tracking-wider text-slate-700 mb-2 font-bold text-center">
+                    Ingresa el código de 6 dígitos recibido por correo:
+                  </label>
                   <input
                     type="text"
                     required
                     maxLength={6}
+                    autoFocus
                     placeholder="123456"
                     value={verificationCode}
                     onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, ''))}
-                    className="w-full bg-slate-50/70 border border-slate-200 rounded-xl px-4 py-3 text-center text-xl font-mono tracking-widest text-gray-900 focus:outline-none focus:border-[#b3131b] focus:bg-white focus:ring-2 focus:ring-red-100 transition-all font-bold"
+                    className="w-full bg-slate-50/70 border border-slate-200 rounded-2xl px-4 py-3.5 text-center text-2xl font-mono tracking-[0.3em] text-gray-900 focus:outline-none focus:border-[#b3131b] focus:bg-white focus:ring-2 focus:ring-red-100 transition-all font-black"
                   />
                 </div>
+
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-slate-400">¿No te llegó el correo?</span>
+                  <button
+                    type="button"
+                    onClick={handleResendCode}
+                    disabled={resending}
+                    className="text-[#b3131b] font-bold hover:underline inline-flex items-center gap-1 cursor-pointer disabled:opacity-50"
+                  >
+                    <RotateCcw className="w-3 h-3" />
+                    <span>{resending ? 'Enviando...' : 'Reenviar código'}</span>
+                  </button>
+                </div>
+
+                {resendMessage && (
+                  <p className="text-xs text-emerald-700 bg-emerald-50 border border-emerald-200 p-2.5 rounded-xl text-center font-medium">
+                    ✓ {resendMessage}
+                  </p>
+                )}
 
                 {setupError && (
                   <div className="flex items-center gap-2 text-xs text-red-600 bg-red-50 border border-red-200 p-2.5 rounded-xl">
@@ -289,18 +329,18 @@ export default function TwoFactorManager({ initialEnabled }: TwoFactorManagerPro
                   </div>
                 )}
 
-                <div className="flex gap-3">
+                <div className="flex gap-3 pt-2">
                   <button
                     type="button"
-                    onClick={() => setModalMode('idle')}
-                    className="flex-1 py-3 px-4 rounded-xl text-xs font-bold uppercase tracking-wider bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors"
+                    onClick={closeModal}
+                    className="flex-1 py-3.5 px-4 rounded-xl text-xs font-bold uppercase tracking-wider bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors cursor-pointer text-center"
                   >
                     Cancelar
                   </button>
                   <button
                     type="submit"
                     disabled={setupLoading || verificationCode.length !== 6}
-                    className="flex-1 py-3 px-4 rounded-xl text-xs font-bold uppercase tracking-wider bg-[#b3131b] hover:bg-[#8f0f15] text-white transition-all shadow-sm disabled:opacity-50"
+                    className="flex-1 py-3.5 px-4 rounded-xl text-xs font-bold uppercase tracking-wider bg-[#b3131b] hover:bg-[#8f0f15] text-white transition-all shadow-sm disabled:opacity-50 cursor-pointer text-center"
                   >
                     {setupLoading ? 'Verificando...' : 'Confirmar y Activar'}
                   </button>
@@ -315,25 +355,33 @@ export default function TwoFactorManager({ initialEnabled }: TwoFactorManagerPro
 
       {/* MODAL DE DESACTIVACIÓN */}
       {modalMode === 'disable' && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl border border-slate-200 max-w-md w-full p-6 sm:p-8 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+        <div 
+          onClick={(e) => { if (e.target === e.currentTarget) closeModal(); }}
+          className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-150"
+        >
+          <div 
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white rounded-3xl border border-slate-200 max-w-md w-full p-6 sm:p-8 shadow-2xl relative animate-in zoom-in-95 duration-200"
+          >
             <div className="flex items-center justify-between pb-4 border-b border-slate-100 mb-6">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-xl bg-red-50 text-[#b3131b] flex items-center justify-center">
+                <div className="w-9 h-9 rounded-xl bg-red-50 text-[#b3131b] flex items-center justify-center">
                   <ShieldAlert className="w-5 h-5" />
                 </div>
                 <h3 className="font-bold text-gray-900 text-base">Desactivar 2FA</h3>
               </div>
               <button 
-                onClick={() => setModalMode('idle')}
-                className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 transition-colors"
+                type="button"
+                onClick={closeModal}
+                className="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-600 hover:text-gray-900 transition-colors cursor-pointer"
+                title="Cerrar ventana"
               >
-                <X className="w-4 h-4" />
+                <X className="w-5 h-5" />
               </button>
             </div>
 
             <p className="text-xs text-slate-600 mb-6 leading-relaxed">
-              Por razones de seguridad, ingresa tu contraseña actual para confirmar la desactivación del segundo factor de autenticación.
+              Para desactivar la verificación en dos pasos, confirma tu contraseña actual:
             </p>
 
             <form onSubmit={handleConfirmDisable} className="space-y-4">
@@ -346,6 +394,7 @@ export default function TwoFactorManager({ initialEnabled }: TwoFactorManagerPro
                   <input
                     type="password"
                     required
+                    autoFocus
                     placeholder="••••••••"
                     value={disablePassword}
                     onChange={(e) => setDisablePassword(e.target.value)}
@@ -364,15 +413,15 @@ export default function TwoFactorManager({ initialEnabled }: TwoFactorManagerPro
               <div className="flex gap-3 pt-2">
                 <button
                   type="button"
-                  onClick={() => setModalMode('idle')}
-                  className="flex-1 py-3 px-4 rounded-xl text-xs font-bold uppercase tracking-wider bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors"
+                  onClick={closeModal}
+                  className="flex-1 py-3 px-4 rounded-xl text-xs font-bold uppercase tracking-wider bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors cursor-pointer"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
                   disabled={disableLoading || !disablePassword}
-                  className="flex-1 py-3 px-4 rounded-xl text-xs font-bold uppercase tracking-wider bg-red-600 hover:bg-red-700 text-white transition-all shadow-sm disabled:opacity-50"
+                  className="flex-1 py-3 px-4 rounded-xl text-xs font-bold uppercase tracking-wider bg-red-600 hover:bg-red-700 text-white transition-all shadow-sm disabled:opacity-50 cursor-pointer"
                 >
                   {disableLoading ? 'Verificando...' : 'Desactivar 2FA'}
                 </button>

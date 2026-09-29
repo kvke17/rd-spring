@@ -12,9 +12,9 @@ import {
   AlertCircle, 
   ArrowRight, 
   ShieldCheck, 
-  Smartphone, 
   KeyRound, 
-  ArrowLeft 
+  ArrowLeft,
+  RotateCcw
 } from 'lucide-react';
 
 export default function AuthPage() {
@@ -26,9 +26,11 @@ export default function AuthPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // Estados específicos para el flujo de 2FA
+  // Estados específicos para el flujo de 2FA por Correo
   const [requires2FA, setRequires2FA] = useState(false);
   const [totpCode, setTotpCode] = useState('');
+  const [resending, setResending] = useState(false);
+  const [resendNotice, setResendNotice] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,7 +39,6 @@ export default function AuthPage() {
 
     try {
       if (isLogin) {
-        // Si ya estamos en el paso de 2FA, enviamos el código
         const payload: Record<string, string> = { 
           email: email.toLowerCase().trim(), 
           password 
@@ -54,11 +55,12 @@ export default function AuthPage() {
 
         if (res?.error) {
           if (res.error === '2FA_REQUIRED') {
-            // El usuario tiene 2FA activado: pasamos al paso 2
+            // El usuario tiene 2FA activado: se envió el código al correo
             setRequires2FA(true);
             setError('');
+            setResendNotice('Enviamos un código de 6 dígitos a tu correo.');
           } else if (res.error === 'CODIGO_2FA_INVALIDO') {
-            setError('El código 2FA o de respaldo ingresado es incorrecto o expiró.');
+            setError('El código ingresado es incorrecto o expiró. Revisa tu correo o usa un código de respaldo.');
           } else {
             setError(res.error);
           }
@@ -90,10 +92,31 @@ export default function AuthPage() {
     }
   };
 
+  const handleResendCode = async () => {
+    setResending(true);
+    setError('');
+    setResendNotice('');
+    try {
+      const res = await fetch('/api/auth/2fa/resend', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email.toLowerCase().trim() }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Error al reenviar');
+      setResendNotice('Nuevo código de 6 dígitos enviado a tu correo.');
+    } catch (err: any) {
+      setError(err.message || 'Error al reenviar el código');
+    } finally {
+      setResending(false);
+    }
+  };
+
   const handleBackFrom2FA = () => {
     setRequires2FA(false);
     setTotpCode('');
     setError('');
+    setResendNotice('');
   };
 
   return (
@@ -112,19 +135,19 @@ export default function AuthPage() {
             />
           </Link>
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-50 border border-red-100 text-[#b3131b] text-[10px] font-mono font-bold uppercase tracking-wider">
-            {requires2FA ? <Smartphone className="w-3 h-3" /> : <ShieldCheck className="w-3 h-3" />}
-            <span>{requires2FA ? 'VERIFICACIÓN DE SEGURIDAD' : 'PORTAL DE CLIENTES'}</span>
+            {requires2FA ? <Mail className="w-3 h-3" /> : <ShieldCheck className="w-3 h-3" />}
+            <span>{requires2FA ? 'VERIFICACIÓN POR CORREO' : 'PORTAL DE CLIENTES'}</span>
           </div>
           <h1 className="text-2xl font-black text-gray-900 mt-2 tracking-tight">
             {requires2FA 
-              ? 'Código 2FA' 
+              ? 'Código de Acceso' 
               : isLogin 
               ? 'Acceso Seguro' 
               : 'Crear Cuenta'}
           </h1>
           <p className="text-xs text-slate-500 mt-1 font-medium">
             {requires2FA
-              ? `Ingresa el código de 6 dígitos de tu app de autenticación para ${email}`
+              ? `Ingresa el código de 6 dígitos enviado a ${email}`
               : isLogin 
               ? 'Ingresa tus credenciales para administrar tus pedidos' 
               : 'Regístrate para comprar más rápido y seguir tus envíos'}
@@ -137,7 +160,7 @@ export default function AuthPage() {
             <button
               type="button"
               onClick={() => { setIsLogin(true); setError(''); }}
-              className={`flex-1 py-2 text-xs font-bold uppercase tracking-wider rounded-xl transition-all ${
+              className={`flex-1 py-2 text-xs font-bold uppercase tracking-wider rounded-xl transition-all cursor-pointer ${
                 isLogin 
                   ? 'bg-white text-gray-900 shadow-sm' 
                   : 'text-slate-500 hover:text-gray-900'
@@ -148,7 +171,7 @@ export default function AuthPage() {
             <button
               type="button"
               onClick={() => { setIsLogin(false); setError(''); }}
-              className={`flex-1 py-2 text-xs font-bold uppercase tracking-wider rounded-xl transition-all ${
+              className={`flex-1 py-2 text-xs font-bold uppercase tracking-wider rounded-xl transition-all cursor-pointer ${
                 !isLogin 
                   ? 'bg-white text-gray-900 shadow-sm' 
                   : 'text-slate-500 hover:text-gray-900'
@@ -165,10 +188,15 @@ export default function AuthPage() {
           {/* PASO 2FA ACTIVADO */}
           {requires2FA ? (
             <div className="space-y-4 animate-in fade-in zoom-in-95 duration-200">
-              <div>
-                <label className="block text-[11px] font-mono uppercase tracking-wider text-slate-700 mb-1.5 font-bold text-center">
-                  Código de Autenticación (o código de respaldo)
-                </label>
+              
+              <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200/80 text-center">
+                <span className="text-[11px] font-mono uppercase tracking-wider text-slate-700 font-bold block mb-1">
+                  Código de 6 Dígitos
+                </span>
+                <p className="text-xs text-slate-500 mb-3">
+                  Revisa tu correo (incluso spam) o ingresa un código de respaldo:
+                </p>
+                
                 <div className="relative">
                   <KeyRound className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                   <input
@@ -178,13 +206,29 @@ export default function AuthPage() {
                     placeholder="123456"
                     value={totpCode}
                     onChange={(e) => setTotpCode(e.target.value)}
-                    className="w-full bg-slate-50/60 border border-slate-200 rounded-xl pl-10 pr-4 py-3.5 text-center text-xl font-mono tracking-widest text-slate-900 font-bold focus:outline-none focus:border-[#b3131b] focus:bg-white focus:ring-2 focus:ring-red-100 transition-all"
+                    className="w-full bg-white border border-slate-200 rounded-xl pl-10 pr-4 py-3.5 text-center text-2xl font-mono tracking-[0.25em] text-slate-900 font-black focus:outline-none focus:border-[#b3131b] focus:ring-2 focus:ring-red-100 transition-all"
                   />
                 </div>
-                <p className="text-[10px] text-slate-400 text-center mt-2">
-                  Abre Google Authenticator, Microsoft Authenticator o tu app TOTP.
-                </p>
               </div>
+
+              <div className="flex items-center justify-between text-xs px-1">
+                <span className="text-slate-400">¿No lo recibiste?</span>
+                <button
+                  type="button"
+                  onClick={handleResendCode}
+                  disabled={resending}
+                  className="text-[#b3131b] font-bold hover:underline inline-flex items-center gap-1 cursor-pointer disabled:opacity-50"
+                >
+                  <RotateCcw className="w-3 h-3" />
+                  <span>{resending ? 'Enviando...' : 'Reenviar código'}</span>
+                </button>
+              </div>
+
+              {resendNotice && (
+                <p className="text-xs text-emerald-700 bg-emerald-50 border border-emerald-200 p-2.5 rounded-xl text-center font-medium">
+                  ✓ {resendNotice}
+                </p>
+              )}
 
               {error && (
                 <div className="flex items-center gap-2 text-xs text-red-600 bg-red-50 border border-red-200 p-3 rounded-xl mt-3">
@@ -196,7 +240,7 @@ export default function AuthPage() {
               <button 
                 type="submit" 
                 disabled={loading || !totpCode.trim()}
-                className="w-full bg-[#b3131b] hover:bg-[#8f0f15] text-white font-bold py-3.5 px-4 rounded-xl text-xs uppercase tracking-wider transition-all shadow-sm flex items-center justify-center gap-2 mt-4 disabled:opacity-50"
+                className="w-full bg-[#b3131b] hover:bg-[#8f0f15] text-white font-bold py-3.5 px-4 rounded-xl text-xs uppercase tracking-wider transition-all shadow-sm flex items-center justify-center gap-2 mt-4 disabled:opacity-50 cursor-pointer"
               >
                 <span>{loading ? 'VERIFICANDO...' : 'VERIFICAR Y ACCEDER'}</span>
                 <ArrowRight className="w-4 h-4" />
@@ -205,7 +249,7 @@ export default function AuthPage() {
               <button
                 type="button"
                 onClick={handleBackFrom2FA}
-                className="w-full text-center text-xs text-slate-500 hover:text-gray-900 transition-colors py-2 flex items-center justify-center gap-1 font-medium"
+                className="w-full text-center text-xs text-slate-500 hover:text-gray-900 transition-colors py-2 flex items-center justify-center gap-1 font-medium cursor-pointer"
               >
                 <ArrowLeft className="w-3.5 h-3.5" />
                 <span>Volver a ingresar contraseña</span>
@@ -287,7 +331,7 @@ export default function AuthPage() {
               <button 
                 type="submit" 
                 disabled={loading} 
-                className="w-full bg-[#b3131b] hover:bg-[#8f0f15] text-white font-bold py-3.5 px-4 rounded-xl text-xs uppercase tracking-wider transition-all shadow-sm flex items-center justify-center gap-2 mt-6 disabled:opacity-50"
+                className="w-full bg-[#b3131b] hover:bg-[#8f0f15] text-white font-bold py-3.5 px-4 rounded-xl text-xs uppercase tracking-wider transition-all shadow-sm flex items-center justify-center gap-2 mt-6 disabled:opacity-50 cursor-pointer"
               >
                 <span>{loading ? 'PROCESANDO...' : isLogin ? 'INICIAR SESIÓN' : 'CREAR MI CUENTA'}</span>
                 <ArrowRight className="w-4 h-4" />
@@ -305,7 +349,7 @@ export default function AuthPage() {
               <button 
                 type="button" 
                 onClick={() => { setIsLogin(!isLogin); setError(''); }} 
-                className="text-[#b3131b] font-bold hover:underline ml-1"
+                className="text-[#b3131b] font-bold hover:underline ml-1 cursor-pointer"
               >
                 {isLogin ? 'Regístrate aquí' : 'Inicia sesión'}
               </button>

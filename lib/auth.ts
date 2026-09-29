@@ -3,7 +3,10 @@ import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import prisma from '@/lib/prisma';
 import bcrypt from "bcrypt";
-import { verifyTwoFactorCode, verifyAndConsumeBackupCode } from '@/lib/twoFactor';
+import { 
+  verifyTwoFactorEmailOrBackupCode, 
+  generateAndSendEmailCode 
+} from '@/lib/twoFactor';
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -29,31 +32,20 @@ export const authOptions: NextAuthOptions = {
         // Si el usuario tiene 2FA activado
         if (user.twoFactorEnabled) {
           if (!credentials.totpCode) {
-            // Señaliza al frontend que debe solicitar el segundo factor
+            // Genera y envía el código de 6 dígitos al correo del usuario
+            await generateAndSendEmailCode(user.email, 'login');
+            // Señaliza al frontend que debe solicitar el código recibido por correo
             throw new Error("2FA_REQUIRED");
           }
 
-          if (!user.twoFactorSecret) {
-            throw new Error("Error en configuración de 2FA");
-          }
+          // Verificamos si el código de 6 dígitos o el código de respaldo es correcto
+          const verification = await verifyTwoFactorEmailOrBackupCode(
+            user.email, 
+            credentials.totpCode
+          );
 
-          const isTotpValid = verifyTwoFactorCode(credentials.totpCode, user.twoFactorSecret);
-
-          if (!isTotpValid) {
-            // Intentar verificar con código de respaldo
-            const { isValid: isBackupValid, remainingCodesJson } = verifyAndConsumeBackupCode(
-              credentials.totpCode,
-              user.twoFactorBackupCodes
-            );
-
-            if (isBackupValid) {
-              await prisma.user.update({
-                where: { id: user.id },
-                data: { twoFactorBackupCodes: remainingCodesJson },
-              });
-            } else {
-              throw new Error("CODIGO_2FA_INVALIDO");
-            }
+          if (!verification.isValid) {
+            throw new Error("CODIGO_2FA_INVALIDO");
           }
         }
 

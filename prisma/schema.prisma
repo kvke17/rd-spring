@@ -18,6 +18,8 @@ model User {
   twoFactorEnabled      Boolean  @default(false)
   twoFactorSecret       String?
   twoFactorBackupCodes  String?
+  twoFactorTempCode     String?
+  twoFactorCodeExpires  DateTime?
   createdAt             DateTime @default(now())
   
   orders                Order[]  

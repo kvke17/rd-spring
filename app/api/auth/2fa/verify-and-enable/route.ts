@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import prisma from '@/lib/prisma';
-import { verifyTwoFactorCode } from '@/lib/twoFactor';
+import { verifyTwoFactorEmailOrBackupCode } from '@/lib/twoFactor';
 
 export async function POST(req: Request) {
   try {
@@ -12,33 +12,36 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
     }
 
-    const { code, secret, backupCodes } = await req.json();
+    const { code, backupCodes } = await req.json();
 
-    if (!code || !secret) {
-      return NextResponse.json({ error: 'Faltan parámetros requeridos' }, { status: 400 });
+    if (!code) {
+      return NextResponse.json({ error: 'Debes ingresar el código de 6 dígitos enviado a tu correo' }, { status: 400 });
     }
 
-    const isValid = verifyTwoFactorCode(code, secret);
+    // Validar el código recibido por correo
+    const verification = await verifyTwoFactorEmailOrBackupCode(session.user.email, code);
 
-    if (!isValid) {
-      return NextResponse.json({ error: 'El código ingresado es incorrecto o expiró. Intenta con el nuevo código de tu app.' }, { status: 400 });
+    if (!verification.isValid) {
+      return NextResponse.json({ 
+        error: 'El código ingresado es incorrecto o ha expirado. Revisa tu correo o solicita uno nuevo.' 
+      }, { status: 400 });
     }
 
+    // Activar 2FA y guardar los códigos de respaldo
     await prisma.user.update({
       where: { email: session.user.email },
       data: {
         twoFactorEnabled: true,
-        twoFactorSecret: secret,
         twoFactorBackupCodes: Array.isArray(backupCodes) ? JSON.stringify(backupCodes) : null,
       },
     });
 
     return NextResponse.json({
       success: true,
-      message: 'Autenticación de dos pasos activada exitosamente.',
+      message: 'Autenticación en dos pasos (2FA) por correo activada exitosamente.',
     });
   } catch (error) {
-    console.error('Error habilitando 2FA:', error);
-    return NextResponse.json({ error: 'Error al activar 2FA en el servidor' }, { status: 500 });
+    console.error('Error habilitando 2FA por correo:', error);
+    return NextResponse.json({ error: 'Error al activar 2FA' }, { status: 500 });
   }
 }

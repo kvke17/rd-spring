@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { generateTwoFactorSetup } from '@/lib/twoFactor';
+import { generateBackupCodes, generateAndSendEmailCode } from '@/lib/twoFactor';
 
 export async function POST() {
   try {
@@ -11,15 +11,19 @@ export async function POST() {
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
     }
 
-    const setupData = await generateTwoFactorSetup(session.user.email);
+    // 1. Generamos los 8 códigos de respaldo
+    const backupCodes = generateBackupCodes();
+
+    // 2. Enviamos el código de 6 dígitos al correo del usuario para confirmar la activación
+    await generateAndSendEmailCode(session.user.email, 'setup');
 
     return NextResponse.json({
-      secret: setupData.secret,
-      qrCodeUrl: setupData.qrCodeUrl,
-      backupCodes: setupData.backupCodes,
+      success: true,
+      email: session.user.email,
+      backupCodes,
     });
   } catch (error) {
     console.error('Error generando configuración 2FA:', error);
-    return NextResponse.json({ error: 'Error al generar configuración de 2FA' }, { status: 500 });
+    return NextResponse.json({ error: 'Error al enviar código de activación' }, { status: 500 });
   }
 }
