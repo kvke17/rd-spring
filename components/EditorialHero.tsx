@@ -1,10 +1,9 @@
 'use client';
 
-import Link from 'next/link';
 import Image from 'next/image';
 import { motion, useReducedMotion, Variants } from 'framer-motion';
-import { ArrowUpRight } from 'lucide-react';
 import { Syne, Instrument_Serif } from 'next/font/google';
+import { InteractiveHoverButton } from '@/components/ui/interactive-hover-button';
 
 const easeEditorial: [number, number, number, number] = [0.23, 1, 0.32, 1];
 
@@ -188,24 +187,15 @@ export default function EditorialHero() {
                 }}
                 className="flex flex-wrap items-center gap-4"
               >
-                {/* Button 1: Pure solid black with white text & crimson accent arrow */}
-                <Link
-                  href="/cotizacion"
-                  className="group relative inline-flex items-center justify-center gap-3 px-8 py-4 rounded-full bg-black hover:bg-neutral-900 text-white text-xs sm:text-sm font-semibold uppercase tracking-wider shadow-xl shadow-black/15 hover:shadow-2xl hover:shadow-black/25 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 cursor-pointer"
-                >
-                  <span>COTIZAR REPUESTO</span>
-                  <span className="w-6 h-6 rounded-full bg-white/10 group-hover:bg-[#b3131b] flex items-center justify-center transition-colors duration-300">
-                    <ArrowUpRight className="w-3.5 h-3.5 text-white transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-                  </span>
-                </Link>
+                {/* Button 1: Interactive Hover Button - Cotizar Repuesto */}
+                <InteractiveHoverButton href="/cotizacion">
+                  COTIZAR REPUESTO
+                </InteractiveHoverButton>
 
-                {/* Button 2: Solid black with crisp white text and subtle border hover shift */}
-                <Link
-                  href="/catalogo"
-                  className="inline-flex items-center justify-center px-8 py-4 rounded-full bg-black hover:bg-neutral-800 border border-neutral-800 hover:border-neutral-600 text-white text-xs sm:text-sm font-semibold uppercase tracking-wider shadow-xl shadow-black/10 hover:shadow-2xl hover:shadow-black/20 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 cursor-pointer"
-                >
-                  <span>VER ACEITES ROWE</span>
-                </Link>
+                {/* Button 2: Interactive Hover Button - Ver Aceites Rowe */}
+                <InteractiveHoverButton href="/catalogo">
+                  VER ACEITES ROWE
+                </InteractiveHoverButton>
               </motion.div>
             </div>
           </div>

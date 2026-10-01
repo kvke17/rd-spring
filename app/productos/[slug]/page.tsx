@@ -28,6 +28,7 @@ import {
   Globe2
 } from 'lucide-react';
 
+
 const TABS = [
   { id: 'descripcion', label: 'Descripción', icon: FileText },
   { id: 'ficha', label: 'Ficha Técnica', icon: Sliders },
@@ -431,7 +432,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
         </div>
 
         {/* PESTAÑAS DETALLE */}
-        <div className="mt-14 bg-white rounded-3xl border border-slate-200/80 p-8 shadow-sm">
+        <div className="mt-14 bg-white rounded-3xl border border-slate-200/80 p-5 sm:p-8 shadow-sm overflow-hidden">
           
           {/* Navegación de Pestañas */}
           <div className="flex overflow-x-auto no-scrollbar gap-2 border-b border-slate-100 pb-4">

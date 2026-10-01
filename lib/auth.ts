@@ -1,6 +1,7 @@
 // Archivo: lib/auth.ts
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import GoogleProvider from "next-auth/providers/google";
 import prisma from '@/lib/prisma';
 import bcrypt from "bcrypt";
 import { 
@@ -10,6 +11,14 @@ import {
 
 export const authOptions: NextAuthOptions = {
   providers: [
+    ...(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
+      ? [
+          GoogleProvider({
+            clientId: process.env.GOOGLE_CLIENT_ID,
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+          }),
+        ]
+      : []),
     CredentialsProvider({
       name: "Credenciales",
       credentials: {
@@ -61,11 +70,57 @@ export const authOptions: NextAuthOptions = {
   ],
   
   callbacks: {
+    async signIn({ user, account }) {
+      if (account?.provider === 'google') {
+        if (!user.email) return false;
+        const cleanEmail = user.email.toLowerCase().trim();
+
+        // Verificar si el usuario ya existe en la base de datos
+        const existingUser = await prisma.user.findUnique({
+          where: { email: cleanEmail }
+        });
+
+        if (!existingUser) {
+          // Creación automática del usuario proveniente de Google
+          const randomSecret = Math.random().toString(36).slice(-10) + Date.now().toString(36);
+          const hashedPassword = await bcrypt.hash(randomSecret, 10);
+
+          const newUser = await prisma.user.create({
+            data: {
+              email: cleanEmail,
+              name: user.name || cleanEmail.split('@')[0] || 'Cliente Google',
+              password: hashedPassword,
+              role: 'CUSTOMER',
+              twoFactorEnabled: false
+            }
+          });
+          user.id = newUser.id;
+          (user as any).role = newUser.role;
+          (user as any).twoFactorEnabled = newUser.twoFactorEnabled;
+        } else {
+          user.id = existingUser.id;
+          (user as any).role = existingUser.role;
+          (user as any).twoFactorEnabled = existingUser.twoFactorEnabled;
+        }
+      }
+      return true;
+    },
     async jwt({ token, user }) {
       if (user) {
-        token.role = (user as any).role;
+        token.role = (user as any).role || 'CUSTOMER';
         token.id = user.id;
-        token.twoFactorEnabled = (user as any).twoFactorEnabled;
+        token.twoFactorEnabled = Boolean((user as any).twoFactorEnabled);
+      }
+      if (!token.id && token.email) {
+        const dbUser = await prisma.user.findUnique({
+          where: { email: (token.email as string).toLowerCase().trim() },
+          select: { id: true, role: true, twoFactorEnabled: true }
+        });
+        if (dbUser) {
+          token.id = dbUser.id;
+          token.role = dbUser.role;
+          token.twoFactorEnabled = dbUser.twoFactorEnabled;
+        }
       }
       return token;
     },
@@ -83,15 +138,17 @@ export const authOptions: NextAuthOptions = {
     strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60, // 30 días
   },
-  useSecureCookies: process.env.NODE_ENV === "production",
+  useSecureCookies: process.env.NEXTAUTH_URL?.startsWith("https://") ?? false,
   cookies: {
     sessionToken: {
-      name: process.env.NODE_ENV === "production" ? "__Secure-next-auth.session-token" : "next-auth.session-token",
+      name: (process.env.NEXTAUTH_URL?.startsWith("https://") ?? false)
+        ? "__Secure-next-auth.session-token"
+        : "next-auth.session-token",
       options: {
         httpOnly: true,
         sameSite: "lax",
         path: "/",
-        secure: process.env.NODE_ENV === "production",
+        secure: process.env.NEXTAUTH_URL?.startsWith("https://") ?? false,
       },
     },
   },

@@ -13,6 +13,7 @@ import {
   RotateCcw,
   KeyRound
 } from 'lucide-react';
+import CodeSlots from '@/components/ui/CodeSlots/CodeSlots';
 
 interface TwoFactorManagerProps {
   initialEnabled: boolean;
@@ -26,6 +27,7 @@ export default function TwoFactorManager({ initialEnabled, userEmail }: TwoFacto
   // Estados de Configuración
   const [backupCodes, setBackupCodes] = useState<string[]>([]);
   const [verificationCode, setVerificationCode] = useState('');
+  const [setupStatus, setSetupStatus] = useState<'idle' | 'error' | 'success'>('idle');
   const [setupLoading, setSetupLoading] = useState(false);
   const [setupError, setSetupError] = useState('');
   const [backupCopied, setBackupCopied] = useState(false);
@@ -55,6 +57,7 @@ export default function TwoFactorManager({ initialEnabled, userEmail }: TwoFacto
     setSetupError('');
     setDisableError('');
     setVerificationCode('');
+    setSetupStatus('idle');
     setDisablePassword('');
     setResendMessage('');
   };
@@ -63,6 +66,7 @@ export default function TwoFactorManager({ initialEnabled, userEmail }: TwoFacto
     setSetupLoading(true);
     setSetupError('');
     setResendMessage('');
+    setSetupStatus('idle');
     try {
       const res = await fetch('/api/auth/2fa/setup', { method: 'POST' });
       const data = await res.json();
@@ -80,6 +84,7 @@ export default function TwoFactorManager({ initialEnabled, userEmail }: TwoFacto
     setResending(true);
     setSetupError('');
     setResendMessage('');
+    setSetupStatus('idle');
     try {
       const res = await fetch('/api/auth/2fa/resend', {
         method: 'POST',
@@ -96,8 +101,11 @@ export default function TwoFactorManager({ initialEnabled, userEmail }: TwoFacto
     }
   };
 
-  const handleConfirmEnable = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleConfirmEnable = async (e?: React.FormEvent, customCode?: string) => {
+    if (e) e.preventDefault();
+    const code = (customCode ?? verificationCode).trim();
+    if (!code || code.length !== 6) return;
+
     setSetupLoading(true);
     setSetupError('');
 
@@ -106,17 +114,24 @@ export default function TwoFactorManager({ initialEnabled, userEmail }: TwoFacto
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          code: verificationCode.trim(),
+          code,
           backupCodes,
         }),
       });
 
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Código incorrecto');
+      if (!res.ok) {
+        setSetupStatus('error');
+        throw new Error(data.error || 'Código incorrecto');
+      }
 
-      setEnabled(true);
-      closeModal();
+      setSetupStatus('success');
+      setTimeout(() => {
+        setEnabled(true);
+        closeModal();
+      }, 600);
     } catch (err: any) {
+      setSetupStatus('error');
       setSetupError(err.message || 'Error al verificar código');
     } finally {
       setSetupLoading(false);
@@ -285,22 +300,46 @@ export default function TwoFactorManager({ initialEnabled, userEmail }: TwoFacto
                 </div>
               )}
 
-              {/* Paso 3: Input de 6 dígitos */}
-              <form onSubmit={handleConfirmEnable} className="space-y-4 pt-2 border-t border-slate-100">
-                <div>
-                  <label className="block text-[11px] font-mono uppercase tracking-wider text-slate-700 mb-2 font-bold text-center">
+              {/* Paso 3: Input de 6 dígitos con CodeSlots */}
+              <form 
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handleConfirmEnable();
+                }} 
+                className="space-y-4 pt-2 border-t border-slate-100"
+              >
+                <div className="flex flex-col items-center">
+                  <label className="block text-[11px] font-mono uppercase tracking-wider text-slate-700 mb-3 font-bold text-center">
                     Ingresa el código de 6 dígitos recibido por correo:
                   </label>
-                  <input
-                    type="text"
-                    required
-                    maxLength={6}
-                    autoFocus
-                    placeholder="123456"
-                    value={verificationCode}
-                    onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, ''))}
-                    className="w-full bg-slate-50/70 border border-slate-200 rounded-2xl px-4 py-3.5 text-center text-2xl font-mono tracking-[0.3em] text-gray-900 focus:outline-none focus:border-[#b3131b] focus:bg-white focus:ring-2 focus:ring-red-100 transition-all font-black"
-                  />
+                  <div className="flex justify-center items-center py-1">
+                    <CodeSlots
+                      length={6}
+                      value={verificationCode}
+                      status={setupStatus}
+                      onChange={(code) => {
+                        setVerificationCode(code);
+                        if (setupStatus === 'error') setSetupStatus('idle');
+                        if (setupError) setSetupError('');
+                      }}
+                      onComplete={(code) => {
+                        handleConfirmEnable(undefined, code);
+                      }}
+                      accentColor="#ffffff"
+                      inkColor="#b3131b"
+                      slotColor="#18181b"
+                      digitColor="#09090b"
+                      dangerColor="#b3131b"
+                      slotSize={46}
+                      gap={8}
+                      radius={12}
+                      bounce={0.2}
+                      settle={0.3}
+                      rise={8}
+                      cascade={20}
+                      autoFocus={true}
+                    />
+                  </div>
                 </div>
 
                 <div className="flex items-center justify-between text-xs">
@@ -342,7 +381,7 @@ export default function TwoFactorManager({ initialEnabled, userEmail }: TwoFacto
                     disabled={setupLoading || verificationCode.length !== 6}
                     className="flex-1 py-3.5 px-4 rounded-xl text-xs font-bold uppercase tracking-wider bg-[#b3131b] hover:bg-[#8f0f15] text-white transition-all shadow-sm disabled:opacity-50 cursor-pointer text-center"
                   >
-                    {setupLoading ? 'Verificando...' : 'Confirmar y Activar'}
+                    {setupStatus === 'success' ? 'Verificado ✓' : setupLoading ? 'Verificando...' : 'Confirmar y Activar'}
                   </button>
                 </div>
               </form>

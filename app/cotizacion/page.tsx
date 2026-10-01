@@ -163,7 +163,6 @@ function CotizacionForm() {
             <option value="Mercedes-Benz">Mercedes-Benz</option>
             <option value="Land Rover">Land Rover</option>
             <option value="Volkswagen">Volkswagen</option>
-            <option value="Otra">Otra marca europea / americana</option>
           </select>
         </div>
 

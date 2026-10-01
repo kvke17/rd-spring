@@ -9,6 +9,15 @@ export default function SmoothScroll() {
   const lenisRef = useRef<Lenis | null>(null);
 
   useEffect(() => {
+    // 0. Desactivar y limpiar Lenis completamente en rutas administrativas (/admin/*)
+    if (pathname?.startsWith('/admin')) {
+      if (lenisRef.current) {
+        lenisRef.current.destroy();
+        lenisRef.current = null;
+      }
+      return;
+    }
+
     // 1. Respetar estrictamente la preferencia de movimiento reducido
     const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
     if (mediaQuery.matches) {
@@ -72,10 +81,11 @@ export default function SmoothScroll() {
       lenis.destroy();
       lenisRef.current = null;
     };
-  }, []);
+  }, [pathname]);
 
   // 6. Restablecer scroll al inicio en cambios de ruta de Next.js
   useEffect(() => {
+    if (pathname?.startsWith('/admin')) return;
     if (lenisRef.current) {
       lenisRef.current.scrollTo(0, { immediate: true });
     } else {

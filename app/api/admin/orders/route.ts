@@ -10,6 +10,9 @@ export async function GET() {
 
   try {
     const orders = await prisma.order.findMany({
+      where: {
+        status: { in: ['PAID', 'PAGADO'] },
+      },
       orderBy: { createdAt: 'desc' },
       // Quitamos el include porque items se guarda como un string JSON en la tabla
     });

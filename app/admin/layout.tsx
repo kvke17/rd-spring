@@ -1,68 +1,91 @@
 'use client';
 
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { BarChart3, ShoppingBag, Package, LayoutDashboard } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import AdminSidebar from '@/components/admin/AdminSidebar';
+import AdminMobileDrawer from '@/components/admin/AdminMobileDrawer';
+import AdminHeader from '@/components/admin/AdminHeader';
+import { useSession } from 'next-auth/react';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname();
+  const [collapsed, setCollapsed] = useState(false);
+  const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
+  const [ordersCount, setOrdersCount] = useState<number>(0);
+  const { data: session } = useSession();
 
-  const tabs = [
-    { name: 'Resumen', href: '/admin', icon: LayoutDashboard },
-    { name: 'Pedidos', href: '/admin/pedidos', icon: ShoppingBag },
-    { name: 'Productos', href: '/admin/productos', icon: Package }, 
-  ];
+  // 1. Cargar persistencia de la barra lateral desde localStorage sin parpadeo
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('rd_admin_sidebar_collapsed');
+      if (saved !== null) {
+        setCollapsed(saved === 'true');
+      }
+    } catch {
+      // Ignorar fallos de localStorage en entornos restringidos
+    }
+  }, []);
+
+  const toggleCollapsed = () => {
+    setCollapsed((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem('rd_admin_sidebar_collapsed', String(next));
+      } catch {}
+      return next;
+    });
+  };
+
+  // 2. Obtener conteo de órdenes pagadas para el badge de navegación
+  useEffect(() => {
+    const loadOrdersCount = async () => {
+      try {
+        const res = await fetch('/api/admin/orders');
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data.orders)) {
+            setOrdersCount(data.orders.length);
+          }
+        }
+      } catch (err) {
+        console.error('Error cargando badge de órdenes:', err);
+      }
+    };
+    loadOrdersCount();
+  }, []);
+
+  const closeMobileDrawer = useCallback(() => {
+    setMobileDrawerOpen(false);
+  }, []);
 
   return (
-    <div className="min-h-screen bg-slate-50/70 text-gray-900 pt-28 pb-24 font-sans">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
-        {/* Luxury Header Banner */}
-        <div className="mb-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-200/80 pb-6">
-          <div>
-            <div className="flex items-center gap-2 mb-1.5">
-              <span className="w-2 h-2 rounded-full bg-[#b3131b]" />
-              <p className="text-[10px] font-mono uppercase tracking-[0.25em] text-[#b3131b] font-bold">
-                PANEL DE CONTROL TÉCNICO
-              </p>
-            </div>
-            <h1 className="text-3xl sm:text-4xl font-black uppercase tracking-tight text-gray-900">
-              Centro de Control
-            </h1>
-          </div>
+    <div 
+      className="flex min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-[var(--brand-crimson)] selection:text-white"
+      data-lenis-prevent
+    >
+      {/* Sidebar fija colapsable para desktop */}
+      <AdminSidebar 
+        collapsed={collapsed} 
+        onToggleCollapse={toggleCollapsed} 
+        ordersBadge={ordersCount}
+      />
 
-          {/* Internal Navigation: Luxury Rounded Tabs */}
-          <nav className="inline-flex p-1.5 bg-white border border-slate-200/80 rounded-2xl shadow-sm self-start sm:self-auto">
-            {tabs.map((tab) => {
-              const Icon = tab.icon;
-              const isActive = 
-                tab.href === '/admin' 
-                  ? pathname === '/admin' 
-                  : pathname === tab.href || pathname.startsWith(`${tab.href}/`);
+      {/* Drawer deslizante para móviles (< 1024px) */}
+      <AdminMobileDrawer
+        isOpen={mobileDrawerOpen}
+        onClose={closeMobileDrawer}
+        ordersBadge={ordersCount}
+      />
 
-              return (
-                <Link
-                  key={tab.name}
-                  href={tab.href}
-                  className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-200 active:scale-95 ${
-                    isActive 
-                      ? 'bg-slate-900 text-white shadow-md' 
-                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
-                  }`}
-                >
-                  <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-[#b3131b]' : 'text-slate-400'}`} />
-                  {tab.name}
-                </Link>
-              );
-            })}
-          </nav>
-        </div>
+      {/* Área de contenido principal */}
+      <div className="flex-1 flex flex-col min-w-0 overflow-x-hidden">
+        <AdminHeader 
+          onOpenMobileDrawer={() => setMobileDrawerOpen(true)}
+          adminName={session?.user?.name || 'Administrador'}
+          adminEmail={session?.user?.email || 'admin@rdspring.cl'}
+        />
 
-        {/* Content Viewport */}
-        <div>
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto">
           {children}
-        </div>
-
+        </main>
       </div>
     </div>
   );

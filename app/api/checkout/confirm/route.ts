@@ -42,7 +42,7 @@ async function processPayment(request: Request) {
     const pendingOrder = await prisma.order.findUnique({ where: { token: token_ws } });
     if (!pendingOrder) return NextResponse.redirect(new URL('/carro?error=sistema', request.url), { status: 303 });
 
-    if (pendingOrder.status === 'PAGADO') return NextResponse.redirect(new URL(`/checkout/success?buyOrder=${pendingOrder.buyOrder}&amount=${pendingOrder.amount}`, request.url), { status: 303 });
+    if (pendingOrder.status === 'PAGADO' || pendingOrder.status === 'PAID') return NextResponse.redirect(new URL(`/checkout/success?buyOrder=${pendingOrder.buyOrder}&amount=${pendingOrder.amount}`, request.url), { status: 303 });
 
     const response = await tx.commit(token_ws);
 

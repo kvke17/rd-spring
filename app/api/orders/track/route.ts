@@ -46,7 +46,7 @@ export async function GET(request: Request) {
     // Busca en Turso
     const order = await prisma.order.findUnique({ where: { buyOrder } });
 
-    if (!order) {
+    if (!order || (order.status !== 'PAID' && order.status !== 'PAGADO')) {
       return NextResponse.json({ error: 'No encontramos un pedido con ese número de orden.' }, { status: 404 });
     }
 

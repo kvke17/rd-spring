@@ -1,14 +1,17 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import Image from "next/image";
 import Link from "next/link"; 
+import { useSearchParams } from "next/navigation";
 import Swal from 'sweetalert2';
-import { Plus, Edit2, Trash2, Package } from 'lucide-react';
+import { Plus, Edit2, Trash2, Package, Filter, X } from 'lucide-react';
 
-export default function AdminProductosPage() {
+function ProductosTableContent() {
   const [productos, setProductos] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const searchParams = useSearchParams();
+  const categoryFilter = searchParams.get('categoria');
 
   useEffect(() => {
     const cargarProductos = async () => {
@@ -48,7 +51,7 @@ export default function AdminProductosPage() {
       text: "Esta acción borrará el repuesto de la base de datos.",
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonColor: '#b3131b',
+      confirmButtonColor: 'var(--brand-crimson)',
       cancelButtonColor: '#64748b',
       confirmButtonText: 'Sí, eliminar',
       cancelButtonText: 'Cancelar'
@@ -72,19 +75,34 @@ export default function AdminProductosPage() {
     });
   };
 
+  const displayedProductos = categoryFilter
+    ? productos.filter(p => p.category?.toLowerCase() === categoryFilter.toLowerCase())
+    : productos;
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h2 className="text-xl font-bold uppercase tracking-tight text-slate-900">
-            Catálogo de Productos & Repuestos
-          </h2>
+          <div className="flex items-center gap-2">
+            <h2 className="text-xl font-bold uppercase tracking-tight text-slate-900">
+              Catálogo de Productos & Repuestos
+            </h2>
+            {categoryFilter && (
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-50 text-[var(--brand-crimson)] border border-red-200">
+                <Filter className="w-3 h-3" />
+                {categoryFilter}
+                <Link href="/admin/productos" className="ml-1 hover:opacity-75" title="Quitar filtro">
+                  <X className="w-3 h-3" />
+                </Link>
+              </span>
+            )}
+          </div>
           <p className="text-xs text-slate-500 mt-0.5">Gestión de inventario de amortiguadores, aceites ROWE y accesorios</p>
         </div>
         
         <Link 
           href="/admin/productos/nuevo"
-          className="btn-shine inline-flex items-center gap-2 bg-[#b3131b] hover:bg-[#8f0f15] text-white font-bold text-xs uppercase tracking-wider py-3 px-5 rounded-xl shadow-md hover:shadow-lg transition-all duration-200 active:scale-95 cursor-pointer self-start sm:self-auto"
+          className="btn-shine inline-flex items-center gap-2 bg-[var(--brand-crimson)] hover:brightness-110 text-white font-bold text-xs uppercase tracking-wider py-3 px-5 rounded-xl shadow-md hover:shadow-lg transition-all duration-200 active:scale-95 cursor-pointer self-start sm:self-auto"
         >
           <Plus className="w-4 h-4" />
           <span>Nuevo Producto</span>
@@ -109,19 +127,21 @@ export default function AdminProductosPage() {
                 <tr>
                   <td colSpan={6} className="text-center py-12">
                     <div className="flex flex-col items-center gap-2">
-                      <div className="w-5 h-5 border-2 border-[#b3131b] border-t-transparent rounded-full animate-spin" />
+                      <div className="w-5 h-5 border-2 border-[var(--brand-crimson)] border-t-transparent rounded-full animate-spin" />
                       <span className="text-xs uppercase tracking-widest text-slate-400 font-bold">Cargando catálogo...</span>
                     </div>
                   </td>
                 </tr>
-              ) : productos.length === 0 ? (
+              ) : displayedProductos.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="text-center py-12 text-slate-400 font-medium">
-                    No hay productos en la base de datos actualmente.
+                    {categoryFilter 
+                      ? `No se encontraron productos en la categoría "${categoryFilter}".`
+                      : "No hay productos en la base de datos actualmente."}
                   </td>
                 </tr>
               ) : (
-                productos.map((producto) => (
+                displayedProductos.map((producto) => (
                   <tr key={producto.id} className="hover:bg-slate-50/60 transition-colors">
                     <td className="px-6 py-3.5">
                       <div className="relative w-12 h-12 rounded-xl bg-slate-50 border border-slate-200/70 overflow-hidden flex items-center justify-center">
@@ -180,5 +200,17 @@ export default function AdminProductosPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function AdminProductosPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex h-64 items-center justify-center">
+        <div className="w-6 h-6 border-2 border-[var(--brand-crimson)] border-t-transparent rounded-full animate-spin" />
+      </div>
+    }>
+      <ProductosTableContent />
+    </Suspense>
   );
 }

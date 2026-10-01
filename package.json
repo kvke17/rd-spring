@@ -10,6 +10,8 @@
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
+    "@hugeicons/core-free-icons": "^4.3.5",
+    "@hugeicons/react": "^1.1.10",
     "@libsql/client": "^0.18.0",
     "@prisma/adapter-libsql": "^5.22.0",
     "@prisma/client": "^5.22.0",
@@ -21,6 +23,7 @@
     "framer-motion": "^13.1.1",
     "lenis": "^1.3.26",
     "lucide-react": "^0.460.0",
+    "motion": "^13.5.0",
     "next": "^15.0.0",
     "next-auth": "^4.24.15",
     "otplib": "^13.5.0",

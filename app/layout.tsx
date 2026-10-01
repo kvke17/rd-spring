@@ -3,10 +3,8 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google'; 
 // @ts-ignore
 import './globals.css';
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
+import PublicChrome from '@/components/PublicChrome';
 import AuthProvider from '@/components/AuthProvider';
-import CookieConsent from '@/components/CookieConsent';
 import SmoothScroll from '@/components/SmoothScroll';
 
 // Configuramos la nueva fuente
@@ -27,10 +25,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className={`${fuentePrincipal.className} bg-white text-gray-900 min-h-screen flex flex-col antialiased`}>
         <AuthProvider>
           <SmoothScroll />
-          <Navbar />
-          <main className="flex-1">{children}</main>
-          <Footer />
-          <CookieConsent />
+          <PublicChrome>{children}</PublicChrome>
         </AuthProvider>
       </body>
     </html>
