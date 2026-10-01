@@ -56,19 +56,78 @@ input[type='number']::-webkit-outer-spin-button {
   left: 130%;
 }
 
-/* Luxury Soft Shadows & Borders */
+/* Luxury Soft Shadows & Borders (GPU-accelerated via opacity) */
 .luxury-card {
+  position: relative;
   border-radius: 1.25rem; /* 20px - rounded-2xl */
   border: 1px solid rgba(226, 232, 240, 0.8);
   background: #ffffff;
-  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.04);
-  transition: transform 250ms var(--ease-out), box-shadow 250ms var(--ease-out), border-color 250ms var(--ease-out);
+  box-shadow: 0 4px 14px -2px rgba(15, 23, 42, 0.05);
+  transition: transform 250ms var(--ease-out), border-color 250ms var(--ease-out);
 }
 
-.luxury-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 16px 32px -4px rgba(15, 23, 42, 0.08);
-  border-color: rgba(203, 213, 225, 1);
+.luxury-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: 0 16px 32px -4px rgba(15, 23, 42, 0.1);
+  opacity: 0;
+  transition: opacity 250ms var(--ease-out);
+  pointer-events: none;
+  z-index: 1;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .luxury-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(203, 213, 225, 1);
+  }
+
+  .luxury-card:hover::after {
+    opacity: 1;
+  }
+}
+
+/* GPU-accelerated shadow hover layer for product cards and components */
+.gpu-shadow-hover {
+  position: relative;
+  box-shadow: 0 2px 8px -1px rgba(15, 23, 42, 0.06);
+  transition: transform 300ms var(--ease-out), border-color 200ms ease-out;
+}
+
+.gpu-shadow-hover::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: 0 20px 28px -6px rgba(15, 23, 42, 0.12), 0 8px 12px -6px rgba(15, 23, 42, 0.06);
+  opacity: 0;
+  transition: opacity 300ms var(--ease-out);
+  pointer-events: none;
+  z-index: 10;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .gpu-shadow-hover:hover::after {
+    opacity: 1;
+  }
+}
+
+/* Brand logo hover zoom: subtle scale(1) -> scale(1.06) with symmetric 800ms cubic-bezier(0.22, 1, 0.36, 1) */
+.brand-logo-zoom {
+  transform: scale(1);
+  transform-origin: center;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .brand-logo-zoom {
+    transition: transform 800ms cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: transform;
+  }
+  .brand-logo-item:hover .brand-logo-zoom {
+    transform: scale(1.06);
+  }
 }
 
 /* High-end glassmorphism */
@@ -88,3 +147,32 @@ input[type='number']::-webkit-outer-spin-button {
     scroll-behavior: auto !important;
   }
 }
+
+/* Lenis Smooth Scroll Core Rules */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis:not(.lenis-autoToggle).lenis-stopped {
+  overflow: clip;
+}
+
+.lenis [data-lenis-prevent],
+.lenis [data-lenis-prevent-wheel],
+.lenis [data-lenis-prevent-touch],
+.lenis [data-lenis-prevent-vertical],
+.lenis [data-lenis-prevent-horizontal] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-smooth iframe {
+  pointer-events: none;
+}
+
+.lenis.lenis-autoToggle {
+  transition-property: overflow;
+  transition-duration: 1ms;
+  transition-behavior: allow-discrete;
+}
+

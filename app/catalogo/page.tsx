@@ -142,7 +142,7 @@ export default async function CatalogoPage({ searchParams }: { searchParams: Pro
               return (
                 <div 
                   key={p.id} 
-                  className="bg-white rounded-3xl border border-slate-200/80 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col overflow-hidden group cursor-pointer"
+                  className="bg-white rounded-3xl border border-slate-200/80 gpu-shadow-hover hover:-translate-y-1.5 transition-transform duration-300 ease-out transform-gpu flex flex-col overflow-hidden group cursor-pointer"
                 >
                   {/* Contenedor de Imagen con Tag */}
                   <Link href={`/productos/${p.id}`} className="block relative aspect-square bg-slate-50/80 overflow-hidden p-8 flex items-center justify-center">

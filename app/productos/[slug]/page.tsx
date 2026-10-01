@@ -22,7 +22,10 @@ import {
   Shield, 
   Plus, 
   Minus,
-  ArrowLeft
+  ArrowLeft,
+  AlertCircle,
+  CheckCircle2,
+  Globe2
 } from 'lucide-react';
 
 const TABS = [
@@ -145,27 +148,99 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50/50 flex flex-col items-center justify-center p-4">
-        <div className="w-12 h-12 rounded-2xl bg-red-50 border border-red-100 flex items-center justify-center text-[#b3131b] animate-spin mb-4">
-          <Sparkles className="w-6 h-6" />
+      <div className="min-h-screen bg-slate-50/50 text-gray-900 pt-28 sm:pt-32 pb-24 font-sans">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Breadcrumb Skeleton */}
+          <div className="mb-6 flex items-center gap-2">
+            <div className="h-4 w-16 bg-slate-200 rounded-md animate-pulse" />
+            <div className="h-4 w-4 bg-slate-200 rounded-md animate-pulse" />
+            <div className="h-4 w-20 bg-slate-200 rounded-md animate-pulse" />
+            <div className="h-4 w-4 bg-slate-200 rounded-md animate-pulse" />
+            <div className="h-4 w-36 bg-slate-200 rounded-md animate-pulse" />
+          </div>
+
+          {/* Header Skeleton */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
+            {/* Image Placeholder */}
+            <div className="lg:col-span-6 bg-white rounded-3xl border border-slate-200/80 aspect-square p-8 sm:p-12 flex items-center justify-center shadow-sm">
+              <div className="w-3/5 h-3/5 bg-slate-100 rounded-2xl animate-pulse" />
+            </div>
+
+            {/* Info Placeholder */}
+            <div className="lg:col-span-6 bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-10 shadow-sm space-y-6 overflow-hidden">
+              <div className="flex gap-2">
+                <div className="h-5 w-20 bg-slate-100 rounded-full animate-pulse" />
+                <div className="h-5 w-28 bg-slate-100 rounded-md animate-pulse" />
+              </div>
+              <div className="space-y-2.5">
+                <div className="h-8 w-4/5 bg-slate-200 rounded-lg animate-pulse" />
+                <div className="h-8 w-3/5 bg-slate-200 rounded-lg animate-pulse" />
+              </div>
+              <div className="h-16 w-full bg-slate-100 rounded-2xl animate-pulse" />
+              <div className="space-y-2">
+                <div className="h-3 w-32 bg-slate-100 rounded animate-pulse" />
+                <div className="grid grid-cols-3 gap-2.5">
+                  <div className="h-14 bg-slate-100 rounded-xl animate-pulse" />
+                  <div className="h-14 bg-slate-100 rounded-xl animate-pulse" />
+                  <div className="h-14 bg-slate-100 rounded-xl animate-pulse" />
+                </div>
+              </div>
+              <div className="flex gap-3 pt-4">
+                <div className="w-24 sm:w-32 h-12 bg-slate-100 rounded-2xl animate-pulse shrink-0" />
+                <div className="flex-1 h-12 bg-slate-200 rounded-2xl animate-pulse" />
+              </div>
+            </div>
+          </div>
+
+          {/* Tabs Skeleton */}
+          <div className="mt-14 bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-8 shadow-sm overflow-hidden">
+            <div className="flex overflow-x-auto no-scrollbar gap-3 border-b border-slate-100 pb-4">
+              <div className="h-10 w-24 sm:w-28 bg-slate-100 rounded-xl animate-pulse shrink-0" />
+              <div className="h-10 w-24 sm:w-28 bg-slate-100 rounded-xl animate-pulse shrink-0" />
+              <div className="h-10 w-28 sm:w-32 bg-slate-100 rounded-xl animate-pulse shrink-0" />
+            </div>
+            <div className="py-8 space-y-4">
+              <div className="h-4 w-full bg-slate-100 rounded animate-pulse" />
+              <div className="h-4 w-5/6 bg-slate-100 rounded animate-pulse" />
+              <div className="h-4 w-4/6 bg-slate-100 rounded animate-pulse" />
+            </div>
+          </div>
         </div>
-        <p className="text-xs font-mono uppercase tracking-wider text-slate-500 font-bold">Cargando producto...</p>
       </div>
     );
   }
 
   if (!product) {
     return (
-      <div className="min-h-screen bg-slate-50/50 flex flex-col items-center justify-center text-center px-4">
-        <div className="max-w-md bg-white rounded-3xl border border-slate-200/80 p-10 shadow-sm">
-          <h1 className="text-2xl font-black mb-2 text-gray-900">Producto no encontrado</h1>
-          <p className="text-slate-500 text-xs mb-6">El producto que buscas no existe o ha sido descatalogado.</p>
-          <Link 
-            href="/catalogo" 
-            className="inline-block bg-[#b3131b] hover:bg-[#8f0f15] text-white px-6 py-3 rounded-xl text-xs uppercase font-bold tracking-wider transition-colors shadow-xs"
-          >
-            Volver al Catálogo
-          </Link>
+      <div className="min-h-screen bg-slate-50/50 flex flex-col items-center justify-center text-center px-4 pt-28 pb-16 font-sans">
+        <div className="max-w-md w-full bg-white rounded-3xl border border-slate-200/80 p-8 sm:p-10 shadow-lg shadow-slate-100 flex flex-col items-center">
+          <div className="w-14 h-14 rounded-2xl bg-red-50 border border-red-100 flex items-center justify-center text-[#b3131b] mb-5">
+            <AlertCircle className="w-7 h-7" />
+          </div>
+          <span className="text-[10px] font-mono uppercase tracking-widest text-[#b3131b] font-bold mb-1">
+            CATÁLOGO AUTOMOTRIZ
+          </span>
+          <h1 className="text-2xl font-black text-gray-900 mb-2 tracking-tight">
+            Producto no encontrado
+          </h1>
+          <p className="text-slate-500 text-xs sm:text-sm leading-relaxed mb-8">
+            El componente o lubricante solicitado no está disponible, fue reasignado de código o descatalogado temporalmente.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-3 w-full">
+            <Link 
+              href="/catalogo" 
+              className="flex-1 inline-flex items-center justify-center gap-2 bg-[#b3131b] hover:bg-[#8f0f15] text-white px-6 py-3.5 rounded-xl text-xs uppercase font-bold tracking-wider transition-all shadow-sm active:scale-95 cursor-pointer"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>Volver al Catálogo</span>
+            </Link>
+            <Link 
+              href="/cotizacion" 
+              className="inline-flex items-center justify-center px-5 py-3.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-800 text-xs uppercase font-bold tracking-wider transition-all active:scale-95 cursor-pointer"
+            >
+              Cotizar con VIN
+            </Link>
+          </div>
         </div>
       </div>
     );
@@ -181,13 +256,14 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
       ...product, 
       id: currentSku, 
       sku: currentSku,
+      type: 'venta_online',
       name: product.formats?.length > 1 ? `${product.name} (${formato})` : product.name, 
       price: currentPrice,
       stock: 999,
       image: currentImage,
     };
 
-    addItem(productToAdd, quantity);
+    addItem(productToAdd as any, quantity);
     setAddedJustNow(true);
     setTimeout(() => setAddedJustNow(false), 2000);
   };
@@ -292,34 +368,41 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                 {/* Contador */}
                 <div className="flex items-center bg-slate-50 border border-slate-200 rounded-2xl p-1">
                   <button 
+                    type="button"
                     onClick={() => setQuantity(Math.max(1, quantity - 1))} 
-                    className="w-10 h-10 flex items-center justify-center rounded-xl text-slate-600 hover:bg-white hover:text-gray-900 hover:shadow-2xs transition-all"
+                    disabled={quantity <= 1}
+                    className="w-10 h-10 flex items-center justify-center rounded-xl text-slate-600 hover:bg-white hover:text-gray-900 hover:shadow-2xs active:scale-90 active:bg-slate-200 disabled:opacity-40 disabled:pointer-events-none transition-all duration-150 cursor-pointer"
+                    aria-label="Disminuir cantidad"
                   >
                     <Minus className="w-4 h-4" />
                   </button>
-                  <span className="w-10 text-center font-bold text-sm text-gray-900 font-mono">
+                  <span className="w-10 text-center font-bold text-sm text-gray-900 font-mono select-none">
                     {quantity}
                   </span>
                   <button 
+                    type="button"
                     onClick={() => setQuantity(quantity + 1)} 
-                    className="w-10 h-10 flex items-center justify-center rounded-xl text-slate-600 hover:bg-white hover:text-gray-900 hover:shadow-2xs transition-all"
+                    className="w-10 h-10 flex items-center justify-center rounded-xl text-slate-600 hover:bg-white hover:text-gray-900 hover:shadow-2xs active:scale-90 active:bg-slate-200 transition-all duration-150 cursor-pointer"
+                    aria-label="Aumentar cantidad"
                   >
                     <Plus className="w-4 h-4" />
                   </button>
                 </div>
 
-                {/* Botón CTA */}
+                {/* Botón CTA con microinteracción táctil y estado dinámico */}
                 <button 
+                  type="button"
                   onClick={handleAddToCart}
-                  className={`flex-1 flex items-center justify-center gap-2 font-bold py-3.5 px-6 rounded-2xl uppercase tracking-wider text-xs transition-all shadow-md active:scale-[0.98] ${
+                  className={`flex-1 flex items-center justify-center gap-2 font-bold py-3.5 px-6 rounded-2xl uppercase tracking-wider text-xs transition-all duration-200 shadow-md hover:shadow-lg active:scale-[0.98] cursor-pointer ${
                     addedJustNow
-                      ? 'bg-emerald-600 text-white'
+                      ? 'bg-emerald-600 text-white scale-[1.01]'
                       : 'bg-[#b3131b] hover:bg-[#8f0f15] text-white'
                   }`}
+                  aria-live="polite"
                 >
                   {addedJustNow ? (
                     <>
-                      <Check className="w-4 h-4" />
+                      <Check className="w-4 h-4 animate-in zoom-in-75 duration-200" />
                       <span>¡Añadido al Carro!</span>
                     </>
                   ) : (
@@ -339,7 +422,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                 </div>
                 <div className="flex items-center gap-2 text-slate-500 text-xs font-medium">
                   <ShieldCheck className="w-4 h-4 text-[#b3131b] shrink-0" />
-                  <span>1 Año de Garantía Oficial</span>
+                  <span>1 Año de Garantía</span>
                 </div>
               </div>
             </div>
@@ -396,18 +479,76 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
             )}
 
             {activeTab === 'ficha' && (
-              <div className="max-w-4xl">
+              <div className="max-w-4xl space-y-6">
+                <div className="border-b border-slate-100 pb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                  <div>
+                    <span className="text-[10px] font-mono uppercase tracking-widest text-[#b3131b] font-bold block mb-1">
+                      ESTÁNDAR OEM & HOMOLOGACIÓN
+                    </span>
+                    <h3 className="text-lg font-bold text-gray-900">
+                      Ficha Técnica y Aprobaciones del Fabricante
+                    </h3>
+                  </div>
+                  {product.specs?.['Origen'] && (
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-700 text-xs font-mono font-medium self-start sm:self-auto">
+                      <Globe2 className="w-3.5 h-3.5 text-slate-500" />
+                      <span>{product.specs['Origen']}</span>
+                    </span>
+                  )}
+                </div>
+
                 {product.specs && Object.keys(product.specs).length > 0 ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {Object.entries(product.specs).map(([key, val]) => (
-                      <div key={key} className="flex justify-between items-center p-3.5 bg-slate-50/70 rounded-xl border border-slate-100 text-xs">
-                        <span className="font-bold text-slate-700 uppercase tracking-wide">{key}</span>
-                        <span className="font-mono text-gray-900 font-bold">{val as string}</span>
-                      </div>
-                    ))}
+                  <div className="border border-slate-200 rounded-2xl overflow-hidden bg-white shadow-xs">
+                    <table className="w-full text-left text-xs">
+                      <tbody className="divide-y divide-slate-100">
+                        {Object.entries(product.specs).map(([key, rawVal]) => {
+                          const valStr = String(rawVal || '').trim();
+                          const isApprovalsOrSpecs = /aprobaciones|especificaciones|recomendaciones/i.test(key);
+                          const lines = valStr.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+
+                          return (
+                            <tr key={key} className="hover:bg-slate-50/50 transition-colors">
+                              <th className="py-4 px-5 font-mono uppercase text-slate-500 text-[11px] font-semibold w-1/3 sm:w-2/5 align-top tracking-wider bg-slate-50/40 border-r border-slate-100">
+                                {key}
+                              </th>
+                              <td className="py-4 px-5 text-gray-900 align-top">
+                                {isApprovalsOrSpecs ? (
+                                  <div className="flex flex-wrap gap-1.5">
+                                    {lines.flatMap(line => line.split(/\s*\|\s*/)).map((item, itemIdx) => (
+                                      <span
+                                        key={itemIdx}
+                                        className="inline-flex items-center px-2.5 py-1 rounded-md bg-slate-100 border border-slate-200/90 text-slate-800 text-xs font-mono font-medium shadow-2xs"
+                                      >
+                                        {item.trim()}
+                                      </span>
+                                    ))}
+                                  </div>
+                                ) : lines.length > 1 ? (
+                                  <ul className="space-y-1.5">
+                                    {lines.map((line, lIdx) => (
+                                      <li key={lIdx} className="leading-relaxed font-normal text-slate-700">
+                                        {line}
+                                      </li>
+                                    ))}
+                                  </ul>
+                                ) : (
+                                  <span className="font-medium text-slate-800 leading-relaxed">
+                                    {valStr}
+                                  </span>
+                                )}
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
                   </div>
                 ) : (
-                  <p className="text-slate-400 text-xs font-medium">Especificaciones detalladas no disponibles para este código.</p>
+                  <div className="p-8 text-center bg-slate-50/60 rounded-2xl border border-slate-200">
+                    <p className="text-slate-400 text-xs font-medium">
+                      Especificaciones detalladas no disponibles para este código. Consulta con tu VIN en el formulario de cotización.
+                    </p>
+                  </div>
                 )}
               </div>
             )}
@@ -438,9 +579,9 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
 
             {activeTab === 'garantia' && (
               <div className="max-w-4xl text-sm text-slate-600 leading-relaxed space-y-4">
-                <h3 className="text-base font-bold text-gray-900">Garantía Oficial RD Spring</h3>
+                <h3 className="text-base font-bold text-gray-900">Garantía RD Spring</h3>
                 <p>
-                  Todos nuestros repuestos y fluidos cuentan con respaldo y garantía oficial de especificaciones de fabricante original por 1 año calendario desde la fecha de recepción.
+                  Todos nuestros repuestos y fluidos cuentan con respaldo y garantía de especificaciones de fabricante original por 1 año calendario desde la fecha de recepción.
                 </p>
                 <div className="pt-2">
                   <Link href="/garantia" className="text-xs text-[#b3131b] font-bold hover:underline inline-flex items-center gap-1">

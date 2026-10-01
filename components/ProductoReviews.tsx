@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 
 export default function ProductReviews({ productId }: { productId: string }) {
@@ -12,7 +12,7 @@ export default function ProductReviews({ productId }: { productId: string }) {
   const [reviews, setReviews] = useState<any[]>([]);
 
   // Función que trae las reseñas de la base de datos
-  const fetchReviews = async () => {
+  const fetchReviews = useCallback(async () => {
     try {
       const res = await fetch(`/api/reviews?productId=${productId}`);
       if (res.ok) {
@@ -22,12 +22,12 @@ export default function ProductReviews({ productId }: { productId: string }) {
     } catch (error) {
       console.error("Error cargando reseñas:", error);
     }
-  };
+  }, [productId]);
 
   // Se ejecuta automáticamente al cargar el componente
   useEffect(() => {
     fetchReviews();
-  }, [productId]);
+  }, [fetchReviews]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

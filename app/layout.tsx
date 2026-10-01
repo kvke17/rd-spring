@@ -7,6 +7,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import AuthProvider from '@/components/AuthProvider';
 import CookieConsent from '@/components/CookieConsent';
+import SmoothScroll from '@/components/SmoothScroll';
 
 // Configuramos la nueva fuente
 const fuentePrincipal = Inter({
@@ -25,6 +26,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       {/* Aplicamos la nueva fuente directamente al body para que herede a toda la página */}
       <body className={`${fuentePrincipal.className} bg-white text-gray-900 min-h-screen flex flex-col antialiased`}>
         <AuthProvider>
+          <SmoothScroll />
           <Navbar />
           <main className="flex-1">{children}</main>
           <Footer />

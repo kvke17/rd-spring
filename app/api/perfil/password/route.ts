@@ -4,6 +4,7 @@ import bcrypt from 'bcrypt';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { checkRateLimit } from '@/lib/rateLimit';
+import { evaluatePassword } from '@/lib/passwordValidation';
 
 export async function POST(request: Request) {
   // 1. Rate limiting defensivo (máximo 5 intentos por minuto por IP)
@@ -48,6 +49,18 @@ export async function POST(request: Request) {
     const isPasswordValid = await bcrypt.compare(currentPassword, user.password);
     if (!isPasswordValid) {
       return NextResponse.json({ error: 'La contraseña actual es incorrecta.' }, { status: 401 });
+    }
+
+    // 4.1 Validación de robustez de contraseña según ISO/IEC 27002 / NIST SP 800-63B
+    const evaluation = evaluatePassword(newPassword, authenticatedEmail, user.name || '');
+    if (!evaluation.isValid) {
+      return NextResponse.json(
+        { 
+          error: evaluation.errors[0] || 'La nueva contraseña no cumple con los requisitos de seguridad establecidos.',
+          details: evaluation.errors
+        },
+        { status: 400 }
+      );
     }
 
     // 5. Encriptamos la nueva contraseña con salt de costo 10

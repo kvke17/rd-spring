@@ -4,17 +4,8 @@ import { prisma } from '@/lib/prisma';
 import productsData from '@/data/products.json'; 
 import ProductCarousel from '@/components/ProductCarousel';
 import EditorialHero from '@/components/EditorialHero';
-
-// Las 7 marcas de alta gama
-const marcas = [
-  { nombre: 'Porsche', logo: '/images/marcas/porsche.png' },
-  { nombre: 'Audi', logo: '/images/marcas/audi.png' },
-  { nombre: 'BMW', logo: '/images/marcas/bmw.png' },
-  { nombre: 'Land Rover', logo: '/images/marcas/landrover.png' },
-  { nombre: 'Volkswagen', logo: '/images/marcas/vw.png' },
-  { nombre: 'Mercedes-Benz', logo: '/images/marcas/mercedes.png' },
-  { nombre: 'Jaguar', logo: '/images/marcas/jaguar.png' },
-];
+import BrandShowcase from '@/components/BrandShowcase';
+import SectionHeader from '@/components/SectionHeader';
 
 export default async function HomePage() {
   // 1. OBTENEMOS LOS PRODUCTOS DIRECTAMENTE DESDE LA BASE DE DATOS DE TURSO
@@ -69,66 +60,18 @@ export default async function HomePage() {
       {/* 1. SECCIÓN HERO EDITORIAL DE ALTA GAMA (INSPIRACIÓN PORSCHE DESIGN) */}
       <EditorialHero />
 
-      {/* 2. SECCIÓN DE MARCAS */}
-    <section className="py-24 border-b border-gray-100 bg-white relative z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <p className="text-xs uppercase tracking-[0.25em] text-gray-400 font-bold mb-4">ESPECIALISTAS EN ALTA GAMA</p>
-          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-16 tracking-tight">Marcas con las que trabajamos</h2>
-          
-          <div className="flex flex-col gap-12 md:gap-16 items-center">
-            {/* FILA 1: Las primeras 4 marcas */}
-            <div className="flex flex-wrap justify-center items-center gap-8 md:gap-16 w-full">
-              {marcas.slice(0, 4).map((marca, idx) => (
-                <div 
-                  key={idx} 
-                  className="relative w-32 h-14 sm:w-44 sm:h-20 md:w-60 md:h-28 opacity-100 hover:scale-[1.16] hover:-translate-y-2 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] transform-gpu cursor-pointer"
-                >
-                  <Image
-                    src={marca.logo} 
-                    alt={`Logo de ${marca.nombre}`}
-                    fill
-                    className="object-contain"
-                  />
-                </div>
-              ))}
-            </div>
+      {/* 2. SECCIÓN DE MARCAS CON REVELACIÓN POR SCROLL (ONCE: TRUE) */}
+      <BrandShowcase />
 
-            {/* FILA 2: Las 3 marcas restantes */}
-            <div className="flex flex-wrap justify-center items-center gap-8 md:gap-16 w-full">
-              {marcas.slice(4).map((marca, idx) => (
-                <div 
-                  key={idx + 4} 
-                  className="relative w-32 h-14 sm:w-44 sm:h-20 md:w-60 md:h-28 opacity-100 hover:scale-[1.16] hover:-translate-y-2 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] transform-gpu cursor-pointer"
-                >
-                  <Image
-                    src={marca.logo} 
-                    alt={`Logo de ${marca.nombre}`}
-                    fill
-                    className="object-contain"
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 3. SECCIÓN VENTA ONLINE (CARRUSEL) */}
+      {/* 3. SECCIÓN VENTA ONLINE (CARRUSEL CON ENTRADA ESCALONADA) */}
       <section className="py-24 bg-slate-50/60 overflow-hidden relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-end mb-12">
-            <div>
-              <p className="text-xs uppercase tracking-[0.25em] text-[#b3131b] mb-2 font-bold">VENTA ONLINE</p>
-              <h2 className="text-3xl font-bold uppercase tracking-tight text-gray-900">Aceites y Lubricantes</h2>
-            </div>
-            <Link 
-              href="/catalogo" 
-              className="btn-shine border border-slate-200 bg-white text-xs uppercase tracking-widest px-5 py-2.5 rounded-xl hover:bg-slate-50 text-gray-900 font-bold shadow-sm hover:shadow transition-all duration-200 whitespace-nowrap ml-4 active:scale-95 cursor-pointer"
-            >
-              <span className="relative z-10">VER TODOS</span>
-            </Link>
-          </div>
-          
+          <SectionHeader
+            badge="VENTA ONLINE"
+            title="Aceites y Lubricantes"
+            actionText="VER TODOS"
+            actionHref="/catalogo"
+          />
           <ProductCarousel products={allProducts} />
         </div>
       </section>

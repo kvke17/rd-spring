@@ -3,6 +3,7 @@ import prisma from '@/lib/prisma';
 import bcrypt from 'bcrypt';
 import { checkRateLimit } from '@/lib/rateLimit';
 import { sanitizeString } from '@/lib/sanitize';
+import { evaluatePassword } from '@/lib/passwordValidation';
 
 export async function POST(request: Request) {
   // 0. Mitigación contra fuerza bruta sobre tokens de reseteo (10 intentos / 15 min)
@@ -25,11 +26,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Faltan datos obligatorios.' }, { status: 400 });
     }
 
-    if (typeof newPassword !== 'string' || newPassword.length < 8) {
-      return NextResponse.json({ error: 'La nueva contraseña debe tener al menos 8 caracteres.' }, { status: 400 });
-    }
-
-    if (newPassword.length > 128) {
+    if (typeof newPassword !== 'string' || newPassword.length > 128) {
       return NextResponse.json({ error: 'La nueva contraseña no debe exceder 128 caracteres.' }, { status: 400 });
     }
 
@@ -41,6 +38,18 @@ export async function POST(request: Request) {
     // 2. Verificamos si existe y si no ha expirado
     if (!resetToken || resetToken.expires < new Date()) {
       return NextResponse.json({ error: 'El enlace es inválido o ha expirado.' }, { status: 400 });
+    }
+
+    // 2.1 Validación de seguridad robusta (ISO/IEC 27002 / NIST SP 800-63B)
+    const evaluation = evaluatePassword(newPassword, resetToken.email);
+    if (!evaluation.isValid) {
+      return NextResponse.json(
+        { 
+          error: evaluation.errors[0] || 'La contraseña no cumple con los requisitos de seguridad establecidos.',
+          details: evaluation.errors
+        },
+        { status: 400 }
+      );
     }
 
     // 3. Encriptamos la nueva clave

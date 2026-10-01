@@ -3,9 +3,11 @@
 import { useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { motion, useReducedMotion } from 'framer-motion';
 import { STORE_CONFIG } from '@/config/constants';
 
 export default function ProductCarousel({ products }: { products: any[] }) {
+  const shouldReduceMotion = useReducedMotion();
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   
   const [isDragging, setIsDragging] = useState(false);
@@ -75,7 +77,7 @@ export default function ProductCarousel({ products }: { products: any[] }) {
           isDragging ? 'cursor-grabbing scroll-auto' : 'cursor-grab scroll-smooth'
         }`}
       >
-        {products.map((p: any) => {
+        {products.map((p: any, idx: number) => {
           const hasFormats = p.formats && p.formats.length > 0;
           p.formats.sort((a: any, b: any) => (a.size === '1LT' ? -1 : 1));
 
@@ -84,9 +86,17 @@ export default function ProductCarousel({ products }: { products: any[] }) {
           const lowestPrice = hasFormats ? Math.min(...p.formats.map((f: any) => f.price)) : 0;
 
           return (
-            <div 
+            <motion.div 
               key={p.id} 
-              className="flex-none w-[85vw] sm:w-[calc(50%-12px)] lg:w-[calc(25%-18px)] rounded-2xl overflow-hidden border border-gray-200/80 bg-white flex flex-col group/card hover:shadow-xl hover:border-gray-300 hover:-translate-y-1 transition-all duration-300"
+              initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 14, scale: 0.96 }}
+              whileInView={{ opacity: 1, y: 0, scale: 1 }}
+              viewport={{ once: true, margin: '-20px' }}
+              transition={{
+                duration: shouldReduceMotion ? 0.2 : 0.45,
+                delay: shouldReduceMotion ? 0 : Math.min(idx * 0.05, 0.3),
+                ease: [0.23, 1, 0.32, 1],
+              }}
+              className="flex-none w-[85vw] sm:w-[calc(50%-12px)] lg:w-[calc(25%-18px)] rounded-2xl overflow-hidden border border-gray-200/80 bg-white flex flex-col group/card gpu-shadow-hover hover:border-gray-300 hover:scale-[1.02] hover:-translate-y-1 transition-transform duration-300 ease-out transform-gpu"
             >
               {/* ENVOLVEMOS TODA LA TARJETA EN EL LINK */}
               <Link 
@@ -144,7 +154,7 @@ export default function ProductCarousel({ products }: { products: any[] }) {
                   </div>
                 </div>
               </Link>
-            </div>
+            </motion.div>
           );
         })}
       </div>

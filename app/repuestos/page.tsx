@@ -184,7 +184,7 @@ export default function RepuestosPage() {
               <Link 
                 key={item.id} 
                 href={`/productos/${item.id}`}
-                className="group rounded-3xl border border-slate-200/80 bg-white hover:border-slate-300 hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between overflow-hidden relative"
+                className="group rounded-3xl border border-slate-200/80 bg-white hover:border-slate-300 gpu-shadow-hover hover:-translate-y-1.5 transition-transform duration-300 flex flex-col justify-between overflow-hidden relative"
               >
                 <div>
                   {/* Badge superior */}

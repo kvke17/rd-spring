@@ -13,10 +13,20 @@ export default function RecuperarPage() {
     e.preventDefault();
     setStatus('loading');
     
-    // Simulación de envío seguro
-    setTimeout(() => {
-      setStatus('success');
-    }, 1200);
+    try {
+      const res = await fetch('/api/recuperar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      if (res.ok) {
+        setStatus('success');
+      } else {
+        setStatus('error');
+      }
+    } catch {
+      setStatus('error');
+    }
   };
 
   return (

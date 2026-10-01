@@ -2,9 +2,11 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { motion, Variants } from 'framer-motion';
+import { motion, useReducedMotion, Variants } from 'framer-motion';
 import { ArrowUpRight } from 'lucide-react';
 import { Syne, Instrument_Serif } from 'next/font/google';
+
+const easeEditorial: [number, number, number, number] = [0.23, 1, 0.32, 1];
 
 const syne = Syne({
   subsets: ['latin'],
@@ -19,43 +21,41 @@ const instrumentSerif = Instrument_Serif({
   display: 'swap',
 });
 
-export default function EditorialHero() {
-  // Stagger container for the masked lines
-  const containerVariants: Variants = {
-    hidden: {},
-    visible: {
-      transition: {
-        staggerChildren: 0.08,
-        delayChildren: 0.1,
-      },
-    },
-  };
+interface WordItem {
+  text: string;
+  isAccent?: boolean;
+}
 
-  // Masked slide-up animation: from y: '110%' to y: '0%' with organic cubic-bezier curve
-  const lineVariants: Variants = {
-    hidden: { y: '115%' },
-    visible: {
-      y: '0%',
-      transition: {
-        duration: 1.1,
-        ease: [0.25, 1, 0.5, 1],
-      },
-    },
-  };
+interface LineItem {
+  words: WordItem[];
+}
+
+const headlineLines: LineItem[] = [
+  { words: [{ text: 'La' }, { text: 'ingeniería' }] },
+  { words: [{ text: 'que' }, { text: 'sostiene' }] },
+  { words: [{ text: 'el' }, { text: 'lujo', isAccent: true }, { text: 'en' }] },
+  { words: [{ text: 'movimiento.' }] },
+];
+
+export default function EditorialHero() {
+  const shouldReduceMotion = useReducedMotion();
 
   // Ultra-smooth scale-in for the coilover strut on the right: scale 1.05 -> 1.0, opacity 0 -> 1 over 1.4s
   const strutVariants: Variants = {
-    hidden: { opacity: 0, scale: 1.05 },
+    hidden: { opacity: 0, scale: shouldReduceMotion ? 1 : 1.05 },
     visible: {
       opacity: 1,
       scale: 1,
       transition: {
-        duration: 1.4,
-        ease: [0.25, 1, 0.5, 1],
-        delay: 0.15,
+        duration: shouldReduceMotion ? 0.3 : 1.4,
+        ease: easeEditorial,
+        delay: shouldReduceMotion ? 0 : 0.15,
       },
     },
   };
+
+  // Pre-calculate character delays to maintain continuous stagger across all 4 lines
+  let charCounter = 0;
 
   return (
     <section className="relative w-full min-h-screen bg-[#f8fafc] flex items-center overflow-hidden pt-24 sm:pt-28 pb-16 sm:pb-20">
@@ -106,55 +106,69 @@ export default function EditorialHero() {
           {/* ========================================================
               LEFT COLUMN: Awwwards-Grade Editorial Typography & Micro-Motion
              ======================================================== */}
-          <motion.div
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-            className="lg:col-span-8 xl:col-span-7 flex flex-col justify-center text-left"
-          >
-            {/* Architectural Display Headline with Masked Line-by-Line Reveal */}
+          <div className="lg:col-span-8 xl:col-span-7 flex flex-col justify-center text-left">
+            {/* Architectural Display Headline with Accessible Letter-by-Letter Masked Reveal */}
             <h1
               className={`${syne.className} text-5xl sm:text-6xl md:text-7xl lg:text-[5rem] xl:text-[5.5rem] font-bold tracking-[-0.035em] text-black leading-[0.96] max-w-3xl`}
+              aria-label="La ingeniería que sostiene el lujo en movimiento."
             >
-              {/* Line 1 */}
-              <div className="overflow-hidden pb-1">
-                <motion.span variants={lineVariants} className="block">
-                  La ingeniería
-                </motion.span>
-              </div>
+              <div aria-hidden="true" className="flex flex-col">
+                {headlineLines.map((line, lineIdx) => (
+                  <div key={lineIdx} className="overflow-hidden pb-1 sm:pb-1.5 flex flex-wrap items-baseline">
+                    {line.words.map((word, wordIdx) => (
+                      <span
+                        key={wordIdx}
+                        className={`inline-flex whitespace-nowrap mr-[0.24em] last:mr-0 ${
+                          word.isAccent
+                            ? `${instrumentSerif.className} font-normal italic text-[1.12em] tracking-normal text-[#b3131b] font-serif px-1`
+                            : ''
+                        }`}
+                      >
+                        {word.text.split('').map((char, charIdx) => {
+                          const delay = 0.05 + charCounter * 0.017;
+                          charCounter++;
 
-              {/* Line 2 */}
-              <div className="overflow-hidden pb-1">
-                <motion.span variants={lineVariants} className="block">
-                  que sostiene
-                </motion.span>
-              </div>
-
-              {/* Line 3: Signature Crimson Red Accent (#b3131b) on "lujo" */}
-              <div className="overflow-hidden pb-1.5">
-                <motion.span variants={lineVariants} className="block">
-                  el{' '}
-                  <span
-                    className={`${instrumentSerif.className} font-normal italic text-[1.15em] tracking-normal text-[#b3131b] font-serif inline-block px-1`}
-                  >
-                    lujo
-                  </span>{' '}
-                  en
-                </motion.span>
-              </div>
-
-              {/* Line 4 */}
-              <div className="overflow-hidden pb-2">
-                <motion.span variants={lineVariants} className="block">
-                  movimiento.
-                </motion.span>
+                          return (
+                            <span
+                              key={charIdx}
+                              className="inline-block overflow-hidden align-bottom"
+                            >
+                              <motion.span
+                                className="inline-block"
+                                initial={shouldReduceMotion ? { opacity: 0 } : { y: '115%', opacity: 0 }}
+                                animate={{ y: '0%', opacity: 1 }}
+                                transition={
+                                  shouldReduceMotion
+                                    ? { duration: 0.15, delay: 0.04 }
+                                    : {
+                                        duration: 0.52,
+                                        ease: easeEditorial,
+                                        delay,
+                                      }
+                                }
+                              >
+                                {char}
+                              </motion.span>
+                            </span>
+                          );
+                        })}
+                      </span>
+                    ))}
+                  </div>
+                ))}
               </div>
             </h1>
 
-            {/* Masked Subheadline: Concise, technical, spaced with generous tracking */}
+            {/* Masked Subheadline: Concise, technical, spaced with generous tracking (Cascaded Reveal) */}
             <div className="overflow-hidden mt-6 sm:mt-8 max-w-lg">
               <motion.p
-                variants={lineVariants}
+                initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 14 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{
+                  duration: shouldReduceMotion ? 0.2 : 0.48,
+                  ease: easeEditorial,
+                  delay: shouldReduceMotion ? 0.08 : 0.60,
+                }}
                 className="text-sm sm:text-base md:text-lg text-[#475569] font-normal leading-relaxed tracking-wide"
               >
                 Sistemas de amortiguación activa, espirales progresivos y suspensión neumática diseñados con tolerancia milimétrica para marcas de élite:{' '}
@@ -162,10 +176,16 @@ export default function EditorialHero() {
               </motion.p>
             </div>
 
-            {/* Masked Luxury Action Buttons */}
+            {/* Masked Luxury Action Buttons (Cascaded Reveal) */}
             <div className="overflow-hidden mt-8 sm:mt-10">
               <motion.div
-                variants={lineVariants}
+                initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 14 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{
+                  duration: shouldReduceMotion ? 0.2 : 0.48,
+                  ease: easeEditorial,
+                  delay: shouldReduceMotion ? 0.12 : 0.78,
+                }}
                 className="flex flex-wrap items-center gap-4"
               >
                 {/* Button 1: Pure solid black with white text & crimson accent arrow */}
@@ -188,7 +208,7 @@ export default function EditorialHero() {
                 </Link>
               </motion.div>
             </div>
-          </motion.div>
+          </div>
 
           {/* ========================================================
               MOBILE ONLY STRUT VIEW (< 1024px)

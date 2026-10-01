@@ -3,6 +3,7 @@ import prisma from '@/lib/prisma';
 import bcrypt from 'bcrypt';
 import { checkRateLimit } from '@/lib/rateLimit';
 import { isValidEmail, sanitizeString } from '@/lib/sanitize';
+import { evaluatePassword } from '@/lib/passwordValidation';
 
 export async function POST(req: Request) {
   // 1. Mitigación de Fuerza Bruta y DoS: Rate limiting en registros
@@ -35,13 +36,21 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Ingresa un correo electrónico válido.' }, { status: 400 });
     }
 
-    // Prevención de DoS en bcrypt y requisitos mínimos de contraseña
-    if (typeof password !== 'string' || password.length < 8) {
-      return NextResponse.json({ error: 'La contraseña debe tener un mínimo de 8 caracteres.' }, { status: 400 });
+    // Prevención de DoS en longitud de bcrypt
+    if (typeof password !== 'string' || password.length > 128) {
+      return NextResponse.json({ error: 'La contraseña no puede exceder los 128 caracteres.' }, { status: 400 });
     }
 
-    if (password.length > 128) {
-      return NextResponse.json({ error: 'La contraseña no puede exceder los 128 caracteres.' }, { status: 400 });
+    // Validación según ISO/IEC 27002 / NIST SP 800-63B / OWASP ASVS v4.0.3 L2
+    const evaluation = evaluatePassword(password, cleanEmail, cleanName);
+    if (!evaluation.isValid) {
+      return NextResponse.json(
+        { 
+          error: evaluation.errors[0] || 'La contraseña no cumple con los requisitos de seguridad establecidos.',
+          details: evaluation.errors 
+        }, 
+        { status: 400 }
+      );
     }
 
     // 3. Verificamos si el usuario ya existe
