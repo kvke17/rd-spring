@@ -158,6 +158,8 @@ export default function CheckoutPage() {
 
     try {
       const buyOrder = `ORD-${Date.now().toString().slice(-6)}`;
+      const shippingCost = metodoEntrega === 'retiro' ? 0 : Math.round(Number(envioSeleccionado?.cost) || 0);
+
       const res = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -168,8 +170,13 @@ export default function CheckoutPage() {
           customer: formData,
           items,
           documentType: docType,
+          shippingCost,
+          shippingMethod: metodoEntrega,
           shippingInfo: {
             ...envioSeleccionado,
+            cost: shippingCost,
+            carrier: envioSeleccionado?.carrier || (metodoEntrega === 'retiro' ? 'RETIRO' : 'DESPACHO'),
+            serviceName: envioSeleccionado?.serviceName || (metodoEntrega === 'retiro' ? 'En Tienda' : 'Courier'),
             sucursalOficina: metodoEntrega === 'retiro' ? 'Retiro en Tienda - Av. Las Condes 8550' : 'Envío a domicilio'
           }
         }),
@@ -204,7 +211,8 @@ export default function CheckoutPage() {
     }
   };
 
-  const totalFinal = getCartSubtotal() + (envioSeleccionado ? envioSeleccionado.cost : 0);
+  const shippingCost = metodoEntrega === 'retiro' ? 0 : (envioSeleccionado ? Math.round(Number(envioSeleccionado.cost) || 0) : 0);
+  const totalFinal = getCartSubtotal() + shippingCost;
 
   return (
     <div className="min-h-screen bg-slate-50/50 text-gray-900 pt-28 sm:pt-32 pb-24 font-sans">
@@ -674,7 +682,7 @@ export default function CheckoutPage() {
                   <span className="font-mono font-bold text-gray-900">
                     {metodoEntrega === 'retiro' 
                       ? 'Gratis' 
-                      : (envioSeleccionado ? STORE_CONFIG.CURRENCY_FORMAT.format(envioSeleccionado.cost) : 'Por cotizar')}
+                      : (envioSeleccionado ? STORE_CONFIG.CURRENCY_FORMAT.format(shippingCost) : 'Por cotizar')}
                   </span>
                 </div>
                 <div className="flex justify-between text-base font-black text-gray-900 pt-4 border-t border-slate-100">

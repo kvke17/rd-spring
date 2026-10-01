@@ -56,7 +56,11 @@ async function processPayment(request: Request) {
       const items = JSON.parse(pendingOrder.items);
       const customer = JSON.parse(pendingOrder.customer);
 
-      let summaryText = `Tu pago ha sido procesado con éxito. Tu boleta electrónica será emitida y enviada a tu correo a la brevedad.`;
+      const itemsList = items.map((i: any) => `${i.quantity}x ${i.product?.name || i.name}`).join(', ');
+      const shippingLabel = customer.shippingCost > 0
+        ? ` + Envío (${customer.shippingInfo?.serviceName || 'Despacho'}: $${Number(customer.shippingCost).toLocaleString('es-CL')})`
+        : ' + Retiro en Tienda (Gratis)';
+      const summaryText = `${itemsList}${shippingLabel}`;
 
       try {
         const dataResend = await resend.emails.send({
@@ -78,31 +82,44 @@ async function processPayment(request: Request) {
       try {
         let adminShippingInfo: any = {};
         try {
-          const orderAny = pendingOrder as any;
-          adminShippingInfo = orderAny.shippingInfo ? JSON.parse(orderAny.shippingInfo as string) : {};
+          if (customer?.shippingInfo) {
+            adminShippingInfo = typeof customer.shippingInfo === 'string' ? JSON.parse(customer.shippingInfo) : customer.shippingInfo;
+          } else {
+            adminShippingInfo = { sucursalOficina: customer.shippingMethod === 'retiro' ? 'Retiro en Tienda' : 'Envío a Domicilio' };
+          }
         } catch (e) {
-          adminShippingInfo = { sucursalOficina: 'Envío a domicilio' };
+          adminShippingInfo = { sucursalOficina: 'Envío a Domicilio' };
         }
         
+        const subtotalAmount = customer.subtotal || (pendingOrder.amount - (customer.shippingCost || 0));
+        const shippingFee = customer.shippingCost ? `$${Number(customer.shippingCost).toLocaleString('es-CL')}` : 'Gratis / Retiro en Tienda';
+
         let htmlAdmin = `
           <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e5e7eb; border-radius: 8px;">
             <h2 style="color: #b3131b; margin-top: 0;">¡Nueva Venta Realizada! 🎉</h2>
             <p><strong>Orden:</strong> ${pendingOrder.buyOrder}</p>
             <p><strong>Monto Total:</strong> $${pendingOrder.amount.toLocaleString('es-CL')}</p>
             <br/>
+            <h3 style="border-bottom: 1px solid #e5e7eb; padding-bottom: 5px; color: #111;">Resumen de Costos</h3>
+            <p><strong>Subtotal Productos:</strong> $${subtotalAmount.toLocaleString('es-CL')}</p>
+            <p><strong>Costo de Despacho:</strong> ${shippingFee}</p>
+            <p><strong>Total Cobrado (Webpay):</strong> $${pendingOrder.amount.toLocaleString('es-CL')}</p>
+            <br/>
             <h3 style="border-bottom: 1px solid #e5e7eb; padding-bottom: 5px; color: #111;">Datos del Cliente</h3>
             <p><strong>Nombre:</strong> ${customer.fullName}</p>
             <p><strong>Email:</strong> ${customer.email}</p>
             <p><strong>Teléfono:</strong> ${customer.phone}</p>
             <p><strong>RUT:</strong> ${customer.rut}</p>
+            ${customer.razonSocial ? `<p><strong>Razón Social:</strong> ${customer.razonSocial}</p>` : ''}
+            ${customer.giro ? `<p><strong>Giro:</strong> ${customer.giro}</p>` : ''}
             <br/>
             <h3 style="border-bottom: 1px solid #e5e7eb; padding-bottom: 5px; color: #111;">Método de Entrega</h3>
-            <p><strong>Tipo:</strong> ${adminShippingInfo.sucursalOficina || 'Envío a Domicilio'}</p>
+            <p><strong>Tipo:</strong> ${adminShippingInfo.sucursalOficina || adminShippingInfo.serviceName || (customer.shippingMethod === 'retiro' ? 'Retiro en Tienda' : 'Envío a Domicilio')}</p>
             <p><strong>Dirección:</strong> ${customer.address || 'Retiro en Tienda (Av. Las Condes 8550)'}, ${customer.comuna || ''}, ${customer.region || ''}</p>
             <br/>
             <h3 style="border-bottom: 1px solid #e5e7eb; padding-bottom: 5px; color: #111;">Productos Vendidos</h3>
             <ul>
-              ${items.map((i: any) => `<li><strong>${i.quantity}x</strong> ${i.product.name} ($${i.product.price.toLocaleString('es-CL')})</li>`).join('')}
+              ${items.map((i: any) => `<li><strong>${i.quantity}x</strong> ${i.product?.name || i.name} ($${(i.product?.price || i.price || 0).toLocaleString('es-CL')})</li>`).join('')}
             </ul>
           </div>
         `;
@@ -118,7 +135,7 @@ async function processPayment(request: Request) {
         console.error('Error enviando aviso al admin:', adminEmailError);
       }
 
-      return NextResponse.redirect(new URL(`/checkout/success?buyOrder=${pendingOrder.buyOrder}&amount=${pendingOrder.amount}`, request.url), { status: 303 });
+      return NextResponse.redirect(new URL(`/checkout/success?buyOrder=${pendingOrder.buyOrder}&amount=${pendingOrder.amount}&authorizationCode=${response.authorization_code || ''}`, request.url), { status: 303 });
       
     } else {
       await prisma.order.update({

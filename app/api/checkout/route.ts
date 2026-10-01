@@ -29,7 +29,14 @@ export async function POST(request: Request) {
     const session = await getServerSession(authOptions);
 
     const body = await request.json();
-    const { customer, items } = body || {};
+    const {
+      customer,
+      items,
+      documentType,
+      shippingCost: rawShippingCost,
+      shippingMethod: rawShippingMethod,
+      shippingInfo: rawShippingInfo,
+    } = body || {};
 
     if (!customer || !items || !Array.isArray(items) || items.length === 0) {
       return NextResponse.json({ error: 'Datos de compra incompletos o carrito vacío.' }, { status: 400 });
@@ -40,6 +47,16 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'El correo electrónico ingresado no es válido.' }, { status: 400 });
     }
 
+    // 2.1 Validación y cálculo del costo de envío
+    const isRetiro = rawShippingMethod === 'retiro' || customer?.metodoEntrega === 'retiro';
+    let verifiedShippingCost = 0;
+    if (!isRetiro && rawShippingCost !== undefined && rawShippingCost !== null) {
+      const parsedCost = Number(rawShippingCost);
+      if (!isNaN(parsedCost) && parsedCost > 0) {
+        verifiedShippingCost = Math.round(parsedCost);
+      }
+    }
+
     const cleanCustomer = {
       fullName: sanitizeString(customer.fullName, 100),
       email: sanitizeString(customer.email, 120).toLowerCase(),
@@ -48,6 +65,17 @@ export async function POST(request: Request) {
       address: sanitizeString(customer.address, 150),
       comuna: sanitizeString(customer.comuna, 80),
       region: sanitizeString(customer.region, 80),
+      razonSocial: customer.razonSocial ? sanitizeString(customer.razonSocial, 150) : null,
+      giro: customer.giro ? sanitizeString(customer.giro, 150) : null,
+      subtotal: 0,
+      shippingCost: verifiedShippingCost,
+      shippingMethod: isRetiro ? 'retiro' : (rawShippingMethod || 'despacho'),
+      shippingInfo: rawShippingInfo || {
+        cost: verifiedShippingCost,
+        carrier: isRetiro ? 'RETIRO' : 'DESPACHO',
+        serviceName: isRetiro ? 'En Tienda' : 'Courier',
+        sucursalOficina: isRetiro ? 'Retiro en Tienda - Av. Las Condes 8550' : 'Envío a domicilio'
+      }
     };
 
     // 3. Verificación de Precios contra Base de Datos (Anti Price-Tampering)
@@ -109,7 +137,9 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'El monto total del carrito es inválido.' }, { status: 400 });
     }
 
-    const totalAmount = verifiedTotalAmount;
+    // Asignar el subtotal verificado y calcular monto final total con despacho
+    cleanCustomer.subtotal = verifiedTotalAmount;
+    const finalTotalAmount = verifiedTotalAmount + verifiedShippingCost;
 
     const shortUuid = crypto.randomUUID().split('-')[0].toUpperCase();
     const buyOrder = `ORD-${shortUuid}`;
@@ -118,23 +148,26 @@ export async function POST(request: Request) {
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
     const returnUrl = `${baseUrl}/api/checkout/confirm`;
 
-    // 4. Crear orden vinculando el ID del usuario de la sesión y estado PENDIENTE con datos verificados
+    // 4. Crear orden vinculando el ID del usuario de la sesión y estado PENDIENTE con datos verificados y monto total exacto
     const order = await prisma.order.create({
       data: {
         buyOrder: buyOrder,
-        amount: totalAmount,
+        amount: finalTotalAmount,
         status: 'PENDIENTE',
         shippingStatus: 'PREPARANDO',
         customer: JSON.stringify(cleanCustomer),
         items: JSON.stringify(verifiedItems),
+        documentType: documentType === 'FACTURA' ? 'FACTURA' : 'BOLETA',
+        razonSocial: cleanCustomer.razonSocial || null,
+        giro: cleanCustomer.giro || null,
         userId: session?.user ? (session.user as any).id : null,
       }
     });
 
-    // 3. Iniciar Transbank
-    const response = await tx.create(buyOrder, finalSessionId, totalAmount, returnUrl);
+    // 5. Iniciar Transbank Webpay Plus con el monto final total (subtotal + envío)
+    const response = await tx.create(buyOrder, finalSessionId, finalTotalAmount, returnUrl);
 
-    // 4. Vincular Token
+    // 6. Vincular Token
     await prisma.order.update({
       where: { buyOrder },
       data: { token: response.token }

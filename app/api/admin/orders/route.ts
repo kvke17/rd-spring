@@ -27,9 +27,11 @@ export async function GET() {
 
       let shippingData: any = {};
       try {
-        shippingData = typeof order.shippingInfo === 'string' ? JSON.parse(order.shippingInfo) : (order.shippingInfo || {});
+        shippingData = typeof order.shippingInfo === 'string' 
+          ? JSON.parse(order.shippingInfo) 
+          : (order.shippingInfo || customerData.shippingInfo || {});
       } catch {
-        shippingData = {};
+        shippingData = customerData.shippingInfo || {};
       }
 
       let itemsData: any[] = [];
