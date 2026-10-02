@@ -122,31 +122,55 @@ export default function EditarProductoPage() {
           title: '¡Actualizado!',
           text: 'Los cambios se guardaron correctamente en la base de datos.',
           icon: 'success',
-          confirmButtonColor: '#b3131b'
+          confirmButtonColor: '#b3131b',
+          customClass: {
+            popup: 'rounded-2xl border border-neutral-200/80 shadow-2xl backdrop-blur-xl',
+            title: 'text-lg font-bold text-neutral-900 tracking-tight',
+            htmlContainer: 'text-sm text-neutral-600',
+            confirmButton: 'rounded-xl font-bold uppercase text-xs tracking-wider px-5 py-3 shadow-sm',
+          },
         }).then(() => {
           router.push('/admin/productos'); 
           router.refresh(); 
         });
       } else {
         const errorData = await res.json();
-        Swal.fire('Error', errorData.error || 'No se pudo actualizar', 'error');
+        Swal.fire({
+          title: 'Error',
+          text: errorData.error || 'No se pudo actualizar',
+          icon: 'error',
+          confirmButtonColor: '#b3131b',
+          customClass: {
+            popup: 'rounded-2xl border border-neutral-200/80 shadow-2xl backdrop-blur-xl',
+            confirmButton: 'rounded-xl font-bold uppercase text-xs tracking-wider px-5 py-3',
+          },
+        });
       }
     } catch (error) {
-      Swal.fire('Error', 'Problema de conexión.', 'error');
+      Swal.fire({
+        title: 'Error',
+        text: 'Problema de conexión.',
+        icon: 'error',
+        confirmButtonColor: '#b3131b',
+        customClass: {
+          popup: 'rounded-2xl border border-neutral-200/80 shadow-2xl backdrop-blur-xl',
+          confirmButton: 'rounded-xl font-bold uppercase text-xs tracking-wider px-5 py-3',
+        },
+      });
     } finally {
       setCargando(false);
     }
   };
 
   if (cargandoDatos) {
-    return <div className="p-8 text-center text-gray-500 font-bold mt-10">Cargando datos del producto...</div>;
+    return <div className="p-8 text-center text-neutral-500 font-bold mt-10">Cargando datos del producto...</div>;
   }
 
   return (
-    <div className="max-w-3xl mx-auto p-8 bg-white border border-gray-200 shadow-sm rounded-lg mt-8">
+    <div className="max-w-3xl mx-auto p-8 bg-white border border-black/[0.06] shadow-xs rounded-2xl mt-4">
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">Editar Producto</h1>
-        <Link href="/admin/productos" className="text-gray-500 hover:text-[#b3131b] text-sm font-medium transition">
+        <h1 className="text-2xl font-bold text-neutral-900 tracking-tight">Editar Producto</h1>
+        <Link href="/admin/productos" className="text-neutral-500 hover:text-[#b3131b] text-sm font-semibold transition-colors cursor-pointer">
           ← Cancelar
         </Link>
       </div>

@@ -157,19 +157,19 @@ export default function AdminOrdersPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-bold uppercase tracking-tight text-slate-900">
+          <h2 className="text-xl font-bold uppercase tracking-tight text-neutral-900">
             Historial de Órdenes & Despachos
           </h2>
-          <p className="text-xs text-slate-500 mt-0.5">Control logístico y seguimiento de pedidos por cliente</p>
+          <p className="text-xs text-neutral-500 mt-0.5">Control logístico y seguimiento de pedidos por cliente</p>
         </div>
-        <span className="text-xs font-mono font-bold text-slate-500 bg-white border border-slate-200 px-3 py-1.5 rounded-xl shadow-sm">
+        <span className="text-xs font-mono font-bold text-neutral-500 bg-white border border-neutral-200/80 px-3 py-1.5 rounded-xl shadow-xs">
           {orders.length} pedidos
         </span>
       </div>
 
       {orders.length === 0 ? (
-        <div className="bg-white border border-slate-200/80 rounded-2xl p-12 text-center shadow-sm">
-          <p className="text-slate-500 text-sm font-medium">No hay pedidos pagados todavía.</p>
+        <div className="bg-white border border-black/[0.06] rounded-2xl p-12 text-center shadow-xs">
+          <p className="text-neutral-500 text-sm font-medium">No hay pedidos pagados todavía.</p>
         </div>
       ) : (
         <div className="space-y-4">
@@ -194,17 +194,17 @@ export default function AdminOrdersPage() {
             return (
               <div 
                 key={o.buyOrder} 
-                className="border border-slate-200/80 bg-white rounded-2xl shadow-sm hover:shadow-md hover:border-slate-300 transition-all duration-200 overflow-hidden p-6"
+                className="border border-black/[0.06] bg-white rounded-2xl shadow-xs hover:shadow-md hover:border-black/[0.09] transition-all duration-200 overflow-hidden p-6"
               >
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-6 items-center">
                   <div>
-                    <p className="text-[10px] uppercase font-mono tracking-wider text-slate-400 mb-1">
+                    <p className="text-[10px] uppercase font-mono tracking-wider text-neutral-400 mb-1">
                       {new Date(o.createdAt).toLocaleDateString('es-CL')} · {new Date(o.createdAt).toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' })}
                     </p>
-                    <p className="text-base font-black text-slate-900 tracking-tight">Orden #{o.buyOrder}</p>
+                    <p className="text-base font-black text-neutral-900 tracking-tight">Orden #{o.buyOrder}</p>
                     <div className="mt-2">
                       <span className={`inline-block px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-wider rounded-md ${
-                        isFactura ? 'bg-red-50 text-[var(--brand-crimson)] border border-red-200' : 'bg-slate-100 text-slate-700'
+                        isFactura ? 'bg-red-50 text-[#b3131b] border border-red-200' : 'bg-neutral-100 text-neutral-700'
                       }`}>
                         {o.documentType || 'BOLETA'}
                       </span>
@@ -212,14 +212,14 @@ export default function AdminOrdersPage() {
                   </div>
 
                   <div>
-                    <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider mb-1">Comprador</p>
-                    <p className="text-sm font-bold text-slate-900">{o.customerName}</p>
-                    <p className="text-xs text-slate-500 font-mono mt-0.5">{o.customerEmail}</p>
+                    <p className="text-[10px] text-neutral-400 uppercase font-bold tracking-wider mb-1">Comprador</p>
+                    <p className="text-sm font-bold text-neutral-900">{o.customerName}</p>
+                    <p className="text-xs text-neutral-500 font-mono mt-0.5">{o.customerEmail}</p>
                   </div>
 
                   <div>
-                    <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider mb-1">Total Pagado</p>
-                    <p className="text-lg font-black text-[var(--brand-crimson)]">
+                    <p className="text-[10px] text-neutral-400 uppercase font-bold tracking-wider mb-1">Total Pagado</p>
+                    <p className="text-lg font-black text-[#b3131b]">
                       {STORE_CONFIG.CURRENCY_FORMAT.format(o.amount)}
                     </p>
                   </div>
@@ -230,7 +230,7 @@ export default function AdminOrdersPage() {
                       value={o.shippingStatus}
                       disabled={savingOrder === o.buyOrder}
                       onChange={(e) => handleStatusChange(o.buyOrder, e.target.value)}
-                      className="w-full md:w-auto bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 focus:border-[var(--brand-crimson)] focus:ring-1 focus:ring-[var(--brand-crimson)] outline-none transition-all disabled:opacity-50 cursor-pointer shadow-sm"
+                      className="w-full md:w-auto bg-neutral-50 border border-neutral-200/80 rounded-xl px-3 py-2 text-xs font-bold text-neutral-800 focus:border-[#b3131b] focus:ring-1 focus:ring-[#b3131b] outline-none transition-all disabled:opacity-50 cursor-pointer shadow-xs"
                     >
                       {SHIPPING_STAGES.map((s) => (
                         <option key={s.value} value={s.value}>{s.label}</option>
@@ -239,73 +239,74 @@ export default function AdminOrdersPage() {
                   </div>
                 </div>
 
-                <div className="mt-5 pt-4 border-t border-slate-100 flex flex-wrap justify-between items-center gap-2">
+                <div className="mt-5 pt-4 border-t border-neutral-100 flex flex-wrap justify-between items-center gap-2">
                   <button
+                    type="button"
                     onClick={() => toggleExpand(o.buyOrder)}
-                    className="text-xs font-bold uppercase tracking-wider bg-slate-100 hover:bg-slate-200 text-slate-800 px-4 py-2 rounded-xl transition-all duration-200 flex items-center gap-2 cursor-pointer active:scale-95"
+                    className="text-xs font-bold uppercase tracking-wider bg-neutral-100 hover:bg-neutral-200 text-neutral-800 px-4 py-2 rounded-xl transition-all duration-200 flex items-center gap-2 cursor-pointer active:scale-95"
                   >
                     {isExpanded ? (
                       <>
                         <span>Ocultar Detalle</span>
-                        <ChevronUp className="w-3.5 h-3.5 text-slate-500" />
+                        <ChevronUp className="w-3.5 h-3.5 text-neutral-500" />
                       </>
                     ) : (
                       <>
                         <span>Ver Detalle Completo</span>
-                        <ChevronDown className="w-3.5 h-3.5 text-slate-500" />
+                        <ChevronDown className="w-3.5 h-3.5 text-neutral-500" />
                       </>
                     )}
                   </button>
-                  <span className="text-xs text-slate-500 font-mono">
-                    RUT: <strong className="text-slate-800 font-sans">{clientRut}</strong>
+                  <span className="text-xs text-neutral-500 font-mono">
+                    RUT: <strong className="text-neutral-800 font-sans">{clientRut}</strong>
                   </span>
                 </div>
 
                 {isExpanded && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4 pt-5 bg-slate-50/80 p-5 sm:p-6 rounded-2xl border border-slate-200/80 animate-in fade-in duration-200">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4 pt-5 bg-neutral-50/80 p-5 sm:p-6 rounded-2xl border border-neutral-200/80 animate-in fade-in duration-200">
                     <div>
-                      <h3 className="text-xs uppercase tracking-widest font-bold text-slate-500 mb-3 flex items-center gap-1.5">
-                        <Package className="w-3.5 h-3.5 text-[var(--brand-crimson)]" />
+                      <h3 className="text-xs uppercase tracking-widest font-bold text-neutral-500 mb-3 flex items-center gap-1.5">
+                        <Package className="w-3.5 h-3.5 text-[#b3131b]" />
                         Productos Adquiridos
                       </h3>
                       {o.items && o.items.length > 0 ? (
-                        <div className="space-y-2 bg-white p-4 border border-slate-200/80 rounded-xl shadow-sm">
+                        <div className="space-y-2 bg-white p-4 border border-black/[0.06] rounded-xl shadow-xs">
                           {o.items.map((item, idx) => (
-                            <div key={item.id || `${o.buyOrder}-${item.productId}-${idx}`} className="flex justify-between items-center text-xs pb-2 border-b border-slate-100 last:border-0 last:pb-0">
+                            <div key={item.id || `${o.buyOrder}-${item.productId}-${idx}`} className="flex justify-between items-center text-xs pb-2 border-b border-neutral-100 last:border-0 last:pb-0">
                               <div>
-                                <p className="font-bold text-slate-900">{item.name || item.productId}</p>
-                                <p className="text-slate-500 text-[11px]">Cantidad: {item.quantity}</p>
+                                <p className="font-bold text-neutral-900">{item.name || item.productId}</p>
+                                <p className="text-neutral-500 text-[11px]">Cantidad: {item.quantity}</p>
                               </div>
-                              <span className="font-bold text-slate-900">
+                              <span className="font-bold text-neutral-900">
                                 {STORE_CONFIG.CURRENCY_FORMAT.format(item.price * item.quantity)}
                               </span>
                             </div>
                           ))}
                         </div>
                       ) : (
-                        <p className="text-xs text-slate-600 bg-white p-3 border border-slate-200/80 rounded-xl shadow-sm">{o.itemsSummary}</p>
+                        <p className="text-xs text-neutral-600 bg-white p-3 border border-black/[0.06] rounded-xl shadow-xs">{o.itemsSummary}</p>
                       )}
                     </div>
 
                     <div>
-                      <h3 className="text-xs uppercase tracking-widest font-bold text-slate-500 mb-3 flex items-center gap-1.5">
-                        <Truck className="w-3.5 h-3.5 text-[var(--brand-crimson)]" />
+                      <h3 className="text-xs uppercase tracking-widest font-bold text-neutral-500 mb-3 flex items-center gap-1.5">
+                        <Truck className="w-3.5 h-3.5 text-[#b3131b]" />
                         Información de Contacto y Entrega
                       </h3>
-                      <div className="bg-white p-4 border border-slate-200/80 rounded-xl shadow-sm text-xs space-y-2 text-slate-700">
-                        <p><strong className="text-slate-900">RUT Cliente:</strong> {clientRut}</p>
-                        <p><strong className="text-slate-900">Teléfono:</strong> {clientPhone}</p>
-                        <p><strong className="text-slate-900">Método de Entrega:</strong> {(shipping as any).label || (shipping as any).sucursalOficina || 'Despacho a domicilio'}</p>
-                        <p><strong className="text-slate-900">Dirección:</strong> {clientAddress}</p>
-                        <p><strong className="text-slate-900">Comuna / Región:</strong> {clientComuna ? `${clientComuna}, ${clientRegion}` : 'N/A'}</p>
+                      <div className="bg-white p-4 border border-black/[0.06] rounded-xl shadow-xs text-xs space-y-2 text-neutral-700">
+                        <p><strong className="text-neutral-900">RUT Cliente:</strong> {clientRut}</p>
+                        <p><strong className="text-neutral-900">Teléfono:</strong> {clientPhone}</p>
+                        <p><strong className="text-neutral-900">Método de Entrega:</strong> {(shipping as any).label || (shipping as any).sucursalOficina || 'Despacho a domicilio'}</p>
+                        <p><strong className="text-neutral-900">Dirección:</strong> {clientAddress}</p>
+                        <p><strong className="text-neutral-900">Comuna / Región:</strong> {clientComuna ? `${clientComuna}, ${clientRegion}` : 'N/A'}</p>
                         
                         {isFactura && (
-                          <div className="mt-3 pt-3 border-t border-red-100 bg-red-50/60 p-3 rounded-lg text-slate-800">
-                            <p className="font-bold text-[var(--brand-crimson)] uppercase text-[10px] tracking-wider mb-1.5">Datos Factura (SII):</p>
-                            <p className="text-[11px]"><strong className="text-slate-900">RUT Empresa:</strong> {cust.rutFactura || 'No especificado'}</p>
-                            <p className="text-[11px]"><strong className="text-slate-900">Razón Social:</strong> {cust.razonSocial || 'No especificado'}</p>
-                            <p className="text-[11px]"><strong className="text-slate-900">Giro:</strong> {cust.giro || 'No especificado'}</p>
-                            <p className="text-[11px]"><strong className="text-slate-900">Dirección Tributaria:</strong> {cust.direccionFactura || 'No especificado'} ({cust.comunaFactura || ''}, {cust.regionFactura || ''})</p>
+                          <div className="mt-3 pt-3 border-t border-red-100 bg-red-50/60 p-3 rounded-lg text-neutral-800">
+                            <p className="font-bold text-[#b3131b] uppercase text-[10px] tracking-wider mb-1.5">Datos Factura (SII):</p>
+                            <p className="text-[11px]"><strong className="text-neutral-900">RUT Empresa:</strong> {cust.rutFactura || 'No especificado'}</p>
+                            <p className="text-[11px]"><strong className="text-neutral-900">Razón Social:</strong> {cust.razonSocial || 'No especificado'}</p>
+                            <p className="text-[11px]"><strong className="text-neutral-900">Giro:</strong> {cust.giro || 'No especificado'}</p>
+                            <p className="text-[11px]"><strong className="text-neutral-900">Dirección Tributaria:</strong> {cust.direccionFactura || 'No especificado'} ({cust.comunaFactura || ''}, {cust.regionFactura || ''})</p>
                           </div>
                         )}
                       </div>

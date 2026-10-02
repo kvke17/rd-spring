@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { signOut } from 'next-auth/react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   LayoutDashboard, 
   ShoppingBag, 
@@ -15,6 +16,8 @@ import {
   Plus, 
   Layers 
 } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { SPRING_TRANSITION } from '@/lib/theme-tokens';
 
 interface AdminMobileDrawerProps {
   isOpen: boolean;
@@ -61,184 +64,250 @@ export default function AdminMobileDrawer({
     }
   }, [isOpen]);
 
-  if (!isOpen) return null;
-
   const isResumenActive = pathname === '/admin';
   const isPedidosActive = pathname.startsWith('/admin/pedidos');
   const isProductosActive = pathname.startsWith('/admin/productos');
 
   return (
-    <div 
-      className="fixed inset-0 z-50 lg:hidden overflow-hidden" 
-      role="dialog" 
-      aria-modal="true" 
-      aria-label="Menú de administración móvil"
-    >
-      {/* 1. Backdrop con difuminado suave */}
-      <div 
-        className="fixed inset-0 bg-black/70 backdrop-blur-sm transition-opacity duration-200"
-        onClick={onClose}
-        aria-hidden="true"
-      />
-
-      {/* 2. Contenedor del Drawer deslizante */}
-      <aside 
-        className="relative w-72 max-w-[85vw] h-full bg-slate-950 text-slate-200 border-r border-slate-800/80 shadow-2xl flex flex-col z-10 animate-in slide-in-from-left duration-200"
-      >
-        {/* Header del Drawer */}
-        <div className="h-16 flex items-center justify-between px-4 border-b border-slate-800/80">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700/80 flex items-center justify-center shadow-inner">
-              <span className="text-xs font-black tracking-tighter text-white">RD</span>
-              <span className="w-1.5 h-1.5 rounded-full bg-[var(--brand-crimson)] -ml-0.5 mt-2" />
-            </div>
-            <div className="flex flex-col">
-              <span className="text-xs font-black tracking-wider uppercase text-white font-mono leading-none">
-                RD SPRING
-              </span>
-              <span className="text-[9px] uppercase tracking-widest text-slate-400 font-bold mt-0.5">
-                ADMINISTRACIÓN
-              </span>
-            </div>
-          </div>
-
-          <button
+    <AnimatePresence>
+      {isOpen && (
+        <div 
+          className="fixed inset-0 w-screen h-[100dvh] z-50 lg:hidden overflow-hidden" 
+          role="dialog" 
+          aria-modal="true" 
+          aria-label="Menú de administración móvil"
+        >
+          {/* 1. Backdrop con difuminado suave y fade in/out */}
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 w-screen h-[100dvh] bg-black/75 backdrop-blur-sm cursor-pointer"
             onClick={onClose}
-            aria-label="Cerrar menú"
-            className="p-2 text-slate-400 hover:text-white hover:bg-slate-800/60 rounded-xl transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-crimson)] cursor-pointer"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
+            aria-hidden="true"
+          />
 
-        {/* Navegación Principal */}
-        <nav className="flex-1 py-4 px-3 space-y-1.5 overflow-y-auto">
-          {/* Resumen */}
-          <Link
-            href="/admin"
-            className={`flex items-center gap-3 px-3.5 py-3 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors ${
-              isResumenActive
-                ? 'bg-slate-900 text-white border border-slate-800 shadow-sm'
-                : 'text-slate-400 hover:text-white hover:bg-slate-900/60'
-            }`}
+          {/* 2. Contenedor del Drawer deslizante con físicas de resorte de la tienda */}
+          <motion.aside 
+            initial={{ x: '-100%' }}
+            animate={{ x: '0%' }}
+            exit={{ x: '-100%' }}
+            transition={SPRING_TRANSITION}
+            className="fixed inset-0 w-full h-[100dvh] sm:relative sm:w-80 sm:max-w-xs bg-[#0a0a0a] text-neutral-200 border-r border-neutral-800/80 shadow-2xl flex flex-col z-10 select-none justify-between overflow-hidden"
           >
-            <LayoutDashboard 
-              className={`w-4 h-4 ${isResumenActive ? 'text-[var(--brand-crimson)]' : 'text-slate-400'}`} 
-            />
-            <span>Resumen</span>
-            {isResumenActive && (
-              <span className="ml-auto w-1.5 h-1.5 rounded-full bg-[var(--brand-crimson)] shadow-[0_0_8px_var(--brand-crimson)]" />
-            )}
-          </Link>
+            {/* Header del Drawer */}
+            <div className="h-16 flex items-center justify-between px-4 border-b border-neutral-800/80 shrink-0">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-neutral-900 border border-neutral-700/80 flex items-center justify-center shadow-sm">
+                  <span className="text-xs font-black tracking-tighter text-white">RD</span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#b3131b] -ml-0.5 mt-2" />
+                </div>
+                <div className="flex flex-col">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-[#b3131b] animate-pulse shrink-0" />
+                    <span className="text-xs font-mono font-bold tracking-widest uppercase text-white leading-none">
+                      RD SPRING
+                    </span>
+                  </div>
+                  <span className="text-[9px] uppercase tracking-widest text-neutral-400 font-bold mt-1">
+                    ADMINISTRACIÓN
+                  </span>
+                </div>
+              </div>
 
-          {/* Pedidos */}
-          <Link
-            href="/admin/pedidos"
-            className={`flex items-center justify-between px-3.5 py-3 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors ${
-              isPedidosActive
-                ? 'bg-slate-900 text-white border border-slate-800 shadow-sm'
-                : 'text-slate-400 hover:text-white hover:bg-slate-900/60'
-            }`}
-          >
-            <div className="flex items-center gap-3">
-              <ShoppingBag 
-                className={`w-4 h-4 ${isPedidosActive ? 'text-[var(--brand-crimson)]' : 'text-slate-400'}`} 
-              />
-              <span>Pedidos</span>
+              <button
+                type="button"
+                onClick={onClose}
+                aria-label="Cerrar menú"
+                className="w-9 h-9 rounded-full flex items-center justify-center bg-neutral-900 hover:bg-neutral-800 text-neutral-300 hover:text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#b3131b] active:scale-95 cursor-pointer border border-neutral-800"
+              >
+                <X className="w-4 h-4" />
+              </button>
             </div>
-            {ordersBadge > 0 && (
-              <span className="px-2 py-0.5 text-[10px] font-mono font-bold bg-slate-800 text-slate-300 border border-slate-700 rounded-full">
-                {ordersBadge}
-              </span>
-            )}
-          </Link>
 
-          {/* Productos (Acordeón) */}
-          <div className="space-y-1">
-            <button
-              type="button"
-              onClick={() => setProductsOpen(!productsOpen)}
-              className={`w-full flex items-center justify-between px-3.5 py-3 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer ${
-                isProductosActive
-                  ? 'bg-slate-900/80 text-white border border-slate-800'
-                  : 'text-slate-400 hover:text-white hover:bg-slate-900/60'
-              }`}
-              aria-expanded={productsOpen}
-            >
-              <div className="flex items-center gap-3">
-                <Package 
-                  className={`w-4 h-4 ${isProductosActive ? 'text-[var(--brand-crimson)]' : 'text-slate-400'}`} 
-                />
-                <span>Productos</span>
-              </div>
-              <ChevronDown 
-                className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${
-                  productsOpen ? 'rotate-180' : ''
-                }`} 
-              />
-            </button>
-
-            {productsOpen && (
-              <div className="ml-4 pl-3 border-l border-slate-800 space-y-1 py-1">
-                <Link
-                  href="/admin/productos"
-                  className={`block px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
-                    pathname === '/admin/productos'
-                      ? 'text-white font-bold bg-slate-900'
-                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/40'
-                  }`}
+            {/* Navegación Principal con items estilizados */}
+            <nav className="flex-1 py-4 px-3 space-y-1.5 overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+              {/* Resumen */}
+              <Link
+                href="/admin"
+                onClick={onClose}
+                className={cn(
+                  'group flex items-center gap-3 px-3.5 py-3 rounded-xl transition-all duration-200 cursor-pointer active:scale-[0.98]',
+                  isResumenActive
+                    ? 'bg-[#b3131b]/15 text-white ring-1 ring-[#b3131b]/40 shadow-sm'
+                    : 'text-neutral-300 hover:text-white hover:bg-neutral-900/70'
+                )}
+              >
+                <div
+                  className={cn(
+                    'w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-colors',
+                    isResumenActive
+                      ? 'bg-[#b3131b]/20 text-white'
+                      : 'bg-neutral-900 text-neutral-400 group-hover:text-white group-hover:bg-neutral-800'
+                  )}
                 >
-                  Todos los productos
-                </Link>
+                  <LayoutDashboard className="w-4 h-4" />
+                </div>
+                <span className="text-sm font-semibold tracking-tight">Resumen</span>
+                {isResumenActive && (
+                  <span className="ml-auto w-1.5 h-1.5 rounded-full bg-[#b3131b] shadow-[0_0_8px_#b3131b]" />
+                )}
+              </Link>
 
-                <Link
-                  href="/admin/productos?categoria=Lubricantes"
-                  className="flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-900/40 transition-colors"
-                >
-                  <span className="flex items-center gap-2">
-                    <Layers className="w-3.5 h-3.5 text-slate-500" />
-                    Lubricantes
+              {/* Pedidos */}
+              <Link
+                href="/admin/pedidos"
+                onClick={onClose}
+                className={cn(
+                  'group flex items-center justify-between px-3.5 py-3 rounded-xl transition-all duration-200 cursor-pointer active:scale-[0.98]',
+                  isPedidosActive
+                    ? 'bg-[#b3131b]/15 text-white ring-1 ring-[#b3131b]/40 shadow-sm'
+                    : 'text-neutral-300 hover:text-white hover:bg-neutral-900/70'
+                )}
+              >
+                <div className="flex items-center gap-3">
+                  <div
+                    className={cn(
+                      'w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-colors',
+                      isPedidosActive
+                        ? 'bg-[#b3131b]/20 text-white'
+                        : 'bg-neutral-900 text-neutral-400 group-hover:text-white group-hover:bg-neutral-800'
+                    )}
+                  >
+                    <ShoppingBag className="w-4 h-4" />
+                  </div>
+                  <span className="text-sm font-semibold tracking-tight">Pedidos</span>
+                </div>
+                {ordersBadge > 0 && (
+                  <span className="px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider bg-[#b3131b] text-white rounded">
+                    {ordersBadge}
                   </span>
-                  <span className="text-[10px] font-mono text-slate-400 bg-slate-800/80 px-2 py-0.5 rounded">
-                    32
-                  </span>
-                </Link>
+                )}
+                {isPedidosActive && ordersBadge === 0 && (
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#b3131b] shadow-[0_0_8px_#b3131b]" />
+                )}
+              </Link>
 
-                <Link
-                  href="/admin/productos/nuevo"
-                  className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
-                    pathname === '/admin/productos/nuevo'
-                      ? 'text-[var(--brand-crimson)] font-bold bg-red-950/20'
-                      : 'text-slate-400 hover:text-[var(--brand-crimson)] hover:bg-slate-900/40'
-                  }`}
+              {/* Productos Desplegable */}
+              <div>
+                <button
+                  type="button"
+                  onClick={() => setProductsOpen(!productsOpen)}
+                  className={cn(
+                    'w-full flex items-center justify-between px-3.5 py-3 rounded-xl transition-all duration-200 cursor-pointer active:scale-[0.98]',
+                    isProductosActive
+                      ? 'bg-neutral-900/80 text-white border border-neutral-800/80'
+                      : 'text-neutral-300 hover:text-white hover:bg-neutral-900/70'
+                  )}
+                  aria-expanded={productsOpen}
                 >
-                  <Plus className="w-3.5 h-3.5" />
-                  <span>Nuevo producto</span>
-                </Link>
+                  <div className="flex items-center gap-3">
+                    <div
+                      className={cn(
+                        'w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-colors',
+                        isProductosActive
+                          ? 'bg-[#b3131b]/20 text-white'
+                          : 'bg-neutral-900 text-neutral-400'
+                      )}
+                    >
+                      <Package className="w-4 h-4" />
+                    </div>
+                    <span className="text-sm font-semibold tracking-tight">Productos</span>
+                  </div>
+                  <motion.div
+                    initial={false}
+                    animate={{ rotate: productsOpen ? 180 : 0 }}
+                    transition={SPRING_TRANSITION}
+                    className="text-neutral-400"
+                  >
+                    <ChevronDown className="w-4 h-4" />
+                  </motion.div>
+                </button>
+
+                {/* Subitems del acordeón */}
+                <AnimatePresence initial={false}>
+                  {productsOpen && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={SPRING_TRANSITION}
+                      className="overflow-hidden mt-1 ml-4 pl-3 border-l border-neutral-800 space-y-1 py-1"
+                    >
+                      <Link
+                        href="/admin/productos"
+                        onClick={onClose}
+                        className={cn(
+                          'block px-3 py-2 rounded-lg text-xs font-medium transition-colors',
+                          pathname === '/admin/productos'
+                            ? 'text-white font-bold bg-[#b3131b]/15 ring-1 ring-[#b3131b]/40'
+                            : 'text-neutral-400 hover:text-white hover:bg-neutral-900/60'
+                        )}
+                      >
+                        Todos los productos
+                      </Link>
+
+                      <Link
+                        href="/admin/productos?categoria=Lubricantes"
+                        onClick={onClose}
+                        className="flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium text-neutral-400 hover:text-white hover:bg-neutral-900/60 transition-colors"
+                      >
+                        <span className="flex items-center gap-1.5">
+                          <Layers className="w-3.5 h-3.5 text-neutral-500" />
+                          Lubricantes
+                        </span>
+                        <span className="text-[10px] font-mono text-neutral-300 bg-neutral-900 px-1.5 py-0.5 rounded border border-neutral-800">
+                          32
+                        </span>
+                      </Link>
+
+                      <Link
+                        href="/admin/productos/nuevo"
+                        onClick={onClose}
+                        className={cn(
+                          'flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors',
+                          pathname === '/admin/productos/nuevo'
+                            ? 'text-white font-bold bg-[#b3131b]/20 ring-1 ring-[#b3131b]/40'
+                            : 'text-neutral-300 hover:text-[#b3131b] hover:bg-neutral-900/60'
+                        )}
+                      >
+                        <Plus className="w-3.5 h-3.5 text-[#b3131b]" />
+                        <span>Nuevo producto</span>
+                      </Link>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
-            )}
-          </div>
-        </nav>
+            </nav>
 
-        {/* Footer del Drawer */}
-        <div className="p-4 border-t border-slate-800/80 space-y-2 bg-slate-950/80">
-          <Link
-            href="/"
-            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-900/60 transition-colors"
-          >
-            <ExternalLink className="w-4 h-4 text-slate-400" />
-            <span>Volver a la tienda</span>
-          </Link>
+            {/* Footer / Acciones Secundarias (Separador + Ver tienda + Cerrar sesión en rojo) */}
+            <div className="p-3 border-t border-neutral-800/80 space-y-1 bg-[#0a0a0a] shrink-0">
+              <Link
+                href="/"
+                onClick={onClose}
+                className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-neutral-400 hover:text-white hover:bg-neutral-900/80 transition-all duration-200 cursor-pointer"
+              >
+                <div className="w-8 h-8 rounded-lg bg-neutral-900 flex items-center justify-center shrink-0">
+                  <ExternalLink className="w-4 h-4 text-neutral-400" />
+                </div>
+                <span className="text-sm font-semibold tracking-tight">Ver tienda</span>
+              </Link>
 
-          <button
-            onClick={() => signOut({ callbackUrl: '/login' })}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium text-red-400 hover:text-red-300 hover:bg-red-950/20 transition-colors cursor-pointer"
-          >
-            <LogOut className="w-4 h-4" />
-            <span>Cerrar sesión</span>
-          </button>
+              <button
+                type="button"
+                onClick={() => signOut({ callbackUrl: '/login' })}
+                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-all duration-200 cursor-pointer"
+              >
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 bg-red-500/10 text-red-400">
+                  <LogOut className="w-4 h-4" />
+                </div>
+                <span className="text-sm font-semibold tracking-tight">Cerrar sesión</span>
+              </button>
+            </div>
+          </motion.aside>
         </div>
-      </aside>
-    </div>
+      )}
+    </AnimatePresence>
   );
 }

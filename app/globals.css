@@ -11,6 +11,10 @@
   --spring-duration: 400ms;
 }
 
+html {
+  scrollbar-gutter: stable;
+}
+
 body {
   margin: 0;
   background-color: var(--background);

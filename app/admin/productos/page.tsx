@@ -47,14 +47,21 @@ function ProductosTableContent() {
 
   const handleEliminar = (id: string) => {
     Swal.fire({
-      title: '¿Estás seguro?',
-      text: "Esta acción borrará el repuesto de la base de datos.",
+      title: '¿Eliminar repuesto?',
+      text: 'Esta acción borrará el repuesto de la base de datos permanentemente.',
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonColor: 'var(--brand-crimson)',
+      confirmButtonColor: '#b3131b',
       cancelButtonColor: '#64748b',
       confirmButtonText: 'Sí, eliminar',
-      cancelButtonText: 'Cancelar'
+      cancelButtonText: 'Cancelar',
+      customClass: {
+        popup: 'rounded-2xl border border-neutral-200/80 shadow-2xl backdrop-blur-xl',
+        title: 'text-lg font-bold text-neutral-900 tracking-tight',
+        htmlContainer: 'text-sm text-neutral-600',
+        confirmButton: 'rounded-xl font-bold uppercase text-xs tracking-wider px-5 py-3 shadow-sm',
+        cancelButton: 'rounded-xl font-bold uppercase text-xs tracking-wider px-5 py-3',
+      },
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
@@ -63,13 +70,40 @@ function ProductosTableContent() {
           });
 
           if (res.ok) {
-            Swal.fire('¡Eliminado!', 'El producto ha sido borrado.', 'success');
+            Swal.fire({
+              title: '¡Eliminado!',
+              text: 'El producto ha sido borrado.',
+              icon: 'success',
+              confirmButtonColor: '#b3131b',
+              customClass: {
+                popup: 'rounded-2xl border border-neutral-200/80 shadow-2xl backdrop-blur-xl',
+                confirmButton: 'rounded-xl font-bold uppercase text-xs tracking-wider px-5 py-3',
+              },
+            });
             setProductos((prevProductos) => prevProductos.filter(p => p.id !== id));
           } else {
-            Swal.fire('Error', 'No se pudo eliminar el producto.', 'error');
+            Swal.fire({
+              title: 'Error',
+              text: 'No se pudo eliminar el producto.',
+              icon: 'error',
+              confirmButtonColor: '#b3131b',
+              customClass: {
+                popup: 'rounded-2xl border border-neutral-200/80 shadow-2xl backdrop-blur-xl',
+                confirmButton: 'rounded-xl font-bold uppercase text-xs tracking-wider px-5 py-3',
+              },
+            });
           }
         } catch (error) {
-          Swal.fire('Error', 'Problema de conexión.', 'error');
+          Swal.fire({
+            title: 'Error',
+            text: 'Problema de conexión.',
+            icon: 'error',
+            confirmButtonColor: '#b3131b',
+            customClass: {
+              popup: 'rounded-2xl border border-neutral-200/80 shadow-2xl backdrop-blur-xl',
+              confirmButton: 'rounded-xl font-bold uppercase text-xs tracking-wider px-5 py-3',
+            },
+          });
         }
       }
     });
@@ -84,11 +118,11 @@ function ProductosTableContent() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <h2 className="text-xl font-bold uppercase tracking-tight text-slate-900">
+            <h2 className="text-xl font-bold uppercase tracking-tight text-neutral-900">
               Catálogo de Productos & Repuestos
             </h2>
             {categoryFilter && (
-              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-50 text-[var(--brand-crimson)] border border-red-200">
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#b3131b]/10 text-[#b3131b] border border-[#b3131b]/30">
                 <Filter className="w-3 h-3" />
                 {categoryFilter}
                 <Link href="/admin/productos" className="ml-1 hover:opacity-75" title="Quitar filtro">
@@ -97,22 +131,22 @@ function ProductosTableContent() {
               </span>
             )}
           </div>
-          <p className="text-xs text-slate-500 mt-0.5">Gestión de inventario de amortiguadores, aceites ROWE y accesorios</p>
+          <p className="text-xs text-neutral-500 mt-0.5">Gestión de inventario de amortiguadores, aceites ROWE y accesorios</p>
         </div>
         
         <Link 
           href="/admin/productos/nuevo"
-          className="btn-shine inline-flex items-center gap-2 bg-[var(--brand-crimson)] hover:brightness-110 text-white font-bold text-xs uppercase tracking-wider py-3 px-5 rounded-xl shadow-md hover:shadow-lg transition-all duration-200 active:scale-95 cursor-pointer self-start sm:self-auto"
+          className="btn-shine inline-flex items-center gap-2 bg-[#b3131b] hover:brightness-110 text-white font-bold text-xs uppercase tracking-wider py-3 px-5 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 active:scale-95 cursor-pointer self-start sm:self-auto"
         >
           <Plus className="w-4 h-4" />
           <span>Nuevo Producto</span>
         </Link>
       </div>
 
-      <div className="bg-white shadow-sm rounded-2xl overflow-hidden border border-slate-200/80">
+      <div className="bg-white shadow-xs rounded-2xl overflow-hidden border border-black/[0.06]">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs text-slate-600">
-            <thead className="bg-slate-50/80 text-slate-900 uppercase text-[10px] font-bold tracking-wider border-b border-slate-200">
+          <table className="w-full text-left text-xs text-neutral-600">
+            <thead className="bg-neutral-50/80 text-neutral-900 uppercase text-[10px] font-mono font-bold tracking-wider border-b border-neutral-200/80">
               <tr>
                 <th className="px-6 py-4">Imagen</th>
                 <th className="px-6 py-4">Nombre</th>
@@ -122,7 +156,7 @@ function ProductosTableContent() {
                 <th className="px-6 py-4 text-right">Acciones</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-neutral-100">
               {loading ? (
                 <tr>
                   <td colSpan={6} className="text-center py-12">

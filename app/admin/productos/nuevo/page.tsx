@@ -86,7 +86,13 @@ export default function NuevoProductoPage() {
       text: 'El repuesto se ha guardado en la base de datos.',
       icon: 'success',
       confirmButtonColor: '#b3131b',
-      confirmButtonText: 'Genial'
+      confirmButtonText: 'Genial',
+      customClass: {
+        popup: 'rounded-2xl border border-neutral-200/80 shadow-2xl backdrop-blur-xl',
+        title: 'text-lg font-bold text-neutral-900 tracking-tight',
+        htmlContainer: 'text-sm text-neutral-600',
+        confirmButton: 'rounded-xl font-bold uppercase text-xs tracking-wider px-5 py-3 shadow-sm',
+      },
     }).then(() => {
       // Esto espera a que presiones "Genial" para recién cambiar de página
       router.push('/admin/productos'); 
@@ -105,10 +111,10 @@ export default function NuevoProductoPage() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto p-8 bg-white border border-gray-200 shadow-sm rounded-lg mt-8">
+    <div className="max-w-3xl mx-auto p-8 bg-white border border-black/[0.06] shadow-xs rounded-2xl mt-4">
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">Crear Nuevo Producto</h1>
-        <Link href="/admin/productos" className="text-gray-500 hover:text-[#b3131b] text-sm font-medium transition">
+        <h1 className="text-2xl font-bold text-neutral-900 tracking-tight">Crear Nuevo Producto</h1>
+        <Link href="/admin/productos" className="text-neutral-500 hover:text-[#b3131b] text-sm font-semibold transition-colors cursor-pointer">
           ← Volver
         </Link>
       </div>

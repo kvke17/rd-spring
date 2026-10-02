@@ -58,7 +58,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   return (
     <div 
-      className="flex min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-[var(--brand-crimson)] selection:text-white"
+      className="flex min-h-screen bg-neutral-50/70 text-neutral-900 font-sans selection:bg-[#b3131b] selection:text-white"
       data-lenis-prevent
     >
       {/* Sidebar fija colapsable para desktop */}
