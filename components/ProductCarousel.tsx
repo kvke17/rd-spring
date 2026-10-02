@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { motion, useReducedMotion } from 'framer-motion';
 import { STORE_CONFIG } from '@/config/constants';
+import AddToCartButton from '@/components/AddToCartButton';
 
 export default function ProductCarousel({ products }: { products: any[] }) {
   const shouldReduceMotion = useReducedMotion();
@@ -141,16 +142,30 @@ export default function ProductCarousel({ products }: { products: any[] }) {
                     <h3 className="text-sm font-bold text-gray-900 line-clamp-2 group-hover/card:text-[#b3131b] transition-colors">{p.name}</h3>
                   </div>
                   
-                  <div className="mt-5 pt-4 border-t border-gray-100 flex items-center justify-between">
+                  <div className="mt-5 pt-4 border-t border-gray-100 flex items-center justify-between gap-2">
                     <div>
                       <span className="text-[10px] text-gray-400 block font-medium uppercase tracking-wider">Precio</span>
                       <p className="text-base font-black text-gray-900">
                         {STORE_CONFIG.CURRENCY_FORMAT.format(lowestPrice)}
                       </p>
                     </div>
-                    <span className="text-[10px] font-mono font-medium text-gray-400 bg-gray-50 px-2 py-1 rounded-md border border-gray-100">
-                      {hasFormats ? p.formats[0].sku : ''}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <AddToCartButton
+                        product={{
+                          id: (hasFormats && p.formats[0]?.sku) ? p.formats[0].sku : p.id,
+                          sku: (hasFormats && p.formats[0]?.sku) ? p.formats[0].sku : p.id,
+                          name: (hasFormats && p.formats.length > 1) ? `${p.name} (${p.formats[0].size})` : p.name,
+                          price: hasFormats ? p.formats[0].price : lowestPrice,
+                          type: 'venta_online',
+                          brand: p.brand || 'ROWE',
+                          category: p.category || 'Aceites',
+                          image: imgSrc,
+                          stock: 999,
+                        } as any}
+                        label="AGREGAR"
+                        className="px-2.5 py-1.5 text-[11px]"
+                      />
+                    </div>
                   </div>
                 </div>
               </Link>

@@ -15,9 +15,13 @@ import {
   Lock,
   RotateCcw
 } from 'lucide-react';
-import Swal from 'sweetalert2';
 import { useCartStore } from '@/lib/store';
 import { STORE_CONFIG } from '@/config/constants';
+import { 
+  showClearCartConfirmAlert, 
+  showRemoveItemConfirmAlert, 
+  showItemRemovedToast 
+} from '@/lib/cart-alerts';
 
 export default function CartPage() {
   const [mounted, setMounted] = useState(false);
@@ -33,25 +37,29 @@ export default function CartPage() {
   const subtotal = getCartSubtotal();
 
   const handleClearCart = () => {
-    Swal.fire({
-      title: '¿Vaciar carro de compras?',
-      text: 'Se eliminarán todos los productos que tienes seleccionados.',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#b3131b',
-      cancelButtonColor: '#64748b',
-      confirmButtonText: 'Sí, vaciar',
-      cancelButtonText: 'Cancelar',
-      customClass: {
-        popup: 'rounded-2xl',
-        confirmButton: 'rounded-xl font-bold uppercase text-xs tracking-wider px-5 py-3',
-        cancelButton: 'rounded-xl font-bold uppercase text-xs tracking-wider px-5 py-3',
-      },
-    }).then((result) => {
-      if (result.isConfirmed) {
+    showClearCartConfirmAlert({
+      onConfirm: () => {
         clearCart();
-      }
+      },
     });
+  };
+
+  const handleRemoveProduct = (productId: string, productName: string) => {
+    showRemoveItemConfirmAlert({
+      productName,
+      onConfirm: () => {
+        removeItem(productId);
+        showItemRemovedToast();
+      },
+    });
+  };
+
+  const handleDecreaseQuantity = (productId: string, productName: string, currentQty: number) => {
+    if (currentQty <= 1) {
+      handleRemoveProduct(productId, productName);
+    } else {
+      updateQuantity(productId, currentQty - 1);
+    }
   };
 
   return (
@@ -186,7 +194,7 @@ export default function CartPage() {
                       {/* Quantity Controller */}
                       <div className="inline-flex items-center rounded-xl border border-slate-200 bg-slate-50/80 p-1 shadow-inner">
                         <button 
-                          onClick={() => updateQuantity(product.id, quantity - 1)} 
+                          onClick={() => handleDecreaseQuantity(product.id, product.name, quantity)} 
                           className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center text-slate-600 hover:bg-white hover:text-slate-900 hover:shadow-xs transition-all active:scale-95 cursor-pointer"
                           aria-label="Disminuir cantidad"
                         >
@@ -214,7 +222,7 @@ export default function CartPage() {
 
                       {/* Remove Button */}
                       <button 
-                        onClick={() => removeItem(product.id)} 
+                        onClick={() => handleRemoveProduct(product.id, product.name)} 
                         className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all active:scale-90 cursor-pointer"
                         title="Eliminar producto"
                         aria-label="Eliminar producto del carro"

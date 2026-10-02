@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { Product } from '@/types';
+import { showAddToCartAlert } from '@/lib/cart-alerts';
 
 export interface CartItem {
   product: Product;
@@ -23,7 +24,7 @@ export const SHIPPING_OPTIONS: ShippingOption[] = [
 interface CartStore {
   items: CartItem[];
   selectedShippingId: string;
-  addItem: (product: Product, quantity?: number) => void;
+  addItem: (product: Product, quantity?: number, options?: { silent?: boolean }) => void;
   removeItem: (productId: string) => void;
   updateQuantity: (productId: string, quantity: number) => void;
   clearCart: () => void;
@@ -40,19 +41,33 @@ export const useCartStore = create<CartStore>()(
       items: [],
       selectedShippingId: 'santiago',
 
-      addItem: (product: Product, quantity = 1) => {
+      addItem: (product: Product, quantity = 1, options?: { silent?: boolean }) => {
         if (product.type !== 'venta_online') return;
+        let alreadyInCart = false;
+        let totalQuantity = quantity;
+
         set((state) => {
           const existingIndex = state.items.findIndex((item) => item.product.id === product.id);
           if (existingIndex > -1) {
+            alreadyInCart = true;
             const updatedItems = [...state.items];
             const currentQty = updatedItems[existingIndex].quantity;
             const newQty = Math.min(currentQty + quantity, (product as any).stock ?? 99);
+            totalQuantity = newQty;
             updatedItems[existingIndex] = { ...updatedItems[existingIndex], quantity: newQty };
             return { items: updatedItems };
           }
           return { items: [...state.items, { product, quantity }] };
         });
+
+        if (!options?.silent) {
+          showAddToCartAlert({
+            product,
+            quantity,
+            totalQuantity,
+            alreadyInCart,
+          });
+        }
       },
       removeItem: (productId: string) => {
         set((state) => ({ items: state.items.filter((item) => item.product.id !== productId) }));

@@ -180,3 +180,47 @@ html.lenis body {
   transition-behavior: allow-discrete;
 }
 
+/* SweetAlert2 RD Spring Customization */
+div.swal2-container {
+  z-index: 10000 !important;
+}
+
+div.swal2-container.swal2-cart-success-container {
+  pointer-events: none !important;
+}
+
+div.swal2-container.swal2-cart-success-container .swal2-popup {
+  pointer-events: auto !important;
+}
+
+div.swal2-popup {
+  font-family: inherit !important;
+}
+
+.swal2-timer-progress-bar {
+  background: #b3131b !important;
+  height: 4px !important;
+}
+
+@media (max-width: 639px) {
+  div.swal2-actions {
+    flex-direction: column !important;
+    width: 100% !important;
+    gap: 8px !important;
+  }
+  div.swal2-actions button.swal2-styled {
+    width: 100% !important;
+    margin: 0 !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .swal2-popup,
+  .swal2-icon,
+  .swal2-icon * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+

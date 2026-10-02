@@ -4,6 +4,7 @@ import { STORE_CONFIG } from '@/config/constants';
 import { prisma } from '@/lib/prisma';
 import productsData from '@/data/products.json';
 import { ChevronRight, Droplets, Sparkles } from 'lucide-react';
+import AddToCartButton from '@/components/AddToCartButton';
 
 export default async function CatalogoPage({ searchParams }: { searchParams: Promise<{ categoria?: string }> }) {
   const params = await searchParams;
@@ -197,7 +198,7 @@ export default async function CatalogoPage({ searchParams }: { searchParams: Pro
                     </div>
                     
                     {/* Precio y Botón Ver Formatos */}
-                    <div className="mt-5 pt-4 border-t border-slate-100 flex items-center justify-between">
+                    <div className="mt-5 pt-4 border-t border-slate-100 flex items-center justify-between gap-2">
                       <div>
                         {hasFormats && (
                           <span className="text-[10px] text-slate-400 font-bold block uppercase tracking-wider">
@@ -209,13 +210,30 @@ export default async function CatalogoPage({ searchParams }: { searchParams: Pro
                         </p>
                       </div>
 
-                      <Link 
-                        href={`/productos/${p.id}`}
-                        className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-700 group-hover:text-[#b3131b] bg-slate-100 group-hover:bg-red-50 px-3.5 py-2 rounded-xl transition-all"
-                      >
-                        <span>VER</span>
-                        <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
-                      </Link>
+                      <div className="flex items-center gap-1.5">
+                        <AddToCartButton 
+                          product={{
+                            id: (hasFormats && p.formats[0]?.sku) ? p.formats[0].sku : p.id,
+                            sku: (hasFormats && p.formats[0]?.sku) ? p.formats[0].sku : p.id,
+                            name: (hasFormats && p.formats.length > 1) ? `${p.name} (${p.formats[0].size})` : p.name,
+                            price: hasFormats ? p.formats[0].price : lowestPrice,
+                            type: 'venta_online',
+                            brand: p.brand || 'ROWE',
+                            category: p.category || 'Aceites',
+                            image: (hasFormats && p.formats[0]?.sku) ? `/images/rowe/${p.formats[0].sku}.png` : (p.image || '/images/logo-rd.png'),
+                            stock: 999,
+                          } as any}
+                          label="AGREGAR"
+                          className="px-3 py-2 text-[11px]"
+                        />
+                        <Link 
+                          href={`/productos/${p.id}`}
+                          className="inline-flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-slate-700 hover:text-[#b3131b] bg-slate-100 hover:bg-red-50 px-3 py-2 rounded-xl transition-all"
+                        >
+                          <span>VER</span>
+                          <ChevronRight className="w-3.5 h-3.5" />
+                        </Link>
+                      </div>
                     </div>
                   </div>
                 </div>

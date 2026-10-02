@@ -73,9 +73,15 @@ export default function Navbar() {
           >
             <ShoppingCart className="w-4 h-4 transition-transform group-hover:scale-105" />
             {cartCount > 0 && (
-              <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-[#b3131b] text-white text-[10px] font-bold rounded-full flex items-center justify-center shadow-sm">
+              <motion.span
+                key={cartCount}
+                initial={{ scale: 1 }}
+                animate={{ scale: [1, 1.35, 1] }}
+                transition={{ duration: 0.35, ease: 'easeOut' }}
+                className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-[#b3131b] text-white text-[10px] font-bold rounded-full flex items-center justify-center shadow-sm pointer-events-none"
+              >
                 {cartCount}
-              </span>
+              </motion.span>
             )}
           </Link>
 
