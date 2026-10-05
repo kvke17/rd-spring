@@ -9,7 +9,7 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(request: Request) {
   // 0. Mitigación de abuso y denegación de servicio (Rate Limiting: 5 solicitudes / 15 min)
-  const rateLimit = checkRateLimit(request, {
+  const rateLimit = await checkRateLimit(request, {
     keyPrefix: 'recuperar-password',
     maxRequests: 5,
     windowSeconds: 900,

@@ -8,7 +8,7 @@ import { evaluatePassword } from '@/lib/passwordValidation';
 
 export async function POST(request: Request) {
   // 1. Rate limiting defensivo (máximo 5 intentos por minuto por IP)
-  const rateLimit = checkRateLimit(request, {
+  const rateLimit = await checkRateLimit(request, {
     keyPrefix: 'pwd-change',
     maxRequests: 5,
     windowSeconds: 60,

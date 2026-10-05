@@ -7,7 +7,7 @@ import { sanitizeString } from '@/lib/sanitize';
 
 export async function POST(request: Request) {
   // 0. Mitigación contra spam de reseñas (10 reseñas / 10 min)
-  const rateLimit = checkRateLimit(request, {
+  const rateLimit = await checkRateLimit(request, {
     keyPrefix: 'reviews-post',
     maxRequests: 10,
     windowSeconds: 600,

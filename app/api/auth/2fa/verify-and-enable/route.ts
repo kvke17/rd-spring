@@ -8,7 +8,7 @@ import { sanitizeString } from '@/lib/sanitize';
 
 export async function POST(req: Request) {
   // 0. Mitigación contra fuerza bruta en códigos OTP (5 intentos / 10 min)
-  const rateLimit = checkRateLimit(req, {
+  const rateLimit = await checkRateLimit(req, {
     keyPrefix: '2fa-verify-enable',
     maxRequests: 5,
     windowSeconds: 600,

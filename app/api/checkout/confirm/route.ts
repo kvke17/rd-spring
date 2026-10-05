@@ -1,15 +1,10 @@
 import { NextResponse } from 'next/server';
-import { WebpayPlus, Options, Environment, IntegrationCommerceCodes, IntegrationApiKeys } from 'transbank-sdk';
+import { getTransbankTransaction } from '@/lib/transbank';
 import prisma from '@/lib/prisma';
 import { Resend } from 'resend';
 import ReceiptEmail from '@/components/emails/ReceiptEmail';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
-
-const commerceCode = process.env.TBK_COMMERCE_CODE || IntegrationCommerceCodes.WEBPAY_PLUS;
-const apiKey = process.env.TBK_API_KEY_SECRET || IntegrationApiKeys.WEBPAY;
-const environment = process.env.TBK_COMMERCE_CODE ? Environment.Production : Environment.Integration;
-const tx = new WebpayPlus.Transaction(new Options(commerceCode, apiKey, environment));
 
 export async function POST(request: Request) { return processPayment(request); }
 export async function GET(request: Request) { return processPayment(request); }
@@ -44,6 +39,7 @@ async function processPayment(request: Request) {
 
     if (pendingOrder.status === 'PAGADO' || pendingOrder.status === 'PAID') return NextResponse.redirect(new URL(`/checkout/success?buyOrder=${pendingOrder.buyOrder}&amount=${pendingOrder.amount}`, request.url), { status: 303 });
 
+    const tx = getTransbankTransaction(request);
     const response = await tx.commit(token_ws);
 
     if (response.status === 'AUTHORIZED' && response.amount === pendingOrder.amount) {

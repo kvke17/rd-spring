@@ -7,7 +7,7 @@ import { evaluatePassword } from '@/lib/passwordValidation';
 
 export async function POST(req: Request) {
   // 1. Mitigación de Fuerza Bruta y DoS: Rate limiting en registros
-  const rateLimit = checkRateLimit(req, {
+  const rateLimit = await checkRateLimit(req, {
     keyPrefix: 'register',
     maxRequests: 5,
     windowSeconds: 600, // 5 registros cada 10 minutos por IP

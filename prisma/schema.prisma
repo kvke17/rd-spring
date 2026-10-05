@@ -96,3 +96,13 @@ model Product {
   
   reviews     Review[]
 }
+
+model RateLimitEntry {
+  key       String   @id
+  count     Int
+  resetAt   DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([resetAt])
+}

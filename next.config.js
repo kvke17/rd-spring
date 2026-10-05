@@ -41,6 +41,25 @@ const nextConfig = {
 
   // 3. Encabezados HTTP de Seguridad Defensiva (OWASP)
   async headers() {
+    const isDev = process.env.NODE_ENV !== 'production';
+
+    const cspDirectives = [
+      "default-src 'self'",
+      `script-src 'self' 'unsafe-inline' ${isDev ? "'unsafe-eval'" : ''} https://accounts.google.com https://apis.google.com`,
+      "style-src 'self' 'unsafe-inline'",
+      "img-src 'self' data: blob: https://res.cloudinary.com https://images.unsplash.com https://lh3.googleusercontent.com",
+      "font-src 'self' data:",
+      "connect-src 'self' https://api.cloudinary.com https://accounts.google.com https://webpay3gint.transbank.cl https://webpay3g.transbank.cl",
+      "frame-src 'self' https://accounts.google.com https://webpay3gint.transbank.cl https://webpay3g.transbank.cl",
+      "form-action 'self' https://webpay3gint.transbank.cl https://webpay3g.transbank.cl https://*.transbank.cl",
+      "frame-ancestors 'self'",
+      "object-src 'none'",
+      "base-uri 'self'",
+    ]
+      .map((directive) => directive.trim().replace(/\s+/g, ' '))
+      .filter(Boolean)
+      .join('; ');
+
     return [
       {
         source: '/:path*',
@@ -71,13 +90,12 @@ const nextConfig = {
           },
           {
             key: 'Content-Security-Policy',
-            value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: blob: https: res.cloudinary.com; font-src 'self' data: https:; connect-src 'self' https:; frame-ancestors 'self';",
+            value: cspDirectives,
           },
         ],
       },
     ];
   },
 };
-
 
 module.exports = nextConfig;

@@ -1,20 +1,16 @@
 import { NextResponse } from 'next/server';
-import { WebpayPlus, Options, Environment, IntegrationCommerceCodes, IntegrationApiKeys } from 'transbank-sdk';
+import { getTransbankTransaction } from '@/lib/transbank';
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import prisma from '@/lib/prisma';
 import crypto from 'crypto';
 import { checkRateLimit } from '@/lib/rateLimit';
 import { sanitizeString, isValidEmail } from '@/lib/sanitize';
-
-const commerceCode = process.env.TBK_COMMERCE_CODE || IntegrationCommerceCodes.WEBPAY_PLUS;
-const apiKey = process.env.TBK_API_KEY_SECRET || IntegrationApiKeys.WEBPAY;
-const environment = process.env.TBK_COMMERCE_CODE ? Environment.Production : Environment.Integration;
-const tx = new WebpayPlus.Transaction(new Options(commerceCode, apiKey, environment));
+import { verifyShippingCostWithEnvia } from '@/lib/shipping';
 
 export async function POST(request: Request) {
   // 0. Mitigación contra spam y creación desmedida de transacciones (15 intentos / 10 min)
-  const rateLimit = checkRateLimit(request, {
+  const rateLimit = await checkRateLimit(request, {
     keyPrefix: 'checkout-init',
     maxRequests: 15,
     windowSeconds: 600,
@@ -55,6 +51,17 @@ export async function POST(request: Request) {
       if (!isNaN(parsedCost) && parsedCost > 0) {
         verifiedShippingCost = Math.round(parsedCost);
       }
+
+      // Re-cotizar en el servidor contra la API de Envia y validar contra manipulación (margen de tolerancia ±$1)
+      const carrier = rawShippingInfo?.carrier || 'starken';
+      const quoteVerification = await verifyShippingCostWithEnvia({
+        comuna: customer?.comuna,
+        region: customer?.region,
+        items,
+        carrier,
+        clientCost: verifiedShippingCost,
+      });
+      verifiedShippingCost = quoteVerification.verifiedCost;
     }
 
     const cleanCustomer = {
@@ -70,11 +77,12 @@ export async function POST(request: Request) {
       subtotal: 0,
       shippingCost: verifiedShippingCost,
       shippingMethod: isRetiro ? 'retiro' : (rawShippingMethod || 'despacho'),
-      shippingInfo: rawShippingInfo || {
+      shippingInfo: {
+        ...(rawShippingInfo || {}),
         cost: verifiedShippingCost,
-        carrier: isRetiro ? 'RETIRO' : 'DESPACHO',
-        serviceName: isRetiro ? 'En Tienda' : 'Courier',
-        sucursalOficina: isRetiro ? 'Retiro en Tienda - Av. Las Condes 8550' : 'Envío a domicilio'
+        carrier: isRetiro ? 'RETIRO' : (rawShippingInfo?.carrier || 'DESPACHO'),
+        serviceName: isRetiro ? 'En Tienda' : (rawShippingInfo?.serviceName || 'Courier'),
+        sucursalOficina: isRetiro ? 'Retiro en Tienda - Av. Las Condes 8550' : (rawShippingInfo?.sucursalOficina || 'Envío a domicilio')
       }
     };
 
@@ -165,6 +173,7 @@ export async function POST(request: Request) {
     });
 
     // 5. Iniciar Transbank Webpay Plus con el monto final total (subtotal + envío)
+    const tx = getTransbankTransaction(request);
     const response = await tx.create(buyOrder, finalSessionId, finalTotalAmount, returnUrl);
 
     // 6. Vincular Token

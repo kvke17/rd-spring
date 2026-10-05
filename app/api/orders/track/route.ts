@@ -21,7 +21,7 @@ const SHIPPING_STAGES = [
 
 export async function GET(request: Request) {
   // 0. Mitigación contra fuerza bruta en rastreo de pedidos (20 consultas / 10 min)
-  const rateLimit = checkRateLimit(request, {
+  const rateLimit = await checkRateLimit(request, {
     keyPrefix: 'order-track',
     maxRequests: 20,
     windowSeconds: 600,

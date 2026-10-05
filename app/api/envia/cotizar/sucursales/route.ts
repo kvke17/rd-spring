@@ -10,7 +10,7 @@ const CODIGOS_REGION: Record<string, string> = {
 
 export async function POST(req: Request) {
   // 0. Mitigación contra abuso en búsqueda de sucursales (30 consultas / 10 min)
-  const rateLimit = checkRateLimit(req, {
+  const rateLimit = await checkRateLimit(req, {
     keyPrefix: 'envia-sucursales',
     maxRequests: 30,
     windowSeconds: 600,

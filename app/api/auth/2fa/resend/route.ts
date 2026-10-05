@@ -8,7 +8,7 @@ import { sanitizeString, isValidEmail } from '@/lib/sanitize';
 
 export async function POST(req: Request) {
   // 0. Mitigación contra spam de OTP / bombardeo de correos (3 reenvíos / 5 min)
-  const rateLimit = checkRateLimit(req, {
+  const rateLimit = await checkRateLimit(req, {
     keyPrefix: '2fa-resend-otp',
     maxRequests: 3,
     windowSeconds: 300,

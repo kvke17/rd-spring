@@ -5,6 +5,11 @@ import { sanitizeString } from '@/lib/sanitize';
 
 // 1. OBTENER UN PRODUCTO ESPECÍFICO (Desempaqueta el JSON para el formulario de Admin)
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const auth = await requireAdminSession();
+  if (!auth.authorized) {
+    return auth.errorResponse!;
+  }
+
   try {
     const { id } = await params;
     

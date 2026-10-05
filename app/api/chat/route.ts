@@ -8,7 +8,7 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY as string);
 
 export async function POST(request: Request) {
   // 0. Mitigación contra abuso de cuota de IA y DoS (15 mensajes / 10 min)
-  const rateLimit = checkRateLimit(request, {
+  const rateLimit = await checkRateLimit(request, {
     keyPrefix: 'ai-chat',
     maxRequests: 15,
     windowSeconds: 600,

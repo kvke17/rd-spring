@@ -16,7 +16,7 @@ const MOTIVO_LABELS: Record<string, string> = {
 
 export async function POST(request: Request) {
   // 0. Mitigación contra spam y bombardeo de correos (5 solicitudes / 10 min)
-  const rateLimit = checkRateLimit(request, {
+  const rateLimit = await checkRateLimit(request, {
     keyPrefix: 'support-contact',
     maxRequests: 5,
     windowSeconds: 600,

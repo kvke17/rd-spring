@@ -22,7 +22,7 @@ const CODIGOS_REGION: Record<string, string> = {
 
 export async function POST(req: Request) {
   // 0. Mitigación contra abuso de cotizaciones en API externa (30 consultas / 10 min)
-  const rateLimit = checkRateLimit(req, {
+  const rateLimit = await checkRateLimit(req, {
     keyPrefix: 'envia-cotizar',
     maxRequests: 30,
     windowSeconds: 600,

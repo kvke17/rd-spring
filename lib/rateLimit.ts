@@ -1,24 +1,5 @@
 import { NextResponse } from 'next/server';
-
-interface RateLimitRecord {
-  count: number;
-  resetAt: number;
-}
-
-// Almacén en memoria por clave (IP + acción)
-const rateLimitStore = new Map<string, RateLimitRecord>();
-
-// Limpieza periódica de claves expiradas cada 60 segundos
-if (typeof setInterval !== 'undefined') {
-  setInterval(() => {
-    const now = Date.now();
-    for (const [key, record] of rateLimitStore.entries()) {
-      if (record.resetAt <= now) {
-        rateLimitStore.delete(key);
-      }
-    }
-  }, 60000);
-}
+import { prisma } from '@/lib/prisma';
 
 export function getClientIp(request: Request): string {
   const forwardedFor = request.headers.get('x-forwarded-for');
@@ -40,64 +21,112 @@ export interface RateLimitOptions {
   windowSeconds: number;
 }
 
-export function checkRateLimit(
+export interface RateLimitResult {
+  allowed: boolean;
+  remaining: number;
+  resetSeconds: number;
+  errorResponse?: NextResponse;
+}
+
+export async function checkRateLimit(
   request: Request,
   options: RateLimitOptions
-): { allowed: boolean; remaining: number; resetSeconds: number; errorResponse?: NextResponse } {
+): Promise<RateLimitResult> {
   const ip = getClientIp(request);
-  const now = Date.now();
+  const now = new Date();
   const windowMs = options.windowSeconds * 1000;
+  const resetAt = new Date(now.getTime() + windowMs);
   const storageKey = `${options.keyPrefix}:${ip}`;
 
-  const current = rateLimitStore.get(storageKey);
+  try {
+    // Limpieza oportunista por consulta / TTL para serverless:
+    // Con probabilidad del 10%, purgamos registros cuyo resetAt ya haya expirado
+    if (Math.random() < 0.1) {
+      prisma.rateLimitEntry
+        .deleteMany({
+          where: { resetAt: { lte: now } },
+        })
+        .catch((err) => {
+          console.error('[RateLimit Cleanup Error]:', err);
+        });
+    }
 
-  if (!current || current.resetAt <= now) {
-    // Nueva ventana
-    rateLimitStore.set(storageKey, {
-      count: 1,
-      resetAt: now + windowMs,
+    const current = await prisma.rateLimitEntry.findUnique({
+      where: { key: storageKey },
     });
+
+    if (!current || current.resetAt <= now) {
+      // Ventana nueva o registro expirado: upsert atómico iniciando en count 1
+      await prisma.rateLimitEntry.upsert({
+        where: { key: storageKey },
+        create: {
+          key: storageKey,
+          count: 1,
+          resetAt,
+        },
+        update: {
+          count: 1,
+          resetAt,
+        },
+      });
+
+      return {
+        allowed: true,
+        remaining: options.maxRequests - 1,
+        resetSeconds: options.windowSeconds,
+      };
+    }
+
+    // Ventana activa: verificación de límite
+    if (current.count >= options.maxRequests) {
+      const retryAfter = Math.max(1, Math.ceil((current.resetAt.getTime() - now.getTime()) / 1000));
+      const errorResponse = NextResponse.json(
+        {
+          error: 'Demasiadas solicitudes. Por favor espera unos momentos antes de intentar nuevamente.',
+          retryAfter,
+        },
+        {
+          status: 429,
+          headers: {
+            'Retry-After': String(retryAfter),
+            'X-RateLimit-Limit': String(options.maxRequests),
+            'X-RateLimit-Remaining': '0',
+            'X-RateLimit-Reset': String(Math.ceil(current.resetAt.getTime() / 1000)),
+          },
+        }
+      );
+
+      return {
+        allowed: false,
+        remaining: 0,
+        resetSeconds: retryAfter,
+        errorResponse,
+      };
+    }
+
+    // Incrementar contador atómicamente
+    const updated = await prisma.rateLimitEntry.update({
+      where: { key: storageKey },
+      data: {
+        count: { increment: 1 },
+      },
+    });
+
+    const remaining = Math.max(0, options.maxRequests - updated.count);
+    const resetSeconds = Math.max(1, Math.ceil((current.resetAt.getTime() - now.getTime()) / 1000));
+
+    return {
+      allowed: true,
+      remaining,
+      resetSeconds,
+    };
+  } catch (error) {
+    console.error('[RateLimit Store Error]:', error);
+    // Modo tolerante a fallos de infraestructura (Fail-Open): no bloquear usuarios legítimos si la BD falla
     return {
       allowed: true,
       remaining: options.maxRequests - 1,
       resetSeconds: options.windowSeconds,
     };
   }
-
-  // Ventana activa
-  if (current.count >= options.maxRequests) {
-    const retryAfter = Math.max(1, Math.ceil((current.resetAt - now) / 1000));
-    const errorResponse = NextResponse.json(
-      {
-        error: 'Demasiadas solicitudes. Por favor espera unos momentos antes de intentar nuevamente.',
-        retryAfter,
-      },
-      {
-        status: 429,
-        headers: {
-          'Retry-After': String(retryAfter),
-          'X-RateLimit-Limit': String(options.maxRequests),
-          'X-RateLimit-Remaining': '0',
-          'X-RateLimit-Reset': String(Math.ceil(current.resetAt / 1000)),
-        },
-      }
-    );
-
-    return {
-      allowed: false,
-      remaining: 0,
-      resetSeconds: retryAfter,
-      errorResponse,
-    };
-  }
-
-  current.count += 1;
-  const remaining = Math.max(0, options.maxRequests - current.count);
-  const resetSeconds = Math.max(1, Math.ceil((current.resetAt - now) / 1000));
-
-  return {
-    allowed: true,
-    remaining,
-    resetSeconds,
-  };
 }

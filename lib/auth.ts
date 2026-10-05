@@ -33,10 +33,10 @@ export const authOptions: NextAuthOptions = {
 
         const cleanEmail = credentials.email.toLowerCase().trim();
         const user = await prisma.user.findUnique({ where: { email: cleanEmail } });
-        if (!user) throw new Error("Usuario no encontrado");
+        if (!user) throw new Error("Credenciales inválidas");
 
         const isPasswordValid = await bcrypt.compare(credentials.password, user.password);
-        if (!isPasswordValid) throw new Error("Contraseña incorrecta");
+        if (!isPasswordValid) throw new Error("Credenciales inválidas");
 
         // Si el usuario tiene 2FA activado
         if (user.twoFactorEnabled) {

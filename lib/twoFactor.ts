@@ -26,8 +26,8 @@ export async function generateAndSendEmailCode(
 ): Promise<{ success: boolean; codeSent: boolean }> {
   const cleanEmail = userEmail.toLowerCase().trim();
   
-  // Generar código de 6 dígitos
-  const code = Math.floor(100000 + Math.random() * 900000).toString();
+  // Generar código de 6 dígitos con CSPRNG
+  const code = crypto.randomInt(100000, 1000000).toString();
   const expires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutos
 
   // Guardar en la base de datos

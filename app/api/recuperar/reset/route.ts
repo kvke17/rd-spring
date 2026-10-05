@@ -7,7 +7,7 @@ import { evaluatePassword } from '@/lib/passwordValidation';
 
 export async function POST(request: Request) {
   // 0. Mitigación contra fuerza bruta sobre tokens de reseteo (10 intentos / 15 min)
-  const rateLimit = checkRateLimit(request, {
+  const rateLimit = await checkRateLimit(request, {
     keyPrefix: 'reset-password',
     maxRequests: 10,
     windowSeconds: 900,

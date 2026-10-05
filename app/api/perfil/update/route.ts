@@ -6,7 +6,7 @@ import { checkRateLimit } from '@/lib/rateLimit';
 
 export async function PATCH(request: Request) {
   // Rate limiting preventivo
-  const rateLimit = checkRateLimit(request, {
+  const rateLimit = await checkRateLimit(request, {
     keyPrefix: 'profile-update',
     maxRequests: 10,
     windowSeconds: 60,

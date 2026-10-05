@@ -7,7 +7,7 @@ import { checkRateLimit } from '@/lib/rateLimit';
 
 export async function POST(req: Request) {
   // 0. Mitigación contra fuerza bruta en contraseña para desactivación (5 intentos / 15 min)
-  const rateLimit = checkRateLimit(req, {
+  const rateLimit = await checkRateLimit(req, {
     keyPrefix: '2fa-disable',
     maxRequests: 5,
     windowSeconds: 900,
