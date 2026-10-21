@@ -2,6 +2,7 @@
 const nextConfig = {
   // 1. Tu configuración actual de imágenes
   images: {
+    qualities: [75, 90],
     remotePatterns: [
       {
         protocol: 'https',
@@ -49,7 +50,7 @@ const nextConfig = {
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: blob: https://res.cloudinary.com https://images.unsplash.com https://lh3.googleusercontent.com",
       "font-src 'self' data:",
-      "connect-src 'self' https://api.cloudinary.com https://accounts.google.com https://webpay3gint.transbank.cl https://webpay3g.transbank.cl",
+      `connect-src 'self' ${isDev ? 'ws: wss:' : ''} https://api.cloudinary.com https://accounts.google.com https://webpay3gint.transbank.cl https://webpay3g.transbank.cl`,
       "frame-src 'self' https://accounts.google.com https://webpay3gint.transbank.cl https://webpay3g.transbank.cl",
       "form-action 'self' https://webpay3gint.transbank.cl https://webpay3g.transbank.cl https://*.transbank.cl",
       "frame-ancestors 'self'",

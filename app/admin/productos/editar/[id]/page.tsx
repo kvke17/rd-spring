@@ -14,6 +14,11 @@ export default function EditarProductoPage() {
   const [cargandoDatos, setCargandoDatos] = useState(true);
   const [subiendoImagen, setSubiendoImagen] = useState(false);
   
+  const isSuspensionPart = (cat: string) => {
+    const c = (cat || '').toLowerCase().trim();
+    return c === 'repuesto' || c.includes('suspensi') || c.includes('freno') || (c !== 'lubricantes' && c !== 'aceites' && c !== 'aceite');
+  };
+
   const [formData, setFormData] = useState({
     name: '',
     slug: '',
@@ -24,8 +29,9 @@ export default function EditarProductoPage() {
     price: '',
     image: '',
     type: 'venta_online',
-    specs: '',         // <--- Añadir aquí
-  compatibility: ''
+    specs: '',
+    compatibility: '',
+    stock: '0',
   });
 
   // 1. BUSCAR LOS DATOS EN LA BASE DE DATOS AL ABRIR LA PÁGINA
@@ -55,8 +61,9 @@ export default function EditarProductoPage() {
             price: data.price ? data.price.toString() : '',
             image: data.image || '',
             type: data.type || 'venta_online',
-            specs: specsText,          // <--- Añadido aquí
-            compatibility: compatText  // <--- Añadido aquí
+            specs: specsText,
+            compatibility: compatText,
+            stock: data.stock !== undefined && data.stock !== null ? data.stock.toString() : '0',
           });
         } else {
           Swal.fire('Error', 'No se encontró el producto', 'error');
@@ -106,6 +113,21 @@ export default function EditarProductoPage() {
     e.preventDefault();
     setCargando(true);
 
+    if (isSuspensionPart(formData.category) && (formData.stock === '' || isNaN(Number(formData.stock)))) {
+      Swal.fire({
+        title: 'Stock requerido',
+        text: 'Debes ingresar las unidades disponibles en bodega para este repuesto de suspensión.',
+        icon: 'warning',
+        confirmButtonColor: '#b3131b',
+        customClass: {
+          popup: 'rounded-2xl border border-neutral-200/80 shadow-2xl backdrop-blur-xl',
+          confirmButton: 'rounded-xl font-bold uppercase text-xs tracking-wider px-5 py-3',
+        },
+      });
+      setCargando(false);
+      return;
+    }
+
     try {
       // Usamos el método PUT apuntando al ID específico
       const res = await fetch(`/api/admin/products/${id}`, {
@@ -114,6 +136,7 @@ export default function EditarProductoPage() {
         body: JSON.stringify({
           ...formData,
           slug: formData.slug.toLowerCase().replace(/\s+/g, '-'),
+          stock: isSuspensionPart(formData.category) ? Math.max(0, parseInt(formData.stock, 10) || 0) : 0,
         }),
       });
 
@@ -202,15 +225,19 @@ export default function EditarProductoPage() {
               <option value="BMW">BMW</option>
               <option value="Audi">Audi</option>
               <option value="Land Rover">Land Rover</option>
+              <option value="Mercedes-Benz">Mercedes-Benz</option>
               <option value="ROWE">ROWE (Aceites)</option>
             </select>
           </div>
           <div>
             <label className="block text-xs font-bold text-gray-700 uppercase mb-2">Categoría</label>
             <select name="category" onChange={handleChange} value={formData.category} className="w-full p-3 border border-gray-300 rounded text-sm outline-none">
-              <option value="Suspensión">Suspensión</option>
+              <option value="Suspensión">Suspensión Neumática & Coilovers</option>
+              <option value="repuesto">Repuesto de Suspensión (OEM)</option>
               <option value="Frenos">Frenos</option>
-              <option value="Lubricantes">Lubricantes</option>
+              <option value="Lubricantes">Lubricantes / Aceites</option>
+              <option value="Motor & Transmisión">Motor & Transmisión</option>
+              <option value="Accesorios">Accesorios Deportivos</option>
             </select>
           </div>
           <div>
@@ -221,6 +248,32 @@ export default function EditarProductoPage() {
             </select>
           </div>
         </div>
+
+        {/* Stock en Bodega condicional para repuestos */}
+        {isSuspensionPart(formData.category) && (
+          <div className="bg-neutral-50 p-4 border border-neutral-200 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <label className="block text-xs font-bold text-gray-800 uppercase mb-1">
+                Stock en Bodega (Unidades Físicas) <span className="text-red-500">*</span>
+              </label>
+              <p className="text-[11px] text-gray-500">
+                Unidades físicas en almacén. Si el stock es 0, en la tienda aparecerá como &ldquo;Sin stock / A pedido (Cotizar con VIN)&rdquo;.
+              </p>
+            </div>
+            <div className="w-full sm:w-40">
+              <input
+                type="number"
+                name="stock"
+                min="0"
+                required
+                onChange={handleChange}
+                value={formData.stock}
+                placeholder="0"
+                className="w-full p-2.5 bg-white border border-gray-300 rounded-lg text-sm font-mono font-bold focus:border-[#b3131b] outline-none"
+              />
+            </div>
+          </div>
+        )}
 
         <div>
           <label className="block text-xs font-bold text-gray-700 uppercase mb-2">Descripción y Compatibilidad</label>

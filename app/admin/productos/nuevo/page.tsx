@@ -35,6 +35,7 @@ interface FormDataState {
   category: string;
   description: string;
   price: string;
+  stock: string;
   image: string;
   type: string;
   specs: string;
@@ -49,6 +50,7 @@ const INITIAL_FORM_STATE: FormDataState = {
   category: 'Suspensión',
   description: '',
   price: '',
+  stock: '',
   image: '',
   type: 'venta_online',
   specs: '',
@@ -197,10 +199,20 @@ export default function NuevoProductoPage() {
     (!formData.price || !isNaN(Number(formData.price)))
   );
 
+  const isSuspensionPart = (cat: string) => {
+    const c = (cat || '').toLowerCase().trim();
+    return c === 'repuesto' || c.includes('suspensi') || c.includes('freno') || (c !== 'lubricantes' && c !== 'aceites' && c !== 'aceite');
+  };
+
   const getDisabledReason = () => {
     if (subiendoImagen) return 'Subiendo fotografía a la nube...';
     if (!formData.name.trim()) return 'Falta ingresar el nombre del producto';
     if (!formData.sku.trim()) return 'Falta ingresar el código SKU';
+    if (isSuspensionPart(formData.category)) {
+      if (formData.stock.trim() === '' || isNaN(parseInt(formData.stock, 10)) || parseInt(formData.stock, 10) < 0) {
+        return 'Falta ingresar el stock disponible en bodega';
+      }
+    }
     if (!formData.image) return 'Falta subir la fotografía del producto';
     return '';
   };
@@ -209,6 +221,13 @@ export default function NuevoProductoPage() {
     if (!formData.name.trim() || !formData.sku.trim()) {
       setValidationError('Por favor completa el nombre y el SKU antes de guardar.');
       return;
+    }
+
+    if (isSuspensionPart(formData.category)) {
+      if (formData.stock.trim() === '' || isNaN(parseInt(formData.stock, 10)) || parseInt(formData.stock, 10) < 0) {
+        setValidationError('Para repuestos de suspensión es obligatorio especificar el stock disponible en bodega.');
+        return;
+      }
     }
 
     if (!formData.image) {
@@ -230,6 +249,7 @@ export default function NuevoProductoPage() {
           ...formData,
           slug: sanitizedSlug,
           price: formData.price ? Number(formData.price) : 0,
+          stock: isSuspensionPart(formData.category) ? Math.max(0, parseInt(formData.stock, 10) || 0) : 0,
         }),
       });
 
@@ -440,6 +460,7 @@ export default function NuevoProductoPage() {
                 className="w-full px-4 py-3.5 rounded-xl bg-neutral-50/60 border border-neutral-200 text-sm font-semibold text-neutral-900 focus:bg-white focus:border-[#b3131b] focus:ring-4 focus:ring-[#b3131b]/10 outline-none transition-all cursor-pointer"
               >
                 <option value="Suspensión">Suspensión Neumática & Coilovers</option>
+                <option value="repuesto">Repuesto de Suspensión (OEM)</option>
                 <option value="Frenos">Frenos de Alto Rendimiento</option>
                 <option value="Lubricantes">Aceites y Lubricantes</option>
                 <option value="Motor & Transmisión">Motor & Transmisión</option>
@@ -463,6 +484,32 @@ export default function NuevoProductoPage() {
               </select>
             </div>
           </div>
+
+          {/* Stock en Bodega (Solo para repuestos de suspensión) */}
+          {isSuspensionPart(formData.category) && (
+            <div className="mt-5 pt-5 border-t border-neutral-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-2xl bg-neutral-50/80 border border-neutral-200/80">
+              <div className="space-y-0.5">
+                <label className="block text-xs font-bold uppercase tracking-wider text-neutral-800">
+                  Stock en Bodega (Unidades Físicas) <span className="text-red-500">*</span>
+                </label>
+                <p className="text-[11px] text-neutral-500">
+                  Las piezas con stock &gt; 0 permiten despacho inmediato; en 0 se ofrecerán a pedido / cotización VIN.
+                </p>
+              </div>
+              <div className="w-full sm:w-48">
+                <input
+                  type="number"
+                  name="stock"
+                  min="0"
+                  value={formData.stock}
+                  onChange={handleChange}
+                  placeholder="Ej: 5"
+                  className="w-full px-4 py-2.5 rounded-xl bg-white border border-neutral-200 text-sm font-mono font-bold text-neutral-900 focus:border-[#b3131b] focus:ring-4 focus:ring-[#b3131b]/10 outline-none transition-all"
+                  required
+                />
+              </div>
+            </div>
+          )}
         </div>
 
         {/* CARD 3: Descripción, Especificaciones y Compatibilidad */}

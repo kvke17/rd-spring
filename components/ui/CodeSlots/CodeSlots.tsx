@@ -8,10 +8,9 @@ import {
   useMotionValue, 
   useReducedMotion, 
   useTransform,
-  type MotionValue
+  type MotionValue,
 } from 'motion/react';
-import { HugeiconsIcon } from '@hugeicons/react';
-import { Tick02Icon } from '@hugeicons/core-free-icons';
+import { Check } from 'lucide-react';
 import './CodeSlots.css';
 
 const EASE_OUT = [0.23, 1, 0.32, 1] as const;
@@ -366,7 +365,7 @@ export default function CodeSlots({
               opacity: useTransform(checkMv, clamp01) 
             }}
           >
-            <HugeiconsIcon icon={Tick02Icon} size={Math.round(effectiveSlotSize * 0.6)} strokeWidth={2.2} />
+            <Check size={Math.round(effectiveSlotSize * 0.6)} strokeWidth={2.5} />
           </motion.span>
         </motion.span>
         <motion.span 

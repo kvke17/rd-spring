@@ -7,6 +7,8 @@ import { motion, useScroll, useMotionValueEvent } from 'framer-motion';
 import { ShoppingCart } from 'lucide-react';
 import { useCartStore } from '@/lib/store';
 import FluidNavMenu from '@/components/navigation/FluidNavMenu';
+import ExpandableSearchBar from '@/components/ui/expandable-search-bar';
+import { normalizeAutomotiveQuery, isSuspensionQuery } from '@/lib/search-utils';
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -63,8 +65,19 @@ export default function Navbar() {
           />
         </Link>
 
-        {/* Right Action Icons (Cart & Minimalist Fluid Navigation Capsule Menu) */}
+        {/* Right Action Icons (Search, Cart & Minimalist Fluid Navigation Capsule Menu) */}
         <div className="flex items-center gap-3">
+          <ExpandableSearchBar
+            expandDirection="left"
+            placeholder="Buscar repuestos, aceites..."
+            width={260}
+            onSearch={(query) => {
+              const clean = normalizeAutomotiveQuery(query);
+              const targetPath = isSuspensionQuery(clean) ? '/repuestos' : '/catalogo';
+              window.location.href = `${targetPath}?q=${encodeURIComponent(clean)}`;
+            }}
+          />
+
           <Link
             href="/carro"
             className="p-3 rounded-full bg-white/80 hover:bg-white border border-gray-200 text-gray-900 transition-all duration-200 shadow-sm hover:shadow-md active:scale-95 min-w-[44px] min-h-[44px] flex items-center justify-center cursor-pointer relative group"
