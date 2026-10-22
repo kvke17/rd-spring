@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import { motion, useReducedMotion, Variants } from 'framer-motion';
-import { Syne, Instrument_Serif } from 'next/font/google';
+import { Syne } from 'next/font/google';
 import { InteractiveHoverButton } from '@/components/ui/interactive-hover-button';
 
 const easeEditorial: [number, number, number, number] = [0.23, 1, 0.32, 1];
@@ -10,13 +10,6 @@ const easeEditorial: [number, number, number, number] = [0.23, 1, 0.32, 1];
 const syne = Syne({
   subsets: ['latin'],
   weight: ['700', '800'],
-  display: 'swap',
-});
-
-const instrumentSerif = Instrument_Serif({
-  subsets: ['latin'],
-  weight: '400',
-  style: ['normal', 'italic'],
   display: 'swap',
 });
 
@@ -30,10 +23,11 @@ interface LineItem {
 }
 
 const headlineLines: LineItem[] = [
-  { words: [{ text: 'La' }, { text: 'ingeniería' }] },
-  { words: [{ text: 'que' }, { text: 'sostiene' }] },
-  { words: [{ text: 'el' }, { text: 'lujo', isAccent: true }, { text: 'en' }] },
-  { words: [{ text: 'movimiento.' }] },
+  { words: [{ text: 'Encuentra' }, { text: 'el' }] },
+  { words: [{ text: 'repuesto' }] },
+  { words: [{ text: 'de' }, { text: 'suspensión', isAccent: true }] },
+  { words: [{ text: 'que' }, { text: 'tu' }, { text: 'vehículo' }] },
+  { words: [{ text: 'necesita.' }] },
 ];
 
 export default function EditorialHero() {
@@ -108,8 +102,8 @@ export default function EditorialHero() {
           <div className="lg:col-span-8 xl:col-span-7 flex flex-col justify-center text-left">
             {/* Architectural Display Headline with Accessible Letter-by-Letter Masked Reveal */}
             <h1
-              className={`${syne.className} text-5xl sm:text-6xl md:text-7xl lg:text-[5rem] xl:text-[5.5rem] font-bold tracking-[-0.035em] text-black leading-[0.96] max-w-3xl`}
-              aria-label="La ingeniería que sostiene el lujo en movimiento."
+              className={`${syne.className} text-4xl sm:text-5xl md:text-6xl lg:text-[4.5rem] xl:text-[5rem] font-bold tracking-[-0.035em] text-black leading-[0.98] max-w-3xl`}
+              aria-label="Encuentra el repuesto de suspensión que tu vehículo necesita."
             >
               <div aria-hidden="true" className="flex flex-col">
                 {headlineLines.map((line, lineIdx) => (
@@ -118,9 +112,7 @@ export default function EditorialHero() {
                       <span
                         key={wordIdx}
                         className={`inline-flex whitespace-nowrap mr-[0.24em] last:mr-0 ${
-                          word.isAccent
-                            ? `${instrumentSerif.className} font-normal italic text-[1.12em] tracking-normal text-[#b3131b] font-serif px-1`
-                            : ''
+                          word.isAccent ? 'text-[#b3131b]' : ''
                         }`}
                       >
                         {word.text.split('').map((char, charIdx) => {
@@ -159,7 +151,7 @@ export default function EditorialHero() {
             </h1>
 
             {/* Masked Subheadline: Concise, technical, spaced with generous tracking (Cascaded Reveal) */}
-            <div className="overflow-hidden mt-6 sm:mt-8 max-w-lg">
+            <div className="overflow-hidden mt-6 sm:mt-8 max-w-xl">
               <motion.p
                 initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 14 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -170,8 +162,8 @@ export default function EditorialHero() {
                 }}
                 className="text-sm sm:text-base md:text-lg text-[#475569] font-normal leading-relaxed tracking-wide"
               >
-                Sistemas de amortiguación activa, espirales progresivos y suspensión neumática diseñados con tolerancia milimétrica para marcas de élite:{' '}
-                <span className="text-slate-800 font-medium">Porsche, BMW, Audi y Land Rover</span>.
+                Importamos repuestos para{' '}
+                <span className="text-slate-800 font-medium">Porsche, BMW, Audi y Land Rover</span>. Te ayudamos a verificar la pieza y su compatibilidad antes de comprar.
               </motion.p>
             </div>
 

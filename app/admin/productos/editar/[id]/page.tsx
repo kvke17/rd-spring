@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
+import { Trash2, RefreshCw, UploadCloud } from 'lucide-react';
 import Swal from 'sweetalert2';
 
 export default function EditarProductoPage() {
@@ -28,6 +30,7 @@ export default function EditarProductoPage() {
     description: '',
     price: '',
     image: '',
+    images: [] as string[],
     type: 'venta_online',
     specs: '',
     compatibility: '',
@@ -51,15 +54,20 @@ export default function EditarProductoPage() {
             ? data.compatibility.join(', ')
             : (data.compatibility || '');
 
+          const initialImages: string[] = Array.isArray(data.images) && data.images.length > 0
+            ? data.images.filter(Boolean)
+            : (data.image ? [data.image] : []);
+
           setFormData({
             name: data.name || '',
             slug: data.slug || '',
             sku: data.sku || '',
-            brand: data.brand || 'ROWE',
+            brand: data.brand || '',
             category: data.category || 'Lubricantes',
             description: data.description || '',
             price: data.price ? data.price.toString() : '',
-            image: data.image || '',
+            image: initialImages[0] || data.image || '',
+            images: initialImages,
             type: data.type || 'venta_online',
             specs: specsText,
             compatibility: compatText,
@@ -84,29 +92,69 @@ export default function EditarProductoPage() {
   };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setSubiendoImagen(true);
-    const imageFormData = new FormData();
-    imageFormData.append('file', file);
-    imageFormData.append('upload_preset', 'rd_spring_productos'); // TU UPLOAD PRESET DE CLOUDINARY
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
 
-    try {
-      const res = await fetch('https://api.cloudinary.com/v1_1/ce1oyy5d/image/upload', { // TU CLOUD NAME
-        method: 'POST',
-        body: imageFormData,
-      });
-      const data = await res.json();
-      if (data.secure_url) {
-        setFormData({ ...formData, image: data.secure_url });
-      } else {
-        Swal.fire('Error', 'No se pudo subir la imagen a Cloudinary', 'error');
+    setSubiendoImagen(true);
+    const newUrls: string[] = [];
+
+    for (const file of Array.from(files)) {
+      if (!file.type.startsWith('image/')) continue;
+      const imageFormData = new FormData();
+      imageFormData.append('file', file);
+      imageFormData.append('upload_preset', 'rd_spring_productos');
+
+      try {
+        const res = await fetch('https://api.cloudinary.com/v1_1/ce1oyy5d/image/upload', {
+          method: 'POST',
+          body: imageFormData,
+        });
+        const data = await res.json();
+        if (data.secure_url) {
+          newUrls.push(data.secure_url);
+        }
+      } catch (err) {
+        console.error('Error subiendo imagen:', err);
       }
-    } catch (error) {
-      Swal.fire('Error', 'Problema de conexión al subir la imagen', 'error');
-    } finally {
-      setSubiendoImagen(false);
     }
+
+    if (newUrls.length > 0) {
+      setFormData((prev) => {
+        const updatedImages = [...prev.images, ...newUrls];
+        return {
+          ...prev,
+          images: updatedImages,
+          image: updatedImages[0] || '',
+        };
+      });
+    } else {
+      Swal.fire('Error', 'No se pudieron subir las imágenes a Cloudinary', 'error');
+    }
+    setSubiendoImagen(false);
+  };
+
+  const handleSetPrimaryImage = (indexToPrimary: number) => {
+    setFormData((prev) => {
+      const copy = [...prev.images];
+      const [chosen] = copy.splice(indexToPrimary, 1);
+      const reordered = [chosen, ...copy];
+      return {
+        ...prev,
+        images: reordered,
+        image: reordered[0] || '',
+      };
+    });
+  };
+
+  const handleRemoveSpecificImage = (indexToRemove: number) => {
+    setFormData((prev) => {
+      const reordered = prev.images.filter((_, idx) => idx !== indexToRemove);
+      return {
+        ...prev,
+        images: reordered,
+        image: reordered[0] || '',
+      };
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -128,6 +176,8 @@ export default function EditarProductoPage() {
       return;
     }
 
+    const finalImages = formData.images.length > 0 ? formData.images : (formData.image ? [formData.image] : []);
+
     try {
       // Usamos el método PUT apuntando al ID específico
       const res = await fetch(`/api/admin/products/${id}`, {
@@ -135,6 +185,8 @@ export default function EditarProductoPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...formData,
+          images: finalImages,
+          image: finalImages[0] || '',
           slug: formData.slug.toLowerCase().replace(/\s+/g, '-'),
           stock: isSuspensionPart(formData.category) ? Math.max(0, parseInt(formData.stock, 10) || 0) : 0,
         }),
@@ -219,15 +271,42 @@ export default function EditarProductoPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div>
-            <label className="block text-xs font-bold text-gray-700 uppercase mb-2">Marca</label>
-            <select name="brand" onChange={handleChange} value={formData.brand} className="w-full p-3 border border-gray-300 rounded text-sm outline-none">
-              <option value="Porsche">Porsche</option>
-              <option value="BMW">BMW</option>
-              <option value="Audi">Audi</option>
-              <option value="Land Rover">Land Rover</option>
-              <option value="Mercedes-Benz">Mercedes-Benz</option>
-              <option value="ROWE">ROWE (Aceites)</option>
-            </select>
+            <div className="flex items-center justify-between mb-2">
+              <label className="block text-xs font-bold text-gray-700 uppercase">
+                Marca del Repuesto <span className="text-red-500">*</span>
+              </label>
+              <span className="text-[10px] text-neutral-400 font-mono">Escribe o elige</span>
+            </div>
+            <input
+              type="text"
+              list="brand-suggestions-edit"
+              name="brand"
+              required
+              onChange={handleChange}
+              value={formData.brand}
+              placeholder="Ej: Porsche, Behr, Mahle, Brembo, Bilstein, ROWE..."
+              className="w-full p-3 border border-gray-300 rounded text-sm focus:border-[#b3131b] outline-none font-semibold text-neutral-900"
+            />
+            <datalist id="brand-suggestions-edit">
+              <option value="Porsche" />
+              <option value="Porsche OEM" />
+              <option value="BMW" />
+              <option value="Mercedes-Benz" />
+              <option value="Audi" />
+              <option value="Land Rover" />
+              <option value="Volkswagen (VW)" />
+              <option value="ROWE" />
+              <option value="Mahle" />
+              <option value="Behr" />
+              <option value="Brembo" />
+              <option value="Bilstein" />
+              <option value="Sachs" />
+              <option value="Bosch" />
+              <option value="Nissens" />
+              <option value="Valeo" />
+              <option value="Lemförder" />
+              <option value="OEM" />
+            </datalist>
           </div>
           <div>
             <label className="block text-xs font-bold text-gray-700 uppercase mb-2">Categoría</label>
@@ -281,47 +360,120 @@ export default function EditarProductoPage() {
             className="w-full p-3 border border-gray-300 rounded text-sm focus:border-[#b3131b] outline-none resize-y" />
         </div>
         {/* NUEVOS CAMPOS TÉCNICOS OPCIONALES */}
-<div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-gray-50 p-6 border border-gray-200 rounded">
-  <div>
-    <label className="block text-xs font-bold text-gray-700 uppercase mb-2">Especificaciones (Ej: Base, Normas)</label>
-    <textarea name="specs" rows={4} onChange={handleChange} value={formData.specs || ''}
-      placeholder="Ej: Base: Sintética HC / Viscosidad: 5W-30 / Normas: ACEA C3"
-      className="w-full p-3 bg-white border border-gray-300 rounded text-sm focus:border-[#b3131b] outline-none resize-y" />
-  </div>
-  <div>
-    <label className="block text-xs font-bold text-gray-700 uppercase mb-2">Compatibilidad (Separada por comas)</label>
-    <textarea name="compatibility" rows={4} onChange={handleChange} value={formData.compatibility || ''}
-      placeholder="Ej: BMW Longlife-04, MB 229.51, Porsche C30"
-      className="w-full p-3 bg-white border border-gray-300 rounded text-sm focus:border-[#b3131b] outline-none resize-y" />
-  </div>
-</div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-gray-50 p-6 border border-gray-200 rounded">
           <div>
-            <label className="block text-xs font-bold text-gray-700 uppercase mb-2">Precio (CLP)</label>
-            <input type="number" name="price" onChange={handleChange} value={formData.price}
-              className="w-full p-3 border border-gray-300 rounded text-sm outline-none" />
+            <label className="block text-xs font-bold text-gray-700 uppercase mb-2">Especificaciones (Ej: Base, Normas)</label>
+            <textarea name="specs" rows={4} onChange={handleChange} value={formData.specs || ''}
+              placeholder="Ej: Base: Sintética HC / Viscosidad: 5W-30 / Normas: ACEA C3"
+              className="w-full p-3 bg-white border border-gray-300 rounded text-sm focus:border-[#b3131b] outline-none resize-y" />
           </div>
-          
           <div>
-            <label className="block text-xs font-bold text-gray-700 uppercase mb-2">Foto del Producto</label>
-            <div className="flex items-center gap-4">
-              <label className={`cursor-pointer border border-gray-300 bg-gray-50 text-gray-700 text-sm py-3 px-4 rounded hover:bg-gray-100 transition ${subiendoImagen ? 'opacity-50 pointer-events-none' : ''}`}>
-                {subiendoImagen ? 'Subiendo...' : 'Cambiar archivo'}
-                <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} disabled={subiendoImagen} />
-              </label>
-              
-              {formData.image && (
-                <span className="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded border border-blue-200">
-                  ✓ Imagen actual cargada
-                </span>
-              )}
+            <label className="block text-xs font-bold text-gray-700 uppercase mb-2">Compatibilidad (Separada por comas)</label>
+            <textarea name="compatibility" rows={4} onChange={handleChange} value={formData.compatibility || ''}
+              placeholder="Ej: BMW Longlife-04, MB 229.51, Porsche C30"
+              className="w-full p-3 bg-white border border-gray-300 rounded text-sm focus:border-[#b3131b] outline-none resize-y" />
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-xs font-bold text-gray-700 uppercase mb-2">Precio (CLP)</label>
+          <input type="number" name="price" onChange={handleChange} value={formData.price}
+            className="w-full p-3 border border-gray-300 rounded text-sm outline-none" />
+        </div>
+
+        {/* Galería y Carrusel de Fotos */}
+        <div className="space-y-3 pt-2">
+          <div className="flex items-center justify-between">
+            <label className="block text-xs font-bold text-gray-700 uppercase">
+              Fotografías del Producto (Carrusel) <span className="text-red-500">*</span>
+            </label>
+            <span className="text-xs text-neutral-500 font-mono">
+              {formData.images.length} {formData.images.length === 1 ? 'foto' : 'fotos cargadas'}
+            </span>
+          </div>
+
+          {/* Grid de imágenes */}
+          {formData.images.length > 0 && (
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-3">
+              {formData.images.map((imgUrl, index) => {
+                const isPrimary = index === 0;
+                return (
+                  <div
+                    key={`${imgUrl}-${index}`}
+                    className={`relative rounded-xl border p-2 bg-neutral-50 flex flex-col items-center justify-between overflow-hidden shadow-2xs ${
+                      isPrimary ? 'border-[#b3131b] ring-2 ring-[#b3131b]/15 bg-red-50/20' : 'border-neutral-200'
+                    }`}
+                  >
+                    <div className="absolute top-2 left-2 z-10">
+                      {isPrimary ? (
+                        <span className="bg-[#b3131b] text-white text-[9px] font-mono font-bold px-2 py-0.5 rounded-full uppercase">
+                          Principal
+                        </span>
+                      ) : (
+                        <span className="bg-neutral-800/70 text-white text-[9px] font-mono font-bold px-1.5 py-0.5 rounded-full">
+                          #{index + 1}
+                        </span>
+                      )}
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveSpecificImage(index)}
+                      className="absolute top-2 right-2 z-10 p-1.5 rounded-lg bg-white/90 text-neutral-500 hover:text-red-600 hover:bg-red-50 shadow-xs transition-colors cursor-pointer"
+                      title="Eliminar esta foto"
+                      aria-label={`Eliminar foto ${index + 1}`}
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+
+                    <div className="w-full aspect-square relative rounded-lg overflow-hidden bg-white border border-neutral-100 flex items-center justify-center p-2 mt-4 mb-2">
+                      <Image
+                        src={imgUrl}
+                        alt={`Foto ${index + 1}`}
+                        fill
+                        className="object-contain p-2"
+                      />
+                    </div>
+
+                    {!isPrimary && (
+                      <button
+                        type="button"
+                        onClick={() => handleSetPrimaryImage(index)}
+                        className="w-full text-center text-[10px] font-bold text-neutral-600 hover:text-[#b3131b] py-1 bg-white hover:bg-neutral-100 border border-neutral-200 rounded transition-colors cursor-pointer"
+                      >
+                        Hacer Portada
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
             </div>
+          )}
+
+          {/* Botón para subir más fotos */}
+          <div className="flex items-center gap-3">
+            <label className={`cursor-pointer border border-neutral-300 bg-neutral-50 hover:bg-neutral-100 text-neutral-800 text-xs font-bold uppercase tracking-wider py-3 px-5 rounded-xl transition flex items-center gap-2 shadow-xs ${subiendoImagen ? 'opacity-50 pointer-events-none' : ''}`}>
+              {subiendoImagen ? (
+                <>
+                  <RefreshCw className="w-4 h-4 animate-spin text-[#b3131b]" />
+                  <span>Subiendo imágenes...</span>
+                </>
+              ) : (
+                <>
+                  <UploadCloud className="w-4 h-4 text-[#b3131b]" />
+                  <span>Subir más fotos</span>
+                </>
+              )}
+              <input type="file" accept="image/*" multiple className="hidden" onChange={handleImageUpload} disabled={subiendoImagen} />
+            </label>
+            <span className="text-[11px] text-neutral-400">
+              Puedes seleccionar varias fotos a la vez para el carrusel
+            </span>
           </div>
         </div>
 
         <button type="submit" disabled={cargando || subiendoImagen}
-          className="w-full bg-[#b3131b] hover:bg-red-800 text-white font-bold py-4 rounded uppercase text-sm tracking-widest transition shadow-md disabled:bg-gray-400">
+          className="w-full bg-[#b3131b] hover:bg-red-800 text-white font-bold py-4 rounded uppercase text-sm tracking-widest transition shadow-md disabled:bg-gray-400 cursor-pointer">
           {cargando ? 'Guardando cambios...' : 'Actualizar Producto'}
         </button>
       </form>

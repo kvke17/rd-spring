@@ -37,6 +37,7 @@ interface FormDataState {
   price: string;
   stock: string;
   image: string;
+  images: string[];
   type: string;
   specs: string;
   compatibility: string;
@@ -52,6 +53,7 @@ const INITIAL_FORM_STATE: FormDataState = {
   price: '',
   stock: '',
   image: '',
+  images: [],
   type: 'venta_online',
   specs: '',
   compatibility: '',
@@ -62,7 +64,6 @@ export default function NuevoProductoPage() {
   const [cargando, setCargando] = useState(false);
   const [subiendoImagen, setSubiendoImagen] = useState(false);
   const [formData, setFormData] = useState<FormDataState>(INITIAL_FORM_STATE);
-  const [previewUrl, setPreviewUrl] = useState<string>('');
   const [isSlugManuallyEdited, setIsSlugManuallyEdited] = useState(false);
   const [dragActive, setDragActive] = useState(false);
   const [validationError, setValidationError] = useState<string>('');
@@ -102,11 +103,13 @@ export default function NuevoProductoPage() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const uploadFileToCloudinary = async (file: File) => {
-    if (!file.type.startsWith('image/')) {
+  const uploadFilesToCloudinary = async (files: FileList | File[]) => {
+    const fileArray = Array.from(files).filter((file) => file.type.startsWith('image/'));
+
+    if (fileArray.length === 0) {
       Swal.fire({
-        title: 'Archivo no válido',
-        text: 'Por favor selecciona un archivo de imagen (PNG, JPG, WEBP).',
+        title: 'Archivos no válidos',
+        text: 'Por favor selecciona archivos de imagen (PNG, JPG, WEBP).',
         icon: 'warning',
         confirmButtonColor: '#b3131b',
         confirmButtonText: 'Entendido',
@@ -114,54 +117,56 @@ export default function NuevoProductoPage() {
       return;
     }
 
-    // Local instant preview
-    const localUrl = URL.createObjectURL(file);
-    setPreviewUrl(localUrl);
     setSubiendoImagen(true);
     setValidationError('');
 
-    const imageFormData = new FormData();
-    imageFormData.append('file', file);
-    imageFormData.append('upload_preset', 'rd_spring_productos');
+    const newUrls: string[] = [];
 
-    try {
-      const res = await fetch('https://api.cloudinary.com/v1_1/ce1oyy5d/image/upload', {
-        method: 'POST',
-        body: imageFormData,
-      });
+    for (const file of fileArray) {
+      const imageFormData = new FormData();
+      imageFormData.append('file', file);
+      imageFormData.append('upload_preset', 'rd_spring_productos');
 
-      const data = await res.json();
-
-      if (data.secure_url) {
-        setFormData((prev) => ({ ...prev, image: data.secure_url }));
-        setPreviewUrl(data.secure_url);
-      } else {
-        Swal.fire({
-          title: 'Error de subida',
-          text: 'No se pudo subir la foto a Cloudinary. Intenta nuevamente.',
-          icon: 'error',
-          confirmButtonColor: '#b3131b',
+      try {
+        const res = await fetch('https://api.cloudinary.com/v1_1/ce1oyy5d/image/upload', {
+          method: 'POST',
+          body: imageFormData,
         });
-        setPreviewUrl('');
+
+        const data = await res.json();
+        if (data.secure_url) {
+          newUrls.push(data.secure_url);
+        }
+      } catch (err) {
+        console.error('Error subiendo foto:', err);
       }
-    } catch (error) {
-      console.error(error);
+    }
+
+    if (newUrls.length > 0) {
+      setFormData((prev) => {
+        const updatedImages = [...prev.images, ...newUrls];
+        return {
+          ...prev,
+          images: updatedImages,
+          image: updatedImages[0] || '',
+        };
+      });
+    } else {
       Swal.fire({
-        title: 'Error de red',
-        text: 'Hubo un error de conexión al subir la imagen.',
+        title: 'Error de subida',
+        text: 'No se pudieron subir las fotografías a Cloudinary. Intenta nuevamente.',
         icon: 'error',
         confirmButtonColor: '#b3131b',
       });
-      setPreviewUrl('');
-    } finally {
-      setSubiendoImagen(false);
     }
+
+    setSubiendoImagen(false);
   };
 
   const handleImageInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      uploadFileToCloudinary(file);
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      uploadFilesToCloudinary(files);
     }
   };
 
@@ -180,21 +185,40 @@ export default function NuevoProductoPage() {
     e.stopPropagation();
     setDragActive(false);
 
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      uploadFileToCloudinary(e.dataTransfer.files[0]);
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      uploadFilesToCloudinary(e.dataTransfer.files);
     }
   };
 
-  const handleRemoveImage = () => {
-    setFormData((prev) => ({ ...prev, image: '' }));
-    setPreviewUrl('');
+  const handleSetPrimaryImage = (indexToPrimary: number) => {
+    setFormData((prev) => {
+      const copy = [...prev.images];
+      const [chosen] = copy.splice(indexToPrimary, 1);
+      const reordered = [chosen, ...copy];
+      return {
+        ...prev,
+        images: reordered,
+        image: reordered[0] || '',
+      };
+    });
+  };
+
+  const handleRemoveSpecificImage = (indexToRemove: number) => {
+    setFormData((prev) => {
+      const reordered = prev.images.filter((_, idx) => idx !== indexToRemove);
+      return {
+        ...prev,
+        images: reordered,
+        image: reordered[0] || '',
+      };
+    });
   };
 
   // Validation logic
   const isFormValid = Boolean(
     formData.name.trim() &&
     formData.sku.trim() &&
-    formData.image &&
+    (formData.images.length > 0 || formData.image) &&
     !subiendoImagen &&
     (!formData.price || !isNaN(Number(formData.price)))
   );
@@ -205,7 +229,7 @@ export default function NuevoProductoPage() {
   };
 
   const getDisabledReason = () => {
-    if (subiendoImagen) return 'Subiendo fotografía a la nube...';
+    if (subiendoImagen) return 'Subiendo fotografías a la nube...';
     if (!formData.name.trim()) return 'Falta ingresar el nombre del producto';
     if (!formData.sku.trim()) return 'Falta ingresar el código SKU';
     if (isSuspensionPart(formData.category)) {
@@ -213,7 +237,7 @@ export default function NuevoProductoPage() {
         return 'Falta ingresar el stock disponible en bodega';
       }
     }
-    if (!formData.image) return 'Falta subir la fotografía del producto';
+    if (formData.images.length === 0 && !formData.image) return 'Falta subir al menos una foto del producto';
     return '';
   };
 
@@ -230,8 +254,10 @@ export default function NuevoProductoPage() {
       }
     }
 
-    if (!formData.image) {
-      setValidationError('Es obligatorio subir una foto del producto.');
+    const finalImages = formData.images.length > 0 ? formData.images : (formData.image ? [formData.image] : []);
+
+    if (finalImages.length === 0) {
+      setValidationError('Es obligatorio subir al menos una foto del producto.');
       return;
     }
 
@@ -247,6 +273,8 @@ export default function NuevoProductoPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...formData,
+          images: finalImages,
+          image: finalImages[0] || '',
           slug: sanitizedSlug,
           price: formData.price ? Number(formData.price) : 0,
           stock: isSuspensionPart(formData.category) ? Math.max(0, parseInt(formData.stock, 10) || 0) : 0,
@@ -273,7 +301,6 @@ export default function NuevoProductoPage() {
           },
           onCreateAnother: () => {
             setFormData(INITIAL_FORM_STATE);
-            setPreviewUrl('');
             setIsSlugManuallyEdited(false);
             window.scrollTo({ top: 0, behavior: 'smooth' });
           },
@@ -430,22 +457,42 @@ export default function NuevoProductoPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             {/* Marca */}
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700 mb-2">
-                Fabricante / Marca
-              </label>
-              <select
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700">
+                  Marca del Repuesto <span className="text-red-500">*</span>
+                </label>
+                <span className="text-[10px] text-neutral-400 font-mono">Escribe o elige</span>
+              </div>
+              <input
+                type="text"
+                list="brand-suggestions"
                 name="brand"
+                required
                 value={formData.brand}
                 onChange={handleChange}
-                className="w-full px-4 py-3.5 rounded-xl bg-neutral-50/60 border border-neutral-200 text-sm font-semibold text-neutral-900 focus:bg-white focus:border-[#b3131b] focus:ring-4 focus:ring-[#b3131b]/10 outline-none transition-all cursor-pointer"
-              >
-                <option value="Porsche">Porsche</option>
-                <option value="BMW">BMW</option>
-                <option value="Audi">Audi</option>
-                <option value="Land Rover">Land Rover</option>
-                <option value="Mercedes-Benz">Mercedes-Benz</option>
-                <option value="ROWE">ROWE (Aceites Alemanes)</option>
-              </select>
+                placeholder="Ej: Porsche, Behr, Mahle, Brembo, Bilstein, ROWE..."
+                className="w-full px-4 py-3.5 rounded-xl bg-neutral-50/60 border border-neutral-200 text-sm font-semibold text-neutral-900 focus:bg-white focus:border-[#b3131b] focus:ring-4 focus:ring-[#b3131b]/10 outline-none transition-all"
+              />
+              <datalist id="brand-suggestions">
+                <option value="Porsche" />
+                <option value="Porsche OEM" />
+                <option value="BMW" />
+                <option value="Mercedes-Benz" />
+                <option value="Audi" />
+                <option value="Land Rover" />
+                <option value="Volkswagen (VW)" />
+                <option value="ROWE" />
+                <option value="Mahle" />
+                <option value="Behr" />
+                <option value="Brembo" />
+                <option value="Bilstein" />
+                <option value="Sachs" />
+                <option value="Bosch" />
+                <option value="Nissens" />
+                <option value="Valeo" />
+                <option value="Lemförder" />
+                <option value="OEM" />
+              </datalist>
             </div>
 
             {/* Categoría */}
@@ -635,100 +682,122 @@ export default function NuevoProductoPage() {
               )}
             </div>
 
-            {/* Fotografía Dropzone & Live Preview */}
-            <div className="md:col-span-7 space-y-3">
-              <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700">
-                Fotografía del Repuesto <span className="text-red-500">*</span>
-              </label>
+            {/* Fotografías (Carrusel) Dropzone & Previews */}
+            <div className="md:col-span-7 space-y-4">
+              <div className="flex items-center justify-between">
+                <label className="block text-xs font-bold uppercase tracking-wider text-neutral-700">
+                  Fotografías del Repuesto <span className="text-red-500">*</span>
+                </label>
+                <span className="text-[10px] text-neutral-400 font-mono">
+                  {formData.images.length} {formData.images.length === 1 ? 'foto cargada' : 'fotos (Carrusel activo)'}
+                </span>
+              </div>
 
-              {previewUrl || formData.image ? (
-                /* Previsualización de Imagen cargada */
-                <div className="relative rounded-2xl border border-neutral-200 bg-neutral-50 p-4 flex items-center gap-4">
-                  <div className="w-24 h-24 rounded-xl bg-white border border-neutral-200/80 p-2 flex items-center justify-center flex-shrink-0 relative overflow-hidden shadow-xs">
-                    <Image
-                      src={previewUrl || formData.image}
-                      alt="Vista previa"
-                      width={96}
-                      height={96}
-                      className="object-contain w-full h-full"
-                    />
-                    {subiendoImagen && (
-                      <div className="absolute inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center">
-                        <RefreshCw className="w-5 h-5 text-white animate-spin" />
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-600 mb-1">
-                      <Check className="w-4 h-4 stroke-[3]" />
-                      <span>{subiendoImagen ? 'Subiendo a CDN...' : 'Fotografía vinculada'}</span>
-                    </div>
-                    <p className="text-[11px] text-neutral-400 font-mono truncate">
-                      {formData.image || 'Procesando archivo local...'}
-                    </p>
-
-                    <div className="flex items-center gap-2 mt-3">
-                      <label className="cursor-pointer inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-wider text-neutral-700 hover:text-[#b3131b] bg-white border border-neutral-200 px-3 py-1.5 rounded-lg shadow-xs hover:bg-neutral-50 active:scale-95 transition-all">
-                        <span>Cambiar</span>
-                        <input
-                          type="file"
-                          accept="image/*"
-                          className="hidden"
-                          onChange={handleImageInput}
-                          disabled={subiendoImagen}
-                        />
-                      </label>
-                      <button
-                        type="button"
-                        onClick={handleRemoveImage}
-                        className="inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-wider text-neutral-500 hover:text-red-600 px-2 py-1.5 rounded-lg hover:bg-red-50 transition-colors cursor-pointer"
+              {/* Grid de imágenes cargadas */}
+              {formData.images.length > 0 && (
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  {formData.images.map((imgUrl, index) => {
+                    const isPrimary = index === 0;
+                    return (
+                      <div
+                        key={`${imgUrl}-${index}`}
+                        className={`relative rounded-2xl border p-2 bg-neutral-50 flex flex-col items-center justify-between group overflow-hidden transition-all shadow-2xs ${
+                          isPrimary
+                            ? 'border-[#b3131b] ring-2 ring-[#b3131b]/15 bg-red-50/20'
+                            : 'border-neutral-200 hover:border-neutral-300'
+                        }`}
                       >
-                        <Trash2 className="w-3.5 h-3.5" />
-                        <span>Quitar</span>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                /* Dropzone cuando no hay imagen */
-                <div
-                  onDragEnter={handleDrag}
-                  onDragLeave={handleDrag}
-                  onDragOver={handleDrag}
-                  onDrop={handleDrop}
-                  className={`relative rounded-2xl border-2 border-dashed p-6 text-center transition-all ${
-                    dragActive
-                      ? 'border-[#b3131b] bg-red-50/40'
-                      : 'border-neutral-300 hover:border-neutral-400 bg-neutral-50/40 hover:bg-neutral-50/80'
-                  }`}
-                >
-                  <input
-                    type="file"
-                    id="file-upload"
-                    accept="image/*"
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                    onChange={handleImageInput}
-                    disabled={subiendoImagen}
-                  />
+                        {/* Badge Principal */}
+                        <div className="absolute top-2 left-2 z-10">
+                          {isPrimary ? (
+                            <span className="bg-[#b3131b] text-white text-[9px] font-mono font-bold px-2 py-0.5 rounded-full uppercase tracking-wider shadow-xs">
+                              Principal
+                            </span>
+                          ) : (
+                            <span className="bg-neutral-800/70 backdrop-blur-xs text-white text-[9px] font-mono font-bold px-1.5 py-0.5 rounded-full">
+                              #{index + 1}
+                            </span>
+                          )}
+                        </div>
 
-                  <div className="flex flex-col items-center justify-center gap-2 pointer-events-none">
-                    <div className="w-12 h-12 rounded-2xl bg-white border border-neutral-200 flex items-center justify-center text-neutral-500 shadow-xs">
-                      {subiendoImagen ? (
-                        <RefreshCw className="w-6 h-6 text-[#b3131b] animate-spin" />
-                      ) : (
-                        <UploadCloud className="w-6 h-6 text-neutral-600" />
-                      )}
-                    </div>
-                    <div className="text-xs text-neutral-600">
-                      <span className="font-bold text-[#b3131b]">Haz clic para subir</span> o arrastra y suelta tu archivo aquí
-                    </div>
-                    <span className="text-[10px] text-neutral-400 font-mono">
-                      Formatos recomendados: PNG o WEBP con fondo transparente o blanco
-                    </span>
-                  </div>
+                        {/* Botón Eliminar */}
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveSpecificImage(index)}
+                          className="absolute top-2 right-2 z-10 p-1.5 rounded-lg bg-white/90 text-neutral-500 hover:text-red-600 hover:bg-red-50 shadow-xs transition-colors cursor-pointer"
+                          title="Eliminar esta foto"
+                          aria-label={`Eliminar foto ${index + 1}`}
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+
+                        {/* Contenedor Imagen */}
+                        <div className="w-full aspect-square relative rounded-xl overflow-hidden bg-white border border-neutral-100 flex items-center justify-center p-2 mt-4 mb-2">
+                          <Image
+                            src={imgUrl}
+                            alt={`Foto ${index + 1}`}
+                            fill
+                            className="object-contain p-2"
+                          />
+                        </div>
+
+                        {/* Botón Hacer Portada si no es la primera */}
+                        {!isPrimary && (
+                          <button
+                            type="button"
+                            onClick={() => handleSetPrimaryImage(index)}
+                            className="w-full text-center text-[10px] font-bold text-neutral-600 hover:text-[#b3131b] py-1 bg-white hover:bg-neutral-100 border border-neutral-200 rounded-lg transition-colors cursor-pointer"
+                          >
+                            Hacer Portada
+                          </button>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               )}
+
+              {/* Dropzone para agregar fotos */}
+              <div
+                onDragEnter={handleDrag}
+                onDragLeave={handleDrag}
+                onDragOver={handleDrag}
+                onDrop={handleDrop}
+                className={`relative rounded-2xl border-2 border-dashed p-6 text-center transition-all ${
+                  dragActive
+                    ? 'border-[#b3131b] bg-red-50/40'
+                    : 'border-neutral-300 hover:border-neutral-400 bg-neutral-50/40 hover:bg-neutral-50/80'
+                }`}
+              >
+                <input
+                  type="file"
+                  id="file-upload"
+                  accept="image/*"
+                  multiple
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                  onChange={handleImageInput}
+                  disabled={subiendoImagen}
+                />
+
+                <div className="flex flex-col items-center justify-center gap-2 pointer-events-none">
+                  <div className="w-12 h-12 rounded-2xl bg-white border border-neutral-200 flex items-center justify-center text-neutral-500 shadow-xs">
+                    {subiendoImagen ? (
+                      <RefreshCw className="w-6 h-6 text-[#b3131b] animate-spin" />
+                    ) : (
+                      <UploadCloud className="w-6 h-6 text-neutral-600" />
+                    )}
+                  </div>
+                  <div className="text-xs text-neutral-600">
+                    <span className="font-bold text-[#b3131b]">
+                      {subiendoImagen ? 'Subiendo fotos a la nube...' : 'Haz clic para subir fotos'}
+                    </span>{' '}
+                    {!subiendoImagen && 'o arrastra y suelta aquí'}
+                  </div>
+                  <span className="text-[10px] text-neutral-400 font-mono">
+                    Puedes seleccionar una o más imágenes (PNG, JPG, WEBP) para crear el carrusel
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
         </div>

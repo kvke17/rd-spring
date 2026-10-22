@@ -8,6 +8,10 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'res.cloudinary.com',
       },
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+      },
       // Cuando tengas fotos reales de producto, agrega aquí el dominio
       // donde las alojes (ej. tu bucket de imágenes o CDN).
     ],

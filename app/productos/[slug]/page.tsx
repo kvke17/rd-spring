@@ -1,6 +1,6 @@
 'use client';
 
-import { use, useState, useEffect } from 'react';
+import { use, useState, useEffect, useMemo } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { STORE_CONFIG } from '@/config/constants';
@@ -15,6 +15,7 @@ import {
   Truck, 
   Sparkles, 
   ChevronRight, 
+  ChevronLeft,
   FileText, 
   Sliders, 
   Car, 
@@ -47,11 +48,12 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
   const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('descripcion');
   const [addedJustNow, setAddedJustNow] = useState(false);
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
 
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const res = await fetch(`/api/admin/products`);
+        const res = await fetch(`/api/admin/products`, { cache: 'no-store' });
         if (res.ok) {
           const allProducts = await res.json();
           
@@ -62,6 +64,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
             p.sku?.toLowerCase() === slug.toLowerCase() ||
             p.sku?.toLowerCase().includes(slug.toLowerCase())
           );
+          console.log('[DEBUG] found product images:', found?.images);
 
           if (found) {
             const skuBase = found.sku ? found.sku.split('-')[0] : found.id;
@@ -93,6 +96,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
             let realDescription = found.description || '';
             let adminSpecs = {};
             let adminCompatibility = [];
+            let adminImages: string[] = [];
 
             try {
               const parsedDesc = JSON.parse(found.description);
@@ -110,9 +114,21 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                 if (parsedDesc.compatibility) {
                   adminCompatibility = parsedDesc.compatibility.split(',').map((s: string) => s.trim());
                 }
+
+                if (Array.isArray(parsedDesc.images) && parsedDesc.images.length > 0) {
+                  adminImages = parsedDesc.images.filter(Boolean);
+                }
               }
             } catch {
               // fallback
+            }
+
+            if (adminImages.length === 0) {
+              if (Array.isArray(found.images) && found.images.length > 0) {
+                adminImages = found.images.filter(Boolean);
+              } else if (found.image) {
+                adminImages = [found.image];
+              }
             }
 
             const finalSpecs = Object.keys(adminSpecs).length > 0 ? adminSpecs : (jsonOriginalMatch?.specs || {});
@@ -124,7 +140,8 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
               description: realDescription || jsonOriginalMatch?.description || 'Componente de alta calidad para vehículos de alta gama.',
               specs: finalSpecs,
               compatibility: finalCompatibility,
-              formats: finalFormats
+              formats: finalFormats,
+              images: adminImages
             });
           }
         }
@@ -144,6 +161,29 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
       setFormato(defSize);
     }
   }, [product]);
+
+  const currentFormatData = product?.formats?.find((f: any) => f.size === formato) || product?.formats?.[0];
+  const currentPrice = currentFormatData ? currentFormatData.price : (product?.price || 0);
+  const currentSku = currentFormatData ? currentFormatData.sku : (product?.sku || '');
+  const currentImage = currentFormatData?.image || product?.image || '/images/logo-rd.png';
+
+  const allImages: string[] = useMemo(() => {
+    if (product?.images && product.images.length > 1) {
+      return product.images;
+    }
+    if (currentFormatData?.image && currentFormatData.image !== product?.image) {
+      const formatImg = currentFormatData.image;
+      const otherImgs = (product?.images || []).filter((img: string) => img !== formatImg);
+      return [formatImg, ...otherImgs];
+    }
+    return (product?.images && product.images.length > 0)
+      ? product.images
+      : [product?.image || '/images/logo-rd.png'];
+  }, [product, currentFormatData]);
+
+  useEffect(() => {
+    setActiveImageIndex(0);
+  }, [formato]);
 
   const addItem = useCartStore((state) => state.addItem);
 
@@ -247,10 +287,15 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
     );
   }
 
-  const currentFormatData = product.formats?.find((f: any) => f.size === formato) || product.formats?.[0];
-  const currentPrice = currentFormatData ? currentFormatData.price : product.price;
-  const currentSku = currentFormatData ? currentFormatData.sku : product.sku;
-  const currentImage = currentFormatData?.image || product.image || '/images/logo-rd.png';
+  const activeImage = allImages[activeImageIndex] || allImages[0] || '/images/logo-rd.png';
+
+  const nextImage = () => {
+    setActiveImageIndex((prev) => (prev + 1) % allImages.length);
+  };
+
+  const prevImage = () => {
+    setActiveImageIndex((prev) => (prev - 1 + allImages.length) % allImages.length);
+  };
 
   const handleAddToCart = () => {
     const productToAdd = {
@@ -261,7 +306,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
       name: product.formats?.length > 1 ? `${product.name} (${formato})` : product.name, 
       price: currentPrice,
       stock: 999,
-      image: currentImage,
+      image: activeImage || currentImage,
     };
 
     addItem(productToAdd as any, quantity);
@@ -288,31 +333,113 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
         {/* HEADER DEL PRODUCTO */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
           
-          {/* Imagen de Producto */}
-          <div className="lg:col-span-6 bg-white rounded-3xl border border-slate-200/80 aspect-square relative flex items-center justify-center overflow-hidden shadow-sm p-8 sm:p-12">
-            <div className="absolute top-4 left-4 z-10">
-              <span className="bg-red-50 text-[#b3131b] border border-red-100 text-[10px] font-mono font-bold px-3 py-1 rounded-full uppercase tracking-wider">
-                {product.brand || 'OEM'}
-              </span>
+          {/* Galería / Carrusel de Imágenes */}
+          <div className="lg:col-span-6 space-y-3">
+            <div className="bg-white rounded-3xl border border-slate-200/80 aspect-square relative flex items-center justify-center overflow-hidden shadow-sm p-6 sm:p-10 group select-none">
+              
+              {/* Badge de Marca / Fabricante */}
+              <div className="absolute top-4 left-4 z-10 pointer-events-none">
+                <span className="bg-red-50 text-[#b3131b] border border-red-100 text-[10px] font-mono font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-2xs">
+                  {product.brand || 'OEM'}
+                </span>
+              </div>
+
+              {/* Contador de fotos (1 / N) si hay múltiples fotos */}
+              {allImages.length > 1 && (
+                <div className="absolute top-4 right-4 z-10 pointer-events-none">
+                  <span className="bg-slate-900/70 backdrop-blur-md text-white text-[10px] font-mono font-bold px-2.5 py-1 rounded-full shadow-2xs flex items-center gap-1">
+                    <span>{activeImageIndex + 1}</span>
+                    <span className="opacity-60">/</span>
+                    <span>{allImages.length}</span>
+                  </span>
+                </div>
+              )}
+
+              {/* Imagen Principal */}
+              <div className="relative w-full h-full">
+                <Image 
+                  key={activeImage}
+                  src={activeImage} 
+                  alt={`${product.name} - Imagen ${activeImageIndex + 1}`} 
+                  fill 
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                  className="object-contain p-4 sm:p-8 transition-transform duration-500 hover:scale-105" 
+                  priority 
+                  onError={(e: any) => { e.currentTarget.src = '/images/logo-rd.png'; }}
+                />
+              </div>
+
+              {/* Botones de navegación del carrusel */}
+              {allImages.length > 1 && (
+                <>
+                  <button
+                    type="button"
+                    onClick={(e) => { e.stopPropagation(); prevImage(); }}
+                    aria-label="Imagen anterior"
+                    className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 hover:bg-white text-slate-800 border border-slate-200/80 shadow-md flex items-center justify-center transition-all duration-150 opacity-90 sm:opacity-0 sm:group-hover:opacity-100 focus:opacity-100 active:scale-90 cursor-pointer z-20"
+                  >
+                    <ChevronLeft className="w-5 h-5 text-slate-700" />
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={(e) => { e.stopPropagation(); nextImage(); }}
+                    aria-label="Siguiente imagen"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 hover:bg-white text-slate-800 border border-slate-200/80 shadow-md flex items-center justify-center transition-all duration-150 opacity-90 sm:opacity-0 sm:group-hover:opacity-100 focus:opacity-100 active:scale-90 cursor-pointer z-20"
+                  >
+                    <ChevronRight className="w-5 h-5 text-slate-700" />
+                  </button>
+                </>
+              )}
             </div>
 
-            <Image 
-              src={currentImage} 
-              alt={product.name} 
-              fill 
-              className="object-contain p-8 sm:p-12 transition-transform duration-500 hover:scale-105" 
-              priority 
-              onError={(e: any) => { e.currentTarget.src = '/images/logo-rd.png'; }}
-            />
+            {/* Fila de Miniaturas (Thumbnails) */}
+            {allImages.length > 1 && (
+              <div className="flex items-center gap-2.5 overflow-x-auto no-scrollbar py-1 px-1">
+                {allImages.map((img, idx) => {
+                  const isActive = idx === activeImageIndex;
+                  return (
+                    <button
+                      key={`${img}-${idx}`}
+                      type="button"
+                      onClick={() => setActiveImageIndex(idx)}
+                      className={`relative w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-white border-2 p-1.5 flex-shrink-0 transition-all duration-200 cursor-pointer overflow-hidden shadow-2xs ${
+                        isActive
+                          ? 'border-[#b3131b] ring-2 ring-[#b3131b]/20 scale-102'
+                          : 'border-slate-200/90 opacity-70 hover:opacity-100 hover:border-slate-300'
+                      }`}
+                      aria-label={`Ver imagen ${idx + 1}`}
+                    >
+                      <Image
+                        src={img}
+                        alt={`Miniatura ${idx + 1}`}
+                        fill
+                        sizes="80px"
+                        className="object-contain p-1"
+                        onError={(e: any) => { e.currentTarget.src = '/images/logo-rd.png'; }}
+                      />
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </div>
 
           {/* Información y Compra */}
           <div className="lg:col-span-6 flex flex-col justify-between space-y-6 bg-white rounded-3xl border border-slate-200/80 p-8 sm:p-10 shadow-sm">
             <div>
-              <div className="flex items-center gap-2 mb-2">
+              <div className="flex flex-wrap items-center gap-2 mb-2">
                 <span className="text-[10px] font-mono uppercase tracking-widest text-slate-400 font-bold">
                   {product.category || 'Componente'}
                 </span>
+                {product.brand && (
+                  <>
+                    <span className="text-slate-300">•</span>
+                    <span className="text-[10px] font-mono uppercase font-bold text-[#b3131b] bg-red-50 px-2 py-0.5 rounded-md border border-red-100">
+                      Marca: {product.brand}
+                    </span>
+                  </>
+                )}
                 <span className="text-slate-300">•</span>
                 <span className="text-[10px] font-mono uppercase text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200">
                   SKU: {currentSku}
@@ -470,10 +597,12 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                       <span className="block text-gray-900 font-bold mb-1">SKU Oficial:</span>
                       <span className="font-mono">{currentSku}</span>
                     </div>
-                    <div>
-                      <span className="block text-gray-900 font-bold mb-1">Norma de Fabricación:</span>
-                      <span>German Synthetic / OEM Standard</span>
-                    </div>
+                    {product.brand && (
+                      <div>
+                        <span className="block text-gray-900 font-bold mb-1">Marca del Repuesto:</span>
+                        <span className="font-semibold text-gray-900">{product.brand}</span>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

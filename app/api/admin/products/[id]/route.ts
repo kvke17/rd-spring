@@ -39,6 +39,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     let realDescription = product.description || '';
     let parsedSpecs = '';
     let parsedCompatibility = '';
+    let images: string[] = [];
 
     try {
       const parsed = JSON.parse(product.description || '');
@@ -46,16 +47,24 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
         realDescription = parsed.text || '';
         parsedSpecs = parsed.specs || '';
         parsedCompatibility = parsed.compatibility || '';
+        if (Array.isArray(parsed.images) && parsed.images.length > 0) {
+          images = parsed.images.filter(Boolean);
+        }
       }
     } catch {
       // Formato plano
+    }
+
+    if (images.length === 0 && product.image) {
+      images = [product.image];
     }
 
     return NextResponse.json({
       ...product,
       description: realDescription,
       specs: parsedSpecs,
-      compatibility: parsedCompatibility
+      compatibility: parsedCompatibility,
+      images,
     });
 
   } catch (error) {
@@ -84,10 +93,17 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
       return NextResponse.json({ error: 'El precio debe ser un número válido mayor o igual a 0' }, { status: 400 });
     }
 
+    const images: string[] = Array.isArray(body.images) && body.images.length > 0
+      ? body.images.map((img: any) => sanitizeString(String(img || ''), 1000)).filter(Boolean)
+      : (body.image ? [sanitizeString(String(body.image || ''), 1000)] : []);
+
+    const primaryImage = images[0] || sanitizeString(String(body.image || ''), 1000);
+
     const payloadDescription = JSON.stringify({
       text: sanitizeString(body.description || '', 5000),
       specs: sanitizeString(body.specs || '', 5000),
-      compatibility: sanitizeString(body.compatibility || '', 5000)
+      compatibility: sanitizeString(body.compatibility || '', 5000),
+      images,
     });
 
     const updatedProduct = await prisma.product.update({
@@ -96,17 +112,17 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
         name: sanitizeString(body.name, 255),
         slug: sanitizeString(body.slug || body.sku || '', 255).toLowerCase(),
         sku: sanitizeString(body.sku || '', 100),
-        brand: sanitizeString(body.brand || 'ROWE', 100),
+        brand: sanitizeString(body.brand || 'OEM', 100),
         category: sanitizeString(body.category || 'General', 100),
         description: payloadDescription,
         price,
         stock: Math.max(0, parseInt(body.stock, 10) || 0),
-        image: sanitizeString(body.image || '', 1000),
+        image: primaryImage,
         type: sanitizeString(body.type || 'venta_online', 50),
       },
     });
 
-    return NextResponse.json(updatedProduct);
+    return NextResponse.json({ ...updatedProduct, images });
   } catch (error) {
     console.error("Error al actualizar:", error);
     return NextResponse.json({ error: 'Error al actualizar producto' }, { status: 500 });
