@@ -26,7 +26,8 @@ import {
   ArrowLeft,
   AlertCircle,
   CheckCircle2,
-  Globe2
+  Globe2,
+  MessageCircle
 } from 'lucide-react';
 
 
@@ -541,6 +542,19 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                   )}
                 </button>
               </div>
+
+              {/* Botón secundario de consulta de compatibilidad por WhatsApp */}
+              <a
+                href={`https://wa.me/${STORE_CONFIG.WHATSAPP_NUMBER}?text=${encodeURIComponent(
+                  `Hola, quiero verificar la compatibilidad de: ${product.name} (SKU: ${currentSku}) para mi vehículo`
+                )}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-2xl border border-neutral-300/80 bg-neutral-50/80 hover:bg-neutral-100/90 text-neutral-800 hover:text-neutral-950 text-xs font-semibold transition-all duration-150 shadow-2xs hover:shadow-xs group cursor-pointer"
+              >
+                <MessageCircle className="w-4 h-4 text-emerald-600 group-hover:scale-110 transition-transform" />
+                <span>¿No estás seguro si es compatible? Consulta aquí</span>
+              </a>
 
               {/* Micro-garantías */}
               <div className="grid grid-cols-2 gap-3 pt-2">

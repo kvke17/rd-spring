@@ -67,6 +67,8 @@ export default function NuevoProductoPage() {
   const [isSlugManuallyEdited, setIsSlugManuallyEdited] = useState(false);
   const [dragActive, setDragActive] = useState(false);
   const [validationError, setValidationError] = useState<string>('');
+  const [isCustomCategory, setIsCustomCategory] = useState(false);
+  const [customCategoryName, setCustomCategoryName] = useState('');
 
   // Auto-slug generation from product name
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -99,6 +101,9 @@ export default function NuevoProductoPage() {
     const { name, value } = e.target;
     if (name === 'slug') {
       setIsSlugManuallyEdited(true);
+    }
+    if (name === 'category') {
+      setIsCustomCategory(value === 'Otro');
     }
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
@@ -232,7 +237,11 @@ export default function NuevoProductoPage() {
     if (subiendoImagen) return 'Subiendo fotografías a la nube...';
     if (!formData.name.trim()) return 'Falta ingresar el nombre del producto';
     if (!formData.sku.trim()) return 'Falta ingresar el código SKU';
-    if (isSuspensionPart(formData.category)) {
+    if (formData.category === 'Otro' && !customCategoryName.trim()) {
+      return 'Falta ingresar el nombre de la nueva categoría personalizada';
+    }
+    const resolvedCat = formData.category === 'Otro' ? customCategoryName.trim() : formData.category;
+    if (isSuspensionPart(resolvedCat)) {
       if (formData.stock.trim() === '' || isNaN(parseInt(formData.stock, 10)) || parseInt(formData.stock, 10) < 0) {
         return 'Falta ingresar el stock disponible en bodega';
       }
@@ -247,7 +256,14 @@ export default function NuevoProductoPage() {
       return;
     }
 
-    if (isSuspensionPart(formData.category)) {
+    if (formData.category === 'Otro' && !customCategoryName.trim()) {
+      setValidationError('Por favor ingresa el nombre de la nueva categoría personalizada.');
+      return;
+    }
+
+    const resolvedCategory = formData.category === 'Otro' ? customCategoryName.trim() : formData.category;
+
+    if (isSuspensionPart(resolvedCategory)) {
       if (formData.stock.trim() === '' || isNaN(parseInt(formData.stock, 10)) || parseInt(formData.stock, 10) < 0) {
         setValidationError('Para repuestos de suspensión es obligatorio especificar el stock disponible en bodega.');
         return;
@@ -273,11 +289,12 @@ export default function NuevoProductoPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...formData,
+          category: resolvedCategory,
           images: finalImages,
           image: finalImages[0] || '',
           slug: sanitizedSlug,
           price: formData.price ? Number(formData.price) : 0,
-          stock: isSuspensionPart(formData.category) ? Math.max(0, parseInt(formData.stock, 10) || 0) : 0,
+          stock: isSuspensionPart(resolvedCategory) ? Math.max(0, parseInt(formData.stock, 10) || 0) : 0,
         }),
       });
 
@@ -512,7 +529,27 @@ export default function NuevoProductoPage() {
                 <option value="Lubricantes">Aceites y Lubricantes</option>
                 <option value="Motor & Transmisión">Motor & Transmisión</option>
                 <option value="Accesorios">Accesorios Deportivos</option>
+                <option value="Otro">Otro (Personalizado)</option>
               </select>
+
+              {isCustomCategory && (
+                <div className="mt-3">
+                  <label className="block text-xs font-bold uppercase tracking-wider text-[#b3131b] mb-1.5">
+                    Especifique el nombre de la nueva categoría *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Ej: Sistema Eléctrico, Carrocería, Enfriamiento..."
+                    value={customCategoryName}
+                    onChange={(e) => {
+                      setCustomCategoryName(e.target.value);
+                      setValidationError('');
+                    }}
+                    className="w-full px-4 py-3 rounded-xl bg-white border border-[#b3131b] text-sm font-semibold text-neutral-900 focus:ring-4 focus:ring-[#b3131b]/10 outline-none transition-all shadow-xs"
+                  />
+                </div>
+              )}
             </div>
 
             {/* Tipo de Venta */}

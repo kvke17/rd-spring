@@ -25,12 +25,6 @@ export default function Footer() {
                 className="object-contain h-7 sm:h-8 w-auto transition-transform duration-200 group-hover:scale-[1.02]"
               />
             </Link>
-            
-            <p className="text-slate-600 text-sm leading-relaxed max-w-sm font-normal">
-              La ingeniería que sostiene el lujo en movimiento.<br />
-              Componentes y fluidos de alto rendimiento en<br />
-              Santiago de Chile.
-            </p>
           </div>
 
           {/* COLUMNA 2: Repuestos y Oficina */}

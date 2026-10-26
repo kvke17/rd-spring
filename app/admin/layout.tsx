@@ -1,40 +1,31 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import AdminSidebar from '@/components/admin/AdminSidebar';
 import AdminMobileDrawer from '@/components/admin/AdminMobileDrawer';
 import AdminHeader from '@/components/admin/AdminHeader';
-import { useSession } from 'next-auth/react';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  const [collapsed, setCollapsed] = useState(false);
+  const router = useRouter();
+  const { data: session, status } = useSession();
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
   const [ordersCount, setOrdersCount] = useState<number>(0);
-  const { data: session } = useSession();
 
-  // 1. Cargar persistencia de la barra lateral desde localStorage sin parpadeo
+  // 1. Control de acceso y seguridad estricta para ADMINISTRADORES
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem('rd_admin_sidebar_collapsed');
-      if (saved !== null) {
-        setCollapsed(saved === 'true');
+    if (status === 'unauthenticated') {
+      router.push('/login?callbackUrl=/admin');
+    } else if (status === 'authenticated') {
+      const userRole = (session?.user as any)?.role;
+      if (userRole !== 'ADMIN') {
+        router.push('/');
       }
-    } catch {
-      // Ignorar fallos de localStorage en entornos restringidos
     }
-  }, []);
+  }, [status, session, router]);
 
-  const toggleCollapsed = () => {
-    setCollapsed((prev) => {
-      const next = !prev;
-      try {
-        localStorage.setItem('rd_admin_sidebar_collapsed', String(next));
-      } catch {}
-      return next;
-    });
-  };
-
-  // 2. Obtener conteo de órdenes pagadas para el badge de navegación
+  // 2. Conteo de órdenes para el badge
   useEffect(() => {
     const loadOrdersCount = async () => {
       try {
@@ -56,17 +47,26 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     setMobileDrawerOpen(false);
   }, []);
 
+  if (status === 'loading') {
+    return (
+      <div className="flex h-screen w-screen items-center justify-center bg-[#F8F9FA]">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-9 h-9 rounded-full border-2 border-neutral-300 border-t-[#b3131b] animate-spin" />
+          <span className="text-xs font-mono font-bold uppercase tracking-wider text-neutral-500">
+            Verificando credenciales de Administrador...
+          </span>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div 
-      className="flex min-h-screen bg-neutral-50/70 text-neutral-900 font-sans selection:bg-[#b3131b] selection:text-white"
+      className="flex min-h-screen bg-[#F8F9FA] text-neutral-900 font-sans selection:bg-[#b3131b] selection:text-white"
       data-lenis-prevent
     >
-      {/* Sidebar fija colapsable para desktop */}
-      <AdminSidebar 
-        collapsed={collapsed} 
-        onToggleCollapse={toggleCollapsed} 
-        ordersBadge={ordersCount}
-      />
+      {/* Sidebar compacta de iconos fija para desktop (Estilo Vessa) */}
+      <AdminSidebar ordersBadge={ordersCount} />
 
       {/* Drawer deslizante para móviles (< 1024px) */}
       <AdminMobileDrawer

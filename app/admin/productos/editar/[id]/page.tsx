@@ -15,6 +15,8 @@ export default function EditarProductoPage() {
   const [cargando, setCargando] = useState(false);
   const [cargandoDatos, setCargandoDatos] = useState(true);
   const [subiendoImagen, setSubiendoImagen] = useState(false);
+  const [isCustomCategory, setIsCustomCategory] = useState(false);
+  const [customCategoryName, setCustomCategoryName] = useState('');
   
   const isSuspensionPart = (cat: string) => {
     const c = (cat || '').toLowerCase().trim();
@@ -58,12 +60,21 @@ export default function EditarProductoPage() {
             ? data.images.filter(Boolean)
             : (data.image ? [data.image] : []);
 
+          const STANDARD_CATS = ['Suspensión', 'repuesto', 'Frenos', 'Lubricantes', 'Motor & Transmisión', 'Accesorios'];
+          const catFromDb = data.category || 'Lubricantes';
+          const isCustom = !STANDARD_CATS.includes(catFromDb);
+
+          if (isCustom) {
+            setIsCustomCategory(true);
+            setCustomCategoryName(catFromDb);
+          }
+
           setFormData({
             name: data.name || '',
             slug: data.slug || '',
             sku: data.sku || '',
             brand: data.brand || '',
-            category: data.category || 'Lubricantes',
+            category: isCustom ? 'Otro' : catFromDb,
             description: data.description || '',
             price: data.price ? data.price.toString() : '',
             image: initialImages[0] || data.image || '',
@@ -88,6 +99,9 @@ export default function EditarProductoPage() {
   }, [id, router]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    if (e.target.name === 'category') {
+      setIsCustomCategory(e.target.value === 'Otro');
+    }
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
@@ -161,7 +175,20 @@ export default function EditarProductoPage() {
     e.preventDefault();
     setCargando(true);
 
-    if (isSuspensionPart(formData.category) && (formData.stock === '' || isNaN(Number(formData.stock)))) {
+    if (formData.category === 'Otro' && !customCategoryName.trim()) {
+      Swal.fire({
+        title: 'Categoría requerida',
+        text: 'Por favor ingresa el nombre de la nueva categoría personalizada.',
+        icon: 'warning',
+        confirmButtonColor: '#b3131b',
+      });
+      setCargando(false);
+      return;
+    }
+
+    const resolvedCategory = formData.category === 'Otro' ? customCategoryName.trim() : formData.category;
+
+    if (isSuspensionPart(resolvedCategory) && (formData.stock === '' || isNaN(Number(formData.stock)))) {
       Swal.fire({
         title: 'Stock requerido',
         text: 'Debes ingresar las unidades disponibles en bodega para este repuesto de suspensión.',
@@ -185,10 +212,11 @@ export default function EditarProductoPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...formData,
+          category: resolvedCategory,
           images: finalImages,
           image: finalImages[0] || '',
           slug: formData.slug.toLowerCase().replace(/\s+/g, '-'),
-          stock: isSuspensionPart(formData.category) ? Math.max(0, parseInt(formData.stock, 10) || 0) : 0,
+          stock: isSuspensionPart(resolvedCategory) ? Math.max(0, parseInt(formData.stock, 10) || 0) : 0,
         }),
       });
 
@@ -317,7 +345,23 @@ export default function EditarProductoPage() {
               <option value="Lubricantes">Lubricantes / Aceites</option>
               <option value="Motor & Transmisión">Motor & Transmisión</option>
               <option value="Accesorios">Accesorios Deportivos</option>
+              <option value="Otro">Otro (Personalizado)</option>
             </select>
+            {isCustomCategory && (
+              <div className="mt-2.5">
+                <label className="block text-[11px] font-bold text-[#b3131b] uppercase mb-1">
+                  Nombre de categoría personalizada *
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Ej: Sistema Eléctrico, Climatización..."
+                  value={customCategoryName}
+                  onChange={(e) => setCustomCategoryName(e.target.value)}
+                  className="w-full p-2.5 bg-white border border-[#b3131b] rounded text-sm font-semibold text-neutral-900 outline-none"
+                />
+              </div>
+            )}
           </div>
           <div>
             <label className="block text-xs font-bold text-gray-700 uppercase mb-2">Tipo de Venta</label>

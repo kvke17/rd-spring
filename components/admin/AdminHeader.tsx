@@ -25,6 +25,7 @@ export default function AdminHeader({
     if (pathname === '/admin/productos') return 'Catálogo de Productos';
     if (pathname === '/admin/productos/nuevo') return 'Catálogo / Nuevo Producto';
     if (pathname.startsWith('/admin/productos/editar')) return 'Catálogo / Editar Producto';
+    if (pathname.startsWith('/admin/cotizaciones')) return 'Cotizaciones con VIN';
     return 'Administración';
   };
 
