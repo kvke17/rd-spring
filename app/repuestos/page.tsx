@@ -7,6 +7,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { STORE_CONFIG } from '@/config/constants';
 import {
   Wrench,
+  Droplet,
   ShieldCheck,
   ChevronRight,
   ChevronDown,
@@ -22,6 +23,7 @@ import {
   normalizeAutomotiveQuery,
   createProductSearchEngine,
 } from '@/lib/search-utils';
+import { isSparePart } from '@/lib/product-classification';
 
 // Facet definitions
 const CATEGORY_FACETS = [
@@ -102,14 +104,8 @@ function RepuestosContent() {
         const res = await fetch('/api/admin/products');
         if (res.ok) {
           const allProducts = await res.json();
-          const soloRepuestos = allProducts.filter((p: any) => {
-            const categoria = (p.category || '').toLowerCase().trim();
-            return (
-              categoria !== 'lubricantes' &&
-              categoria !== 'aceites' &&
-              categoria !== 'aceite'
-            );
-          });
+          // Exclusión estricta de aceites/lubricantes (solo repuestos físicos)
+          const soloRepuestos = allProducts.filter((p: any) => isSparePart(p));
           setRepuestos(soloRepuestos);
         }
       } catch (error) {
@@ -790,6 +786,15 @@ function RepuestosContent() {
                     >
                       Limpiar filtros
                     </button>
+                  )}
+                  {(debouncedSearch || searchInput) && (
+                    <Link
+                      href={`/catalogo?q=${encodeURIComponent(debouncedSearch || searchInput)}`}
+                      className="bg-neutral-900 hover:bg-black text-white font-medium rounded-xl px-5 py-2.5 text-sm transition-colors shadow-xs inline-flex items-center gap-2 cursor-pointer"
+                    >
+                      <Droplet className="w-4 h-4 text-[#b3131b]" />
+                      <span>Buscar en Aceites ROWE</span>
+                    </Link>
                   )}
                 </div>
               </div>

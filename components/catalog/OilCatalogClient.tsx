@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
+import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Search, X, SlidersHorizontal, ArrowUpDown, ChevronDown, Droplets, AlertCircle, Sparkles } from 'lucide-react';
+import { Search, X, SlidersHorizontal, ArrowUpDown, ChevronDown, Droplets, AlertCircle, Sparkles, Wrench } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { CatalogOilProduct, FilterState, SortOption } from './types';
 import CatalogProductCard from './CatalogProductCard';
@@ -546,13 +547,25 @@ export default function OilCatalogClient({
                 <p className="text-sm text-neutral-500 mb-6 max-w-sm mx-auto">
                   Prueba ajustando los términos de búsqueda o eliminando algunos filtros aplicados.
                 </p>
-                <button
-                  type="button"
-                  onClick={handleResetFilters}
-                  className="bg-[#b3131b] hover:bg-[#8f0f15] text-white font-bold px-6 py-3 rounded-xl uppercase text-xs tracking-wider transition-all inline-block shadow-xs cursor-pointer active:scale-95"
-                >
-                  Limpiar filtros y ver todos
-                </button>
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+                  <button
+                    type="button"
+                    onClick={handleResetFilters}
+                    className="bg-[#b3131b] hover:bg-[#8f0f15] text-white font-bold px-6 py-3 rounded-xl uppercase text-xs tracking-wider transition-all inline-block shadow-xs cursor-pointer active:scale-95"
+                  >
+                    Limpiar filtros y ver todos
+                  </button>
+
+                  {(debouncedSearch || searchInput) && (
+                    <Link
+                      href={`/repuestos?q=${encodeURIComponent(debouncedSearch || searchInput)}`}
+                      className="bg-neutral-900 hover:bg-neutral-800 text-white font-semibold px-5 py-3 rounded-xl text-xs tracking-normal transition-all inline-flex items-center gap-2 shadow-xs cursor-pointer active:scale-95"
+                    >
+                      <Wrench className="w-4 h-4 text-[#b3131b]" />
+                      <span>Buscar &ldquo;{debouncedSearch || searchInput}&rdquo; en Repuestos</span>
+                    </Link>
+                  )}
+                </div>
               </div>
             ) : (
               <motion.div

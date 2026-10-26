@@ -4,6 +4,7 @@ import productsData from '@/data/products.json';
 import { roweProducts } from '@/config/roweProducts';
 import OilCatalogClient from '@/components/catalog/OilCatalogClient';
 import { CatalogOilProduct, CatalogFormat } from '@/components/catalog/types';
+import { isOilOrLubricant } from '@/lib/product-classification';
 
 export const metadata = {
   title: 'Catálogo de Aceites y Fluidos ROWE | RD Spring Chile',
@@ -27,16 +28,8 @@ export default async function CatalogoPage({
     },
   });
 
-  // 2. Filtro estricto: excluir cualquier ítem de repuestos/suspensión
-  const soloAceitesDb = dbProducts.filter((p: any) => {
-    const categoria = (p.category || '').toLowerCase().trim();
-    return (
-      categoria !== 'suspensión' &&
-      categoria !== 'suspension' &&
-      categoria !== 'frenos' &&
-      categoria !== 'repuestos'
-    );
-  });
+  // 2. Filtro estricto: solo aceites y lubricantes ROWE (exclusión total de repuestos)
+  const soloAceitesDb = dbProducts.filter((p: any) => isOilOrLubricant(p));
 
   // 3. Agrupación por SKU base (ej: 20001, 20118, etc.)
   const groupedMap = new Map<string, CatalogOilProduct>();
