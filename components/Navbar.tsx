@@ -8,7 +8,7 @@ import { ShoppingCart } from 'lucide-react';
 import { useCartStore } from '@/lib/store';
 import FluidNavMenu from '@/components/navigation/FluidNavMenu';
 import ExpandableSearchBar from '@/components/ui/expandable-search-bar';
-import { normalizeAutomotiveQuery, isSuspensionQuery } from '@/lib/search-utils';
+import { resolveSearchCatalog } from '@/lib/search-utils';
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -72,9 +72,9 @@ export default function Navbar() {
             placeholder="Buscar repuestos, aceites..."
             width={260}
             onSearch={(query) => {
-              const clean = normalizeAutomotiveQuery(query);
-              const targetPath = isSuspensionQuery(clean) ? '/repuestos' : '/catalogo';
-              window.location.href = `${targetPath}?q=${encodeURIComponent(clean)}`;
+              const { targetPath, cleanQuery } = resolveSearchCatalog(query);
+              const param = encodeURIComponent(cleanQuery || query.trim());
+              window.location.href = `${targetPath}?q=${param}`;
             }}
           />
 
