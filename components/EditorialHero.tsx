@@ -179,9 +179,9 @@ export default function EditorialHero() {
                 }}
                 className="flex flex-wrap items-center gap-4"
               >
-                {/* Button 1: Interactive Hover Button - Cotizar Repuesto */}
-                <InteractiveHoverButton href="/cotizacion">
-                  COTIZAR REPUESTO
+                {/* Button 1: Interactive Hover Button - Ver Repuestos */}
+                <InteractiveHoverButton href="/repuestos">
+                  VER REPUESTOS
                 </InteractiveHoverButton>
 
                 {/* Button 2: Interactive Hover Button - Ver Aceites Rowe */}
