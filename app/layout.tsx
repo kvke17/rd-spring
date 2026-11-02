@@ -3,9 +3,11 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google'; 
 // @ts-ignore
 import './globals.css';
+import Script from 'next/script';
 import PublicChrome from '@/components/PublicChrome';
 import AuthProvider from '@/components/AuthProvider';
 import SmoothScroll from '@/components/SmoothScroll';
+import WhatsAppButton from '@/components/WhatsAppButton';
 
 // Configuramos la nueva fuente
 const fuentePrincipal = Inter({
@@ -32,12 +34,29 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="es">
+      <head>
+        {/* Google Ads Tag (gtag.js) */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=AW-18395317504"
+          strategy="afterInteractive"
+        />
+        <Script id="google-ads-init" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'AW-18395317504');
+          `}
+        </Script>
+      </head>
       {/* Aplicamos la nueva fuente directamente al body para que herede a toda la página */}
-      <body className={`${fuentePrincipal.className} bg-white text-gray-900 min-h-screen flex flex-col antialiased`}>
+      <body className={`${fuentePrincipal.className} bg-white text-gray-900 min-h-screen flex flex-col antialiased relative`}>
         <AuthProvider>
           <SmoothScroll />
           <PublicChrome>{children}</PublicChrome>
         </AuthProvider>
+        {/* Botón flotante permanente */}
+        <WhatsAppButton />
       </body>
     </html>
   );
