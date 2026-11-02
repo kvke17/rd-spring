@@ -4,21 +4,14 @@ import fs from 'fs';
 import path from 'path';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const rawBaseUrl = process.env.NEXTAUTH_URL || 'https://rdspring.cl';
-  const baseUrl = rawBaseUrl.includes('localhost') ? 'https://rdspring.cl' : rawBaseUrl.replace(/\/$/, '');
+  const baseUrl = 'https://www.rdspring.cl';
 
   const staticRoutes: MetadataRoute.Sitemap = [
     {
-      url: `${baseUrl}`,
+      url: baseUrl,
       lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: 1.0,
-    },
-    {
-      url: `${baseUrl}/catalogo`,
-      lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: 0.9,
+      changeFrequency: 'weekly',
+      priority: 1,
     },
     {
       url: `${baseUrl}/repuestos`,
@@ -27,9 +20,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.9,
     },
     {
+      url: `${baseUrl}/catalogo`,
+      lastModified: new Date(),
+      changeFrequency: 'daily',
+      priority: 0.9,
+    },
+    {
       url: `${baseUrl}/cotizacion`,
       lastModified: new Date(),
-      changeFrequency: 'weekly',
+      changeFrequency: 'monthly',
       priority: 0.8,
     },
     {

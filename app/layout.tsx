@@ -16,18 +16,68 @@ const fuentePrincipal = Inter({
 });
 
 export const metadata: Metadata = {
-  title: 'RD Spring | Chassis Prestige',
-  description: 'Amortiguadores, resortes y suspensión de alto rendimiento para Porsche, BMW, Audi y Land Rover.',
+  metadataBase: new URL('https://www.rdspring.cl'),
+  title: {
+    default: 'RD Spring | Repuestos de Suspensión Europea y Aceites ROWE',
+    template: '%s | RD Spring Chile',
+  },
+  description:
+    'Especialistas en suspensión neumática, fuelles, compresores y repuestos OEM para Porsche, BMW, Mercedes-Benz y Audi. Lubricantes 100% sintéticos ROWE con homologación oficial.',
+  keywords: [
+    'repuestos suspension porsche chile',
+    'suspension neumatica porsche macan cayenne',
+    'repuestos bmw santiago',
+    'aceite rowe chile',
+    'amortiguadores neumaticos porsche',
+    'cotizacion con vin repuestos',
+  ],
+  authors: [{ name: 'RD Spring', url: 'https://www.rdspring.cl' }],
+  creator: 'RD Spring',
+  publisher: 'RD Spring',
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+  openGraph: {
+    title: 'RD Spring | Repuestos de Suspensión Europea y Aceites ROWE',
+    description:
+      'Catálogo homologado de suspensión para vehículos alemanes y europeos en Chile. Cotizaciones exactas por número de chasis (VIN).',
+    url: 'https://www.rdspring.cl',
+    siteName: 'RD Spring Chile',
+    locale: 'es_CL',
+    type: 'website',
+    images: [
+      {
+        url: '/images/og-banner.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'RD Spring - Suspensión Europea de Alta Gama',
+      },
+    ],
+  },
   icons: {
     icon: [
-      { url: '/favicon.svg', type: 'image/svg+xml' },
+      { url: '/favicon.ico' },
       { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
       { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
+      { url: '/favicon.svg', type: 'image/svg+xml' },
     ],
     apple: [
       { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
     ],
     shortcut: '/favicon.ico',
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
   },
 };
 
